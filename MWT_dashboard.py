@@ -7,6 +7,10 @@ import matplotlib as mpl
 import sqlite3
 import io
 
+# Added configuration to wide for desktop screen (do not remove)
+# it has to be the first command in the file for it to run
+# Streamlit command starts here
+st.set_page_config(layout="wide")
 
 # Fail gracefully option
 
@@ -15,15 +19,9 @@ def read(table):
     result = pd.read_sql_query(f"SELECT * FROM {table}", conn)
     return result
 
-
-# filepicker = st.file_uploader("Choose a .db file", accept_multiple_files=False)
-# filename = filepicker.name
-# st.write(f"file picked is {filename}")
-
-# Read data from SQLite database
-
 conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
 
+# Read data from SQLite database
 tap_output = read('tap_response_data')
 tap_tstat_allele = read('tstat_gene_data')
 # allele_metric_data = read('allele_phenotype_data')
