@@ -20,7 +20,7 @@ def read(table):
     return result
 
 conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
-
+# conn = sqlite3.connect('/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db')
 # Read data from SQLite database
 tap_output = read('tap_response_data')
 tap_tstat_allele = read('tstat_gene_data')
@@ -148,11 +148,11 @@ with data_tab:
     plt.xlabel('Sample Mean Distance')
     plt.ylabel('Gene')
     plt.title(f"{phenotype_option}")
-    col1.pyplot(fig)
-    col1.caption(
-        f'Sample mean distance from wildtype for all strains for selected phenotype: {phenotype_option}. Error bars are 95% CI')
     phenotype_plot = io.BytesIO()
     plt.savefig(phenotype_plot, format='png', dpi=300, bbox_inches='tight')
+    #display image 
+    col1.image(phenotype_plot, width=None, caption=(f'Sample mean distance from wildtype for all strains for selected phenotype: {phenotype_option}. Error bars are 95% CI')) ## added
+    
     # Insert download graph button
     col1.download_button(label="Download Plot",
                         data=phenotype_plot,
@@ -184,11 +184,11 @@ with data_tab:
                     cbar_kws={"shrink": .05, "pad": 0.01})
     ax.set(xlabel="", ylabel="")
     ax.set_facecolor('xkcd:black')
-    col2.pyplot(fig)
-    col2.caption('Comprehensive heatmap of entire dataset')
 
     imgheatmap = io.BytesIO()
     plt.savefig(imgheatmap, format='png', dpi=300, bbox_inches='tight')
+    #display image 
+    col2.image(imgheatmap,caption='Comprehensive heatmap of entire dataset', width=None)
     col2.download_button(label="Download Plot",
                         data=imgheatmap,
                         file_name="Heatmap.png",
@@ -225,13 +225,11 @@ with gene_tab:
     plt.ylabel("Normalized T-Score")  # <- X-axis title
     plt.ylim(-3, 3)
 
-    col3.pyplot(fig)
-
     # download graph button
     gene_profile_plot = io.BytesIO()
     plt.savefig(gene_profile_plot, format='png', dpi=300, bbox_inches='tight')
-
-    col3.caption(f'Phenotypic profile of {gene_option}')
+    #display image 
+    col3.image(gene_profile_plot,width=None,caption=(f'Phenotypic profile of {gene_option}.'))
     col3.download_button(label="Download Plot",
                         data=gene_profile_plot,
                         file_name=f"{gene_option}_profile.png",
@@ -272,12 +270,11 @@ with gene_tab:
     plt.ylabel('Gene')
     plt.title(f"{gene_phenotype_option}")
 
-    col4.pyplot(fig)
-
     gene_phenotype_plot = io.BytesIO()
     plt.savefig(gene_phenotype_plot, format='png', dpi=300, bbox_inches='tight')
-    col4.caption(
-        f'Sample mean distance from wildtype for selected phenotype: {gene_phenotype_option}. Error bars are 95% CI.')
+    #display image 
+    col4.image(gene_phenotype_plot, width=None,caption=f'Sample mean distance from wildtype for selected phenotype: {gene_phenotype_option}. Error bars are 95% CI.')
+
     # Insert download graph button
     col4.download_button(label="Download Plot",
                         data=gene_phenotype_plot,
@@ -292,7 +289,6 @@ with gene_tab:
 
     with tab1:
         #  Habituation of Response Probability Plot
-        st.subheader("Habituation of Response Probability")
         fig, ax = plt.subplots(figsize=(12, 10))
         # seaborn plot
         plt.gca().xaxis.grid(False)  # <- gets rid of x-axis markers to make data look clean
@@ -307,12 +303,12 @@ with gene_tab:
         plt.ylim(0, 1)
         ax.legend(loc='upper right', fontsize='12')  # <- location of your legend
 
-        tab1.pyplot(fig)
-        tab1.caption(f'Habituation of Response Probability: {gene_option}')
-
         # download graph button
         img1 = io.BytesIO()
         plt.savefig(img1, format='png', dpi=300, bbox_inches='tight')
+        #display image 
+        tab1.image(img1, width=None,caption=(f'Habituation of Response Probability: {gene_option}'))
+
         st.download_button(label="Download Plot",
                         data=img1,
                         file_name=f"Probability of Tap Habituation {gene_option}.png",
@@ -321,7 +317,6 @@ with gene_tab:
 
     with tab2:
         #  Habituation of Response Duration Plot
-        st.subheader("Habituation of Response Duration")
         fig, ax = plt.subplots(figsize=(12, 10))
         # seaborn plot
         ax = sns.pointplot(x="taps",
@@ -335,12 +330,12 @@ with gene_tab:
         plt.title("Habituation of Response Duration", fontsize='16')
         plt.ylim(0, None)
         ax.legend(loc='upper right', fontsize='12')
-        tab2.pyplot(fig)
-        tab2.caption(f'Habituation of Response Duration: {gene_option}')
-
+        
         # download graph button
         img2 = io.BytesIO()
         plt.savefig(img2, format='png', dpi=300, bbox_inches='tight')
+        #display image 
+        tab2.image(img2, width=None,caption=(f'Habituation of Response Duration: {gene_option}'))
         st.download_button(label="Download Plot",
                         data=img2,
                         file_name=f"Duration of Tap Habituation {gene_option}.png",
@@ -351,7 +346,6 @@ with gene_tab:
 
     with tab3:
         #  Habituation of Response Speed Plot
-        st.subheader("Habituation of Response Speed")
         fig, ax = plt.subplots(figsize=(12, 10))
         # seaborn plot
         ax = sns.pointplot(x="taps",
@@ -364,12 +358,12 @@ with gene_tab:
         plt.title("Habituation of Response Speed", fontsize='16')
         plt.ylim(0, None)
         ax.legend(loc='upper right', fontsize='12')
-        tab3.pyplot(fig)
-        tab3.caption(f'Habituation of Response Speed: {gene_option}')
-
+    
         # download graph button
         img3 = io.BytesIO()
         plt.savefig(img3, format='png', dpi=300, bbox_inches='tight')
+        #display image 
+        tab3.image(img3, width=None,caption=(f'Habituation of Response Speed: {gene_option}'))
         st.download_button(label="Download Plot",
                         data=img3,
                         file_name=f"Speed of Tap Habituation {gene_option}.png",
@@ -407,13 +401,11 @@ with allele_tab:
     plt.ylabel("Normalized T-Score")  # <- X-axis title
     plt.ylim(-3, 3)
 
-    col5.pyplot(fig)
-
     # download graph button
     allele_profile_plot = io.BytesIO()
     plt.savefig(allele_profile_plot, format='png', dpi=300, bbox_inches='tight')
-
-    col5.caption(f'Phenotypic profile of gene-allele {allele_option}')
+    #display image 
+    col5.image(allele_profile_plot,width=None,caption=(f'Phenotypic profile of gene-allele {allele_option}'))
     col5.download_button(label="Download Plot",
                         data=allele_profile_plot,
                         file_name=f"{allele_option}_profile.png",
@@ -453,12 +445,11 @@ with allele_tab:
     plt.ylabel('Gene_Allele')
     plt.title(f"{allele_phenotype_option}")
 
-    col6.pyplot(fig)
-
     allele_phenotype_plot = io.BytesIO()
     plt.savefig(allele_phenotype_plot, format='png', dpi=300, bbox_inches='tight')
-    col6.caption(
-        f'Sample mean distance from wildtype for selected phenotype: {allele_phenotype_option}. Error bars are 95% CI.')
+    #display image 
+    col6.image(allele_phenotype_plot,width=None,caption=(f'Sample mean distance from wildtype for selected phenotype: {allele_phenotype_option}. Error bars are 95% CI.'))
+
     # Insert download graph button
     col6.download_button(label="Download Plot",
                         data=allele_phenotype_plot,
@@ -491,12 +482,11 @@ with allele_tab:
         plt.ylim(0, 1)
         ax.legend(loc='upper right', fontsize='12')  # <- location of your legend
 
-        tab4.pyplot(fig)
-        tab4.caption(f'Habituation of Response Probability: {allele_option}')
-
         # download graph button
         img4 = io.BytesIO()
         plt.savefig(img4, format='png', dpi=300, bbox_inches='tight')
+        #display image 
+        tab4.image(img4, width=None,caption=(f'Habituation of Response Probability: {allele_option}'))
         st.download_button(label="Download Plot",
                         data=img4,
                         file_name=f"Probability of Tap Habituation {allele_option}.png",
@@ -525,6 +515,8 @@ with allele_tab:
         # download graph button
         img5 = io.BytesIO()
         plt.savefig(img5, format='png', dpi=300, bbox_inches='tight')
+        #display image 
+        tab5.image(img5, width=None,caption=(f'Habituation of Response Duration: {allele_option}'))
         st.download_button(label="Download Plot",
                         data=img5,
                         file_name=f"Duration of Tap Habituation {allele_option}.png",
@@ -546,12 +538,12 @@ with allele_tab:
         plt.title("Habituation of Response Speed", fontsize='16')
         plt.ylim(0, None)
         ax.legend(loc='upper right', fontsize='12')
-        tab6.pyplot(fig)
-        tab6.caption(f'Habituation of Response Speed: {allele_option}')
-
+        
         # download graph button
         img6 = io.BytesIO()
         plt.savefig(img6, format='png', dpi=300, bbox_inches='tight')
+        #display image 
+        tab6.image(img6, width=None,caption=(f'Habituation of Response Speed: {allele_option}'))        
         st.download_button(label="Download Plot",
                         data=img6,
                         file_name=f"Speed of Tap Habituation {allele_option}.png",
