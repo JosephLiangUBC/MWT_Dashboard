@@ -12,6 +12,11 @@ import io
 # Streamlit command starts here
 st.set_page_config(layout="wide")
 
+# convert dataframe to csv for download
+@st.cache_data
+def convert_df(df):
+    return df.to_csv().encode("utf-8")
+
 # Fail gracefully option
 
 @st.cache_data
@@ -148,6 +153,7 @@ with data_tab:
     plt.xlabel('Sample Mean Distance')
     plt.ylabel('Gene')
     plt.title(f"{phenotype_option}")
+    
     phenotype_plot = io.BytesIO()
     plt.savefig(phenotype_plot, format='png', dpi=300, bbox_inches='tight')
     #display image 
@@ -265,6 +271,7 @@ with gene_tab:
     ax = plt.scatter(x=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-mean"],
                     y=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"],
                     marker='o', color=gene_colors)
+    plt.yticks(fontsize=7) # added to see the axis labels better
 
     plt.xlabel('Sample Mean Distance')
     plt.ylabel('Gene')
@@ -309,12 +316,17 @@ with gene_tab:
             plt.savefig(img1, format='png', dpi=300, bbox_inches='tight')
             #display image 
             tab1.image(img1, width=None,caption=(f'Habituation of Response Probability: {gene_option}'))
-
+            # Insert download plot and download csv button
             st.download_button(label="Download Plot",
                             data=img1,
                             file_name=f"Probability of Tap Habituation {gene_option}.png",
                             mime="image/png",
                             key='dnldbtn1')
+            st.download_button(label="Download csv",
+                            data=convert_df(gene_tap_data_plot),
+                            file_name=f"Gene-specific Data {gene_option}.csv",
+                            mime="text/csv",
+                            key='dnldbtn7')
 
         with tab2:
             #  Habituation of Response Duration Plot
@@ -337,13 +349,19 @@ with gene_tab:
             plt.savefig(img2, format='png', dpi=300, bbox_inches='tight')
             #display image 
             tab2.image(img2, width=None,caption=(f'Habituation of Response Duration: {gene_option}'))
+            # Insert download plot and download csv button
+
             st.download_button(label="Download Plot",
                             data=img2,
                             file_name=f"Duration of Tap Habituation {gene_option}.png",
                             mime="image/png",
                             key='dnldbtn2')
+            st.download_button(label="Download csv",
+                            data=convert_df(gene_tap_data_plot),
+                            file_name=f"Gene-specific Data {gene_option}.csv",
+                            mime="text/csv",
+                            key='dnldbtn8')
         # Seaborn Graph of Duration Habituation curve
-        # Insert download graph button
 
         with tab3:
             #  Habituation of Response Speed Plot
@@ -360,16 +378,21 @@ with gene_tab:
             plt.ylim(0, None)
             ax.legend(loc='upper right', fontsize='12')
         
-            # download graph button
             img3 = io.BytesIO()
             plt.savefig(img3, format='png', dpi=300, bbox_inches='tight')
             #display image 
             tab3.image(img3, width=None,caption=(f'Habituation of Response Speed: {gene_option}'))
+            # Insert download plot and download csv button
             st.download_button(label="Download Plot",
                             data=img3,
                             file_name=f"Speed of Tap Habituation {gene_option}.png",
                             mime="image/png",
                             key='dnldbtn3')
+            st.download_button(label="Download csv",
+                            data=convert_df(gene_tap_data_plot),
+                            file_name=f"Gene-specific Data {gene_option}.csv",
+                            mime="text/csv",
+                            key='dnldbtn9')
         # seaborn graph of Speed Habituation Curve
         # Insert download graph button
 
@@ -387,7 +410,7 @@ with allele_tab:
     allele_tap_data_plot['taps'] = allele_tap_data_plot['taps'].astype(int)
     # st.write(allele_tap_data_plot)
 
-    col5, col6 = st.columns([1, 1])
+    col5, col6, col8 = st.columns([1, 1, 1])
     col5.subheader('phenotypic profile')
 
     # seaborn plot
@@ -398,7 +421,6 @@ with allele_tab:
                     data=allele_profile_data[allele_profile_data.dataset == f"{allele_option}"],
                     palette=metric_palette).set_title(f"{allele_option}")
     plt.xticks(rotation=90)
-
     plt.ylabel("Normalized T-Score")  # <- X-axis title
     plt.ylim(-3, 3)
 
@@ -412,6 +434,7 @@ with allele_tab:
                         file_name=f"{allele_option}_profile.png",
                         mime="image/png",
                         key='dnldalleleprofile')
+    col6.subheader('Rank in phenotype')
 
     allele_phenotype_option = col6.selectbox(
         'Select a phenotype',
@@ -441,6 +464,7 @@ with allele_tab:
     ax = plt.scatter(x=allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])[f"{allele_phenotype_option}-mean"],
                     y=allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset"],
                     marker='o', color=allele_colors)
+    plt.yticks(fontsize=5)
 
     plt.xlabel('Sample Mean Distance')
     plt.ylabel('Gene_Allele')
@@ -461,92 +485,105 @@ with allele_tab:
     # Insert download graph button
 
 
-    st.subheader('Habituation Curves')
-    tab4, tab5, tab6 = st.tabs(["Habituation of Response Probability",
-                                "Habituation of Response Duration",
-                                "Habituation of Response Speed"])
+    col8.subheader('Habituation Curves')
+    with col8:
+        tab4, tab5, tab6 = st.tabs(["Habituation of Response Probability",
+                                    "Habituation of Response Duration",
+                                    "Habituation of Response Speed"])
 
-    with tab4:
-        #  Habituation of Response Probability Plot
-        st.subheader("Habituation of Response Probability")
-        fig, ax = plt.subplots(figsize=(12, 10), linewidth=2.5)
-        # seaborn plot
-        plt.gca().xaxis.grid(False)  # <- gets rid of x-axis markers to make data look clean
-        ax = sns.pointplot(x="taps",  # <- Here we use seaborn as our graphing package.
-                        y="prob",
-                        data=allele_tap_data_plot,
-                        hue='dataset',  # <- Here we use the extra column from step 6 to separate by group
-                        errorbar='se')  # <- Confidence interval. 95 = standard error
-        plt.xlabel("Taps")  # <- X-axis title
-        plt.ylabel("Probability")  # <- Y-Axis title
-        plt.title("Habituation of Response Probability", fontsize='16')  # <- Figure Title
-        plt.ylim(0, 1)
-        ax.legend(loc='upper right', fontsize='12')  # <- location of your legend
+        with tab4:
+            #  Habituation of Response Probability Plot
+            fig, ax = plt.subplots(figsize=(12, 10), linewidth=2.5)
+            # seaborn plot
+            plt.gca().xaxis.grid(False)  # <- gets rid of x-axis markers to make data look clean
+            ax = sns.pointplot(x="taps",  # <- Here we use seaborn as our graphing package.
+                            y="prob",
+                            data=allele_tap_data_plot,
+                            hue='dataset',  # <- Here we use the extra column from step 6 to separate by group
+                            errorbar='se')  # <- Confidence interval. 95 = standard error
+            plt.xlabel("Taps")  # <- X-axis title
+            plt.ylabel("Probability")  # <- Y-Axis title
+            plt.title("Habituation of Response Probability", fontsize='16')  # <- Figure Title
+            plt.ylim(0, 1)
+            ax.legend(loc='upper right', fontsize='12')  # <- location of your legend
 
-        # download graph button
-        img4 = io.BytesIO()
-        plt.savefig(img4, format='png', dpi=300, bbox_inches='tight')
-        #display image 
-        tab4.image(img4, width=None,caption=(f'Habituation of Response Probability: {allele_option}'))
-        st.download_button(label="Download Plot",
-                        data=img4,
-                        file_name=f"Probability of Tap Habituation {allele_option}.png",
-                        mime="image/png",
-                        key='dnldbtn4')
+            img4 = io.BytesIO()
+            plt.savefig(img4, format='png', dpi=300, bbox_inches='tight')
+            #display image 
+            tab4.image(img4, width=None,caption=(f'Habituation of Response Probability: {allele_option}'))
+            # Insert download plot and download csv button
+            st.download_button(label="Download Plot",
+                            data=img4,
+                            file_name=f"Probability of Tap Habituation {allele_option}.png",
+                            mime="image/png",
+                            key='dnldbtn4')
+            st.download_button(label="Download csv",
+                                data=convert_df(allele_tap_data_plot),
+                                file_name=f"Allele-specific Data {allele_option}.csv",
+                                mime="text/csv",
+                                key='dnldbtn10')
 
-    with tab5:
-        #  Habituation of Response Duration Plot
-        st.subheader("Habituation of Response Duration")
-        fig, ax = plt.subplots(figsize=(12, 10))
-        # seaborn plot
-        ax = sns.pointplot(x="taps",
-                        y="dura",
-                        data=allele_tap_data_plot,
-                        hue='dataset',
-                        # palette=pal,
-                        errorbar='se')
-        plt.xlabel("Taps", fontsize='12')
-        plt.ylabel("Duration", fontsize='12')
-        plt.title("Habituation of Response Duration", fontsize='16')
-        plt.ylim(0, None)
-        ax.legend(loc='upper right', fontsize='12')
-        tab5.pyplot(fig)
-        tab5.caption(f'Habituation of Response Duration: {allele_option}')
+        with tab5:
+            #  Habituation of Response Duration Plot
+            fig, ax = plt.subplots(figsize=(12, 10))
+            # seaborn plot
+            ax = sns.pointplot(x="taps",
+                            y="dura",
+                            data=allele_tap_data_plot,
+                            hue='dataset',
+                            # palette=pal,
+                            errorbar='se')
+            plt.xlabel("Taps", fontsize='12')
+            plt.ylabel("Duration", fontsize='12')
+            plt.title("Habituation of Response Duration", fontsize='16')
+            plt.ylim(0, None)
+            ax.legend(loc='upper right', fontsize='12')
+            tab5.pyplot(fig)
+            tab5.caption(f'Habituation of Response Duration: {allele_option}')
 
-        # download graph button
-        img5 = io.BytesIO()
-        plt.savefig(img5, format='png', dpi=300, bbox_inches='tight')
-        #display image 
-        tab5.image(img5, width=None,caption=(f'Habituation of Response Duration: {allele_option}'))
-        st.download_button(label="Download Plot",
-                        data=img5,
-                        file_name=f"Duration of Tap Habituation {allele_option}.png",
-                        mime="image/png",
-                        key='dnldbtn5')
+            img5 = io.BytesIO()
+            plt.savefig(img5, format='png', dpi=300, bbox_inches='tight')
+            #display image 
+            tab5.image(img5, width=None,caption=(f'Habituation of Response Duration: {allele_option}'))
+            # Insert download plot and download csv button
+            st.download_button(label="Download Plot",
+                            data=img5,
+                            file_name=f"Duration of Tap Habituation {allele_option}.png",
+                            mime="image/png",
+                            key='dnldbtn5')
+            st.download_button(label="Download csv",
+                                data=convert_df(allele_tap_data_plot),
+                                file_name=f"Allele-specific Data {allele_option}.csv",
+                                mime="text/csv",
+                                key='dnldbtn11')
 
-    with tab6:
-        #  Habituation of Response Speed Plot
-        st.subheader("Habituation of Response Speed")
-        fig, ax = plt.subplots(figsize=(12, 10))
-        # seaborn plot
-        ax = sns.pointplot(x="taps",
-                        y="speed",
-                        data=allele_tap_data_plot,
-                        hue='dataset',
-                        errorbar='se')
-        plt.xlabel("Taps", fontsize='12')
-        plt.ylabel("Speed", fontsize='12')
-        plt.title("Habituation of Response Speed", fontsize='16')
-        plt.ylim(0, None)
-        ax.legend(loc='upper right', fontsize='12')
-        
-        # download graph button
-        img6 = io.BytesIO()
-        plt.savefig(img6, format='png', dpi=300, bbox_inches='tight')
-        #display image 
-        tab6.image(img6, width=None,caption=(f'Habituation of Response Speed: {allele_option}'))        
-        st.download_button(label="Download Plot",
-                        data=img6,
-                        file_name=f"Speed of Tap Habituation {allele_option}.png",
-                        mime="image/png",
-                        key='dnldbtn6')
+        with tab6:
+            #  Habituation of Response Speed Plot
+            fig, ax = plt.subplots(figsize=(12, 10))
+            # seaborn plot
+            ax = sns.pointplot(x="taps",
+                            y="speed",
+                            data=allele_tap_data_plot,
+                            hue='dataset',
+                            errorbar='se')
+            plt.xlabel("Taps", fontsize='12')
+            plt.ylabel("Speed", fontsize='12')
+            plt.title("Habituation of Response Speed", fontsize='16')
+            plt.ylim(0, None)
+            ax.legend(loc='upper right', fontsize='12')
+            
+            img6 = io.BytesIO()
+            plt.savefig(img6, format='png', dpi=300, bbox_inches='tight')
+            #display image 
+            tab6.image(img6, width=None,caption=(f'Habituation of Response Speed: {allele_option}'))        
+            # Insert download plot and download csv button
+            st.download_button(label="Download Plot",
+                            data=img6,
+                            file_name=f"Speed of Tap Habituation {allele_option}.png",
+                            mime="image/png",
+                            key='dnldbtn6')
+            st.download_button(label="Download csv",
+                                data=convert_df(allele_tap_data_plot),
+                                file_name=f"Allele-specific Data {allele_option}.csv",
+                                mime="text/csv",
+                                key='dnldbtn12')
