@@ -18,14 +18,14 @@ def convert_df(df):
     return df.to_csv().encode("utf-8")
 
 # Fail gracefully option
-
 @st.cache_data
 def read(table):
     result = pd.read_sql_query(f"SELECT * FROM {table}", conn)
     return result
 
-# conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
-conn = sqlite3.connect('/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db')
+conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
+# conn = sqlite3.connect('/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db')
+
 # Read data from SQLite database
 tap_output = read('tap_response_data')
 tap_tstat_allele = read('tstat_gene_data')
@@ -39,8 +39,10 @@ allele_MSD = read('allele_MSD')
 # tap_output = pd.read_sql_query("SELECT * FROM tap_response_data", conn)
 # tap_baseline = pd.read_sql_query("SELECT * FROM tap_baseline_data", conn)
 conn.close()
+
 tap_output['Strain'] = tap_output['Gene'] + " (" + tap_output['Allele'] + ")"
 
+# Defining the color palette for the plots
 metric_palette = ["k", "k", "k",
                   "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgrey",
                   "lightsteelblue", "lightsteelblue", "lightsteelblue",
@@ -48,9 +50,10 @@ metric_palette = ["k", "k", "k",
                   "cadetblue", "cadetblue", "cadetblue",
                   "thistle", "thistle", "thistle"]
 
-# Streamlit Dashboard starts here
+# Streamlit Dashboard title
 st.title('NRSC510B: Data Dashboard for MWT Data')
 
+# Select dataset option
 datasets = st.multiselect(
     label="Select Datasets",
     options=gene_MSD.Screen.unique(),
@@ -71,6 +74,7 @@ dropna_features.remove('Spontaneous Recovery of Response Probability')
 dropna_features.remove('Spontaneous Recovery of Response Speed')
 # st.write(dropna_features)
 
+# filter data for selected dataset
 tap_output = tap_output[tap_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 # tap_tstat_allele = tap_tstat_allele[tap_tstat_allele['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
 tap_tstat_allele = tap_tstat_allele[tap_tstat_allele['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(
@@ -81,7 +85,7 @@ allele_profile_data = allele_profile_data[allele_profile_data['Screen'].isin(dat
 gene_MSD = gene_MSD[gene_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 allele_MSD = allele_MSD[allele_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 
-# Tab functionality for different landing pages
+# creating tabs for dashboard
 tabs_font_css = """
 <style>
     .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
@@ -90,10 +94,9 @@ tabs_font_css = """
 </style>
 """
 st.write(tabs_font_css, unsafe_allow_html=True)
+data_tab, gene_tab, allele_tab, clustering_tab = st.tabs(["Data at a Glance", "Gene-specific Data", "Allele-specific Data", "Clustering"])
 
-# Creating tabs for webpage
-data_tab, gene_tab, allele_tab = st.tabs(["Data at a Glance", "Gene-specific Data", "Allele-specific Data"])
-
+# Visualisations for data tab
 with data_tab:
     st.header('Data at a glance')
 
@@ -165,6 +168,11 @@ with data_tab:
                         file_name=f"{phenotype_option}_profile.png",
                         mime="image/png",
                         key='dnldphenotypeprofile')
+    col1.download_button(label="Download csv",
+                            data=convert_df(gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])),
+                            file_name=f"Data Glance Sample mean distance {phenotype_option}.csv",
+                            mime="text/csv",
+                            key='dnldphenotypeprofilecsv')
 
     # Insert download graph button
 
@@ -288,6 +296,11 @@ with gene_tab:
                         file_name=f"{gene_option}_{gene_phenotype_option}_profile.png",
                         mime="image/png",
                         key='dnldgenephenotypeprofile')
+    col4.download_button(label="Download csv",
+                            data=convert_df(gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])),
+                            file_name=f"Gene-specific Data Sample mean distance {gene_phenotype_option}.csv",
+                            mime="text/csv",
+                            key='dnldgenephenotypeprofilecsv')
 
     # Move tabs inside col 7 for better viewing
     col7.subheader('Habituation Curves')
@@ -398,6 +411,7 @@ with gene_tab:
 
 with allele_tab:
     st.header('Allele-specific Data')
+    # select allele 
     allele_option = st.selectbox(
         'Select a allele',
         (tap_output['dataset'].unique()))
@@ -481,7 +495,11 @@ with allele_tab:
                         file_name=f"{allele_option}_{allele_phenotype_option}_profile.png",
                         mime="image/png",
                         key='dnldallelephenotypeprofile')
-
+    col6.download_button(label="Download csv",
+                        data=convert_df(allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])),
+                        file_name=f"Allele-specific Data Sample mean distance {allele_phenotype_option}.csv",
+                        mime="text/csv",
+                        key='dnldallelephenotypeprofilecsv')
     # Insert download graph button
 
 
