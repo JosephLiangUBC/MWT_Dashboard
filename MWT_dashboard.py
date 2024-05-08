@@ -254,7 +254,12 @@ with gene_tab:
                         file_name=f"{gene_option}_profile.png",
                         mime="image/png",
                         key='dnldgeneprofile')
-
+    col3.download_button(label="Download csv",
+                        data=convert_df(gene_profile_data[gene_profile_data.Gene == f"{gene_option}"]),
+                        file_name=f"Phenotypic profile of {gene_option}.csv",
+                        mime="text/csv",
+                        key='dnldgeneprofilecsv')
+    
     gene_phenotype_option = col4.selectbox(
         'Select a phenotype',
         np.unique(phenotype_list),
@@ -453,6 +458,11 @@ with allele_tab:
                         file_name=f"{allele_option}_profile.png",
                         mime="image/png",
                         key='dnldalleleprofile')
+    col5.download_button(label="Download csv",
+                        data=convert_df(allele_profile_data[allele_profile_data.dataset == f"{allele_option}"]),
+                        file_name=f"Phenotypic profile of gene-allele {allele_option}.csv",
+                        mime="text/csv",
+                        key='dnldalleleprofilecsv')
     col6.subheader('Rank in phenotype')
 
     allele_phenotype_option = col6.selectbox(
