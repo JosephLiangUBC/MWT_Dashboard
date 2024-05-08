@@ -169,7 +169,7 @@ with data_tab:
                         mime="image/png",
                         key='dnldphenotypeprofile')
     col1.download_button(label="Download csv",
-                            data=convert_df(gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])),
+                            data=convert_df(pd.concat([gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"],gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"]], axis=1)),
                             file_name=f"Data Glance Sample mean distance {phenotype_option}.csv",
                             mime="text/csv",
                             key='dnldphenotypeprofilecsv')
@@ -307,7 +307,7 @@ with gene_tab:
                         mime="image/png",
                         key='dnldgenephenotypeprofile')
     col4.download_button(label="Download csv",
-                            data=convert_df(gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])),
+                            data=convert_df(pd.concat([gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"],gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-mean"]],axis=1)),
                             file_name=f"Gene-specific Data Sample mean distance {gene_phenotype_option}.csv",
                             mime="text/csv",
                             key='dnldgenephenotypeprofilecsv')
@@ -511,7 +511,7 @@ with allele_tab:
                         mime="image/png",
                         key='dnldallelephenotypeprofile')
     col6.download_button(label="Download csv",
-                        data=convert_df(allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])),
+                        data=convert_df(pd.concat([allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset"],allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])[f"{allele_phenotype_option}-mean"]],axis=1)),
                         file_name=f"Allele-specific Data Sample mean distance {allele_phenotype_option}.csv",
                         mime="text/csv",
                         key='dnldallelephenotypeprofilecsv')
