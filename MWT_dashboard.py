@@ -208,6 +208,11 @@ with data_tab:
                         file_name="Heatmap.png",
                         mime="image/png",
                         key='dnldheatmap')
+    col2.download_button(label="Download csv",
+                            data=convert_df(tap_tstat_allele.set_index('Gene').drop(index="N2")),
+                            file_name=f"Data Glance Heatmap.csv",
+                            mime="text/csv",
+                            key='dnldheatmapcsv')
     # Insert download graph button
     # Insert download csv
 with gene_tab:
