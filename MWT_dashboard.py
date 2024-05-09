@@ -94,7 +94,7 @@ tabs_font_css = """
 </style>
 """
 st.write(tabs_font_css, unsafe_allow_html=True)
-data_tab, gene_tab, allele_tab, clustering_tab = st.tabs(["Data at a Glance", "Gene-specific Data", "Allele-specific Data", "Clustering"])
+data_tab, gene_tab, allele_tab, clustering_tab , custom_select_tab= st.tabs(["Data at a Glance", "Gene-specific Data", "Allele-specific Data", "Clustering", "Custom Selection"])
 
 # Visualisations for data tab
 with data_tab:
