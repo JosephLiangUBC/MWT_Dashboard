@@ -161,7 +161,15 @@ with data_tab:
     plt.savefig(phenotype_plot, format='png', dpi=300, bbox_inches='tight')
     #display image 
     col1.image(phenotype_plot, width=None, caption=(f'Sample mean distance from wildtype for all strains for selected phenotype: {phenotype_option}. Error bars are 95% CI')) ## added
-    
+        
+    #combine data and rename columns :
+    data_dat=pd.concat([gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"],
+                        gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"],
+                        gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-ci95_lo"],
+                        gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-ci95_hi"]], 
+                        axis=1)
+    data_dat.columns=["Gene", f"{phenotype_option}", f"{phenotype_option}-lower" ,f"{phenotype_option}-upper"]
+
     # Insert download graph button
     col1.download_button(label="Download Plot",
                         data=phenotype_plot,
@@ -169,7 +177,7 @@ with data_tab:
                         mime="image/png",
                         key='dnldphenotypeprofile')
     col1.download_button(label="Download csv",
-                            data=convert_df(pd.concat([gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"],gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"]], axis=1)),
+                            data=convert_df(data_dat),
                             file_name=f"Data Glance Sample mean distance {phenotype_option}.csv",
                             mime="text/csv",
                             key='dnldphenotypeprofilecsv')
