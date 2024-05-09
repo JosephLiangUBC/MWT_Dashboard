@@ -526,7 +526,7 @@ with allele_tab:
                    allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])[f"{allele_phenotype_option}-ci95_lo"],
                    allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])[f"{allele_phenotype_option}-ci95_hi"]],
                    axis=1)
-    dat.columns=["Gene", f"{allele_phenotype_option}", f"{allele_phenotype_option}-lower" ,f"{allele_phenotype_option}-upper"]
+    dat.columns=["gene-allele", f"{allele_phenotype_option}", f"{allele_phenotype_option}-lower" ,f"{allele_phenotype_option}-upper"]
     
     # Insert download graph button
     col6.download_button(label="Download Plot",
