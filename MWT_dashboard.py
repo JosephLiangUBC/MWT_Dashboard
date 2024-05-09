@@ -23,8 +23,8 @@ def read(table):
     result = pd.read_sql_query(f"SELECT * FROM {table}", conn)
     return result
 
-conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
-# conn = sqlite3.connect('/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db')
+# conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
+conn = sqlite3.connect('/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db')
 
 # Read data from SQLite database
 tap_output = read('tap_response_data')
@@ -231,7 +231,7 @@ with gene_tab:
 
  # added extra column to show abituation curves in landscape 
     col3, col4, col7 = st.columns([1, 1, 1])
-    col3.subheader('phenotypic profile')
+    col3.subheader('Phenotypic profile')
 
     # seaborn plot
     sns.set_context('notebook', font_scale=1)
@@ -260,12 +260,12 @@ with gene_tab:
                         mime="text/csv",
                         key='dnldgeneprofilecsv')
     
+    col4.subheader('Rank in phenotype')
     gene_phenotype_option = col4.selectbox(
         'Select a phenotype',
         np.unique(phenotype_list),
         key='gene_phenotype_select')
 
-    col4.subheader('Rank in phenotype')
 
     # seaborn graph of phenotypic view (sample mean distance) + st.pyplot
     sns.set_context('notebook')
@@ -435,7 +435,7 @@ with allele_tab:
     # st.write(allele_tap_data_plot)
 
     col5, col6, col8 = st.columns([1, 1, 1])
-    col5.subheader('phenotypic profile')
+    col5.subheader('Phenotypic profile')
 
     # seaborn plot
     sns.set_context('notebook', font_scale=1)
