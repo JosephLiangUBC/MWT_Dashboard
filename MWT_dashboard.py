@@ -299,7 +299,15 @@ with gene_tab:
     plt.savefig(gene_phenotype_plot, format='png', dpi=300, bbox_inches='tight')
     #display image 
     col4.image(gene_phenotype_plot, width=None,caption=f'Sample mean distance from wildtype for selected phenotype: {gene_phenotype_option}. Error bars are 95% CI.')
-
+    
+    #combine data and rename columns :
+    gene_dat=pd.concat( [gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"],
+                   gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-mean"],
+                   gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-ci95_lo"],
+                   gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-ci95_hi"]],
+                   axis=1)
+    gene_dat.columns=["Gene", f"{gene_phenotype_option}", f"{gene_phenotype_option}-lower" ,f"{gene_phenotype_option}-upper"]
+    
     # Insert download graph button
     col4.download_button(label="Download Plot",
                         data=gene_phenotype_plot,
@@ -307,7 +315,7 @@ with gene_tab:
                         mime="image/png",
                         key='dnldgenephenotypeprofile')
     col4.download_button(label="Download csv",
-                            data=convert_df(pd.concat([gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"],gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-mean"]],axis=1)),
+                            data=convert_df(gene_dat),
                             file_name=f"Gene-specific Data Sample mean distance {gene_phenotype_option}.csv",
                             mime="text/csv",
                             key='dnldgenephenotypeprofilecsv')
@@ -504,6 +512,14 @@ with allele_tab:
     #display image 
     col6.image(allele_phenotype_plot,width=None,caption=(f'Sample mean distance from wildtype for selected phenotype: {allele_phenotype_option}. Error bars are 95% CI.'))
 
+    #combine data and rename columns :
+    dat=pd.concat( [allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset"],
+                   allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])[f"{allele_phenotype_option}-mean"],
+                   allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])[f"{allele_phenotype_option}-ci95_lo"],
+                   allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])[f"{allele_phenotype_option}-ci95_hi"]],
+                   axis=1)
+    dat.columns=["Gene", f"{allele_phenotype_option}", f"{allele_phenotype_option}-lower" ,f"{allele_phenotype_option}-upper"]
+    
     # Insert download graph button
     col6.download_button(label="Download Plot",
                         data=allele_phenotype_plot,
@@ -511,7 +527,7 @@ with allele_tab:
                         mime="image/png",
                         key='dnldallelephenotypeprofile')
     col6.download_button(label="Download csv",
-                        data=convert_df(pd.concat([allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset"],allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])[f"{allele_phenotype_option}-mean"]],axis=1)),
+                        data=convert_df(dat),
                         file_name=f"Allele-specific Data Sample mean distance {allele_phenotype_option}.csv",
                         mime="text/csv",
                         key='dnldallelephenotypeprofilecsv')
