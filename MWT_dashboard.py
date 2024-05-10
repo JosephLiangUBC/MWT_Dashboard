@@ -23,8 +23,8 @@ def read(table):
     result = pd.read_sql_query(f"SELECT * FROM {table}", conn)
     return result
 
-conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
-# conn = sqlite3.connect('/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db')
+# conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
+conn = sqlite3.connect('/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db')
 
 # Read data from SQLite database
 tap_output = read('tap_response_data')
@@ -228,7 +228,8 @@ with gene_tab:
     gene_option = st.selectbox(
         'Select a gene',
         (tap_output['Gene'].unique()), key="geneselect")
-
+    url= "https://www.alliancegenome.org"
+    st.markdown(f'For more information on [{gene_option}](%s)' % url)
     tap_output_gene = tap_output[tap_output['Gene'] == gene_option]
     # st.write(tap_output_allele)
     # st.write(tap_output_allele['Date'].unique())
@@ -644,3 +645,16 @@ with allele_tab:
                                 file_name=f"Allele-specific Data {allele_option}.csv",
                                 mime="text/csv",
                                 key='dnldbtn12')
+
+with custom_select_tab:
+    gene_multiple = st.multiselect(
+    label="Select Genes",
+    options=tap_output['Gene'].unique(),
+    default=tap_output['Gene'].unique()[0],
+    placeholder="make a selection",
+    help="select and de-select genes you want to analyze",
+    key="geneselection")
+    # gene_option = st.selectbox(
+    #     'Select genes',
+    #     (tap_output['Gene'].unique()), key="geneselect")
+
