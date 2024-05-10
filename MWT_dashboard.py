@@ -677,10 +677,9 @@ with custom_select_tab:
     gene_colors[gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)[
         gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == "N2"].index[
         0]] = "red"
-    for gene in gene_multiple:
-        gene_colors[gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)[
-            gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"].isin(gene_multiple)].index[
-            0]] = "magenta"
+    for g in gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)[
+        gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"].isin(gene_multiple)].index:
+        gene_colors[g] = "magenta"
     fig, ax = plt.subplots(figsize=(figx, figy))
     # ax = sns.pointplot(data = gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]),
     #             x=f"{phenotype_option}-mean",
