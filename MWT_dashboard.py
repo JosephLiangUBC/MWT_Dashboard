@@ -723,4 +723,42 @@ with custom_select_tab:
                             file_name=f"Gene-specific Data Sample mean distance {gene_phenotype_option}.csv",
                             mime="text/csv",
                             key='dnldmultigenephenotypeprofilecsv')
+    
+    col11.subheader("Comprehensive Heatmap")
+    sns.set_context('notebook', font_scale=0.7)
+    figx_hm = col11.slider('Figure Width', 0, 30, 15, key="figx_hmcustom")
+    figy_hm = col11.slider('Figure Height', 0, 70, 20, key="figy_hmcustom")
+    fig, ax = plt.subplots(figsize=(figx_hm, figy_hm))
+    # fig, ax = plt.subplots()
+    # ax = sns.heatmap(glue)
+
+    ax = sns.heatmap(data=tap_tstat_allele.set_index('Gene').drop(index="N2"),
+                    annot=False,
+                    linewidth=0.2,
+                    square=False,
+                    cmap="vlag",
+                    #                  cmap=sns.diverging_palette(55, 250, s=100, l=40,as_cmap=True),
+                    center=0,
+                    vmax=3,
+                    vmin=-3,
+                    # xticklabels='auto',
+                    # yticklabels='auto',
+                    cbar_kws={"shrink": .05, "pad": 0.01})
+    ax.set(xlabel="", ylabel="")
+    ax.set_facecolor('xkcd:black')
+
+    imgheatmap = io.BytesIO()
+    plt.savefig(imgheatmap, format='png', dpi=300, bbox_inches='tight')
+    #display image 
+    col11.image(imgheatmap,caption='Comprehensive heatmap of the dataset with selected genes', width=None)
+    col11.download_button(label="Download Plot",
+                        data=imgheatmap,
+                        file_name="Heatmap.png",
+                        mime="image/png",
+                        key='dnldheatmapcustom')
+    col11.download_button(label="Download csv",
+                            data=convert_df(tap_tstat_allele.set_index('Gene').drop(index="N2")),
+                            file_name=f"Data Glance Heatmap.csv",
+                            mime="text/csv",
+                            key='dnldheatmapcsvcustom')
 
