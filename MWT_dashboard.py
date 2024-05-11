@@ -94,7 +94,7 @@ tabs_font_css = """
 </style>
 """
 st.write(tabs_font_css, unsafe_allow_html=True)
-data_tab, gene_tab, allele_tab, clustering_tab , custom_select_tab= st.tabs(["Data at a Glance", "Gene-specific Data", "Allele-specific Data", "Clustering", "Custom Selection"])
+data_tab, gene_tab, allele_tab , custom_select_tab,clustering_tab= st.tabs(["Data at a Glance", "Gene-specific Data", "Allele-specific Data",  "Custom Selection","Clustering"])
 
 # Visualisations for data tab
 with data_tab:
@@ -228,8 +228,11 @@ with gene_tab:
     gene_option = st.selectbox(
         'Select a gene',
         (tap_output['Gene'].unique()), key="geneselect")
-    url= "https://www.alliancegenome.org"
-    st.markdown(f'For more information on [{gene_option}](%s)' % url)
+    url_data= pd.read_csv("WB_id.csv")
+    if gene_option:
+        gene_id=url_data[url_data['Gene']==gene_option]['Identifier'].values[0]
+        glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
+    st.markdown(f'For more information on [{gene_option}](%s)' % glink)
     tap_output_gene = tap_output[tap_output['Gene'] == gene_option]
     # st.write(tap_output_allele)
     # st.write(tap_output_allele['Date'].unique())
@@ -442,6 +445,12 @@ with allele_tab:
     allele_option = st.selectbox(
         'Select a allele',
         (tap_output['dataset'].unique()))
+    # if allele_option:
+    #     allele_id=url_data[url_data['Gene']==allele_option]['Identifier'].values[0]
+    #     glink=f'https://www.alliancegenome.org/gene/WB:{allele_id}'
+    #     wlink=f'https://wormbase.org/species/c_elegans/gene/{allele_id}'
+    # st.markdown(f'For more gene information on [{allele_option}](%s)' % glink )
+    # st.markdown(f'For more allele information on [{allele_option}](%s)' % wlink)
 
     tap_output_allele = tap_output[tap_output['dataset'] == allele_option]
     # st.write(tap_output_allele)
@@ -661,7 +670,7 @@ with custom_select_tab:
     # st.write(tap_output_allele)
     # st.write(tap_output_allele['Date'].unique())
     gene_tap_data = tap_output[tap_output['Date'].isin(tap_output_gene['Date'].unique())]
-    gene_tap_data_plot = gene_tap_data[gene_tap_data['Gene'].isin(['N2', gene_multiple])]
+    gene_tap_data_plot = gene_tap_data[gene_tap_data['Gene'].isin(['N2']+ gene_multiple)]
     gene_tap_data_plot['taps'] = gene_tap_data_plot['taps'].astype(int)
     
     #add columns for msd, habituation plots and heatmap plots
@@ -724,6 +733,112 @@ with custom_select_tab:
                             mime="text/csv",
                             key='dnldmultigenephenotypeprofilecsv')
     
+    col10.subheader('Habituation Curves')
+    with col10:
+        tab7, tab8, tab9 = st.tabs(["Habituation of Response Probability",
+                                "Habituation of Response Duration",
+                                "Habituation of Response Speed"])
+        with tab7:
+            #  Habituation of Response Probability Plot
+            fig, ax = plt.subplots(figsize=(12, 10))
+            # seaborn plot
+            plt.gca().xaxis.grid(False)  # <- gets rid of x-axis markers to make data look clean
+            ax = sns.pointplot(x="taps",  # <- Here we use seaborn as our graphing package.
+                            y="prob",
+                            data=gene_tap_data_plot,
+                            hue='Gene',  # <- Here we use the extra column from step 6 to separate by group
+                            errorbar='se')  # <- Confidence interval. 95 = standard error
+            plt.xlabel("Taps")  # <- X-axis title
+            plt.ylabel("Probability")  # <- Y-Axis title
+            plt.title("Habituation of Response Probability", fontsize='16')  # <- Figure Title
+            plt.ylim(0, 1)
+            ax.legend(loc='upper right', fontsize='12')  # <- location of your legend
+
+            # download graph button
+            img7 = io.BytesIO()
+            plt.savefig(img7, format='png', dpi=300, bbox_inches='tight')
+            #display image 
+            tab7.image(img7, width=None,caption=(f'Habituation of Response Probability: {gene_multiple}'))
+            # Insert download plot and download csv button
+            st.download_button(label="Download Plot",
+                            data=img7,
+                            file_name=f"Probability of Tap Habituation {gene_multiple}.png",
+                            mime="image/png",
+                            key='dnldbtn13')
+            st.download_button(label="Download csv",
+                            data=convert_df(gene_tap_data_plot),
+                            file_name=f"Gene-specific Data {gene_multiple}.csv",
+                            mime="text/csv",
+                            key='dnldbtn14')
+
+        with tab8:
+            #  Habituation of Response Duration Plot
+            fig, ax = plt.subplots(figsize=(12, 10))
+            # seaborn plot
+            ax = sns.pointplot(x="taps",
+                            y="dura",
+                            data=gene_tap_data_plot,
+                            hue='Gene',
+                            # palette=pal,
+                            errorbar='se')
+            plt.xlabel("Taps", fontsize='12')
+            plt.ylabel("Duration", fontsize='12')
+            plt.title("Habituation of Response Duration", fontsize='16')
+            plt.ylim(0, None)
+            ax.legend(loc='upper right', fontsize='12')
+            
+            # download graph button
+            img8 = io.BytesIO()
+            plt.savefig(img8, format='png', dpi=300, bbox_inches='tight')
+            #display image 
+            tab8.image(img8, width=None,caption=(f'Habituation of Response Duration: {gene_multiple}'))
+            # Insert download plot and download csv button
+
+            st.download_button(label="Download Plot",
+                            data=img8,
+                            file_name=f"Duration of Tap Habituation {gene_multiple}.png",
+                            mime="image/png",
+                            key='dnldbtn15')
+            st.download_button(label="Download csv",
+                            data=convert_df(gene_tap_data_plot),
+                            file_name=f"Gene-specific Data {gene_multiple}.csv",
+                            mime="text/csv",
+                            key='dnldbtn16')
+        # Seaborn Graph of Duration Habituation curve
+
+        with tab9:
+            #  Habituation of Response Speed Plot
+            fig, ax = plt.subplots(figsize=(12, 10))
+            # seaborn plot
+            ax = sns.pointplot(x="taps",
+                            y="speed",
+                            data=gene_tap_data_plot,
+                            hue='Gene',
+                            errorbar='se')
+            plt.xlabel("Taps", fontsize='12')
+            plt.ylabel("Speed", fontsize='12')
+            plt.title("Habituation of Response Speed", fontsize='16')
+            plt.ylim(0, None)
+            ax.legend(loc='upper right', fontsize='12')
+        
+            img9 = io.BytesIO()
+            plt.savefig(img9, format='png', dpi=300, bbox_inches='tight')
+            #display image 
+            tab9.image(img9, width=None,caption=(f'Habituation of Response Speed: {gene_multiple}'))
+            # Insert download plot and download csv button
+            st.download_button(label="Download Plot",
+                            data=img9,
+                            file_name=f"Speed of Tap Habituation {gene_multiple}.png",
+                            mime="image/png",
+                            key='dnldbtn17')
+            st.download_button(label="Download csv",
+                            data=convert_df(gene_tap_data_plot),
+                            file_name=f"Gene-specific Data {gene_multiple}.csv",
+                            mime="text/csv",
+                            key='dnldbtn18')
+        # seaborn graph of Speed Habituation Curve
+        # Insert download graph button
+
     col11.subheader("Comprehensive Heatmap")
     sns.set_context('notebook', font_scale=0.7)
     figx_hm = col11.slider('Figure Width', 0, 30, 15, key="figx_hmcustom")
