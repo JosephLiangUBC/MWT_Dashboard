@@ -445,12 +445,14 @@ with allele_tab:
     allele_option = st.selectbox(
         'Select a allele',
         (tap_output['dataset'].unique()))
-    # if allele_option:
-    #     allele_id=url_data[url_data['Gene']==allele_option]['Identifier'].values[0]
-    #     glink=f'https://www.alliancegenome.org/gene/WB:{allele_id}'
     #     wlink=f'https://wormbase.org/species/c_elegans/gene/{allele_id}'
-    # st.markdown(f'For more gene information on [{allele_option}](%s)' % glink )
     # st.markdown(f'For more allele information on [{allele_option}](%s)' % wlink)
+    split=allele_option.split('_')
+    url_data= pd.read_csv("WB_id.csv")
+    if allele_option:
+        gene_id=url_data[url_data['Gene']==split[0]]['Identifier'].values[0]
+        glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
+    st.markdown(f'<p style="font-size:25px">For more gene information on <a href="{glink}">{split[0]}</a></p>', unsafe_allow_html=True)
 
     tap_output_allele = tap_output[tap_output['dataset'] == allele_option]
     # st.write(tap_output_allele)
