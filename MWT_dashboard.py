@@ -231,7 +231,7 @@ with gene_tab:
     if gene_option:
         gene_id=url_data[url_data['Gene']==gene_option]['Identifier'].values[0]
         glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
-    st.markdown(f'<p style="font-size:25px">For more information on <a href="{glink}">{gene_option}</a></p>', unsafe_allow_html=True)
+    st.markdown(f'<p style="font-size:20px">For more information on <a href="{glink}">{gene_option}</a></p>', unsafe_allow_html=True)
 
     tap_output_gene = tap_output[tap_output['Gene'] == gene_option]
     # st.write(tap_output_allele)
@@ -452,7 +452,7 @@ with allele_tab:
     if allele_option:
         gene_id=url_data[url_data['Gene']==split[0]]['Identifier'].values[0]
         glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
-    st.markdown(f'<p style="font-size:25px">For more gene information on <a href="{glink}">{split[0]}</a></p>', unsafe_allow_html=True)
+    st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{split[0]}</a></p>', unsafe_allow_html=True)
 
     tap_output_allele = tap_output[tap_output['dataset'] == allele_option]
     # st.write(tap_output_allele)
