@@ -738,6 +738,18 @@ with custom_select_tab:
                             key='dnldmultigenephenotypeprofilecsv')
     
     col10.subheader('Habituation Curves')
+    genes = gene_tap_data_plot['Gene'].unique()
+
+    # Create a list of unique colors for the genes
+    colors = []
+    while len(colors) < len(genes):
+        color = sns.color_palette()[random.randint(0, len(sns.color_palette())-1)]
+        if color not in colors:
+            colors.append(color)
+
+    # Create a palette with 'teelblue' for 'N2' and the unique colors for the other genes
+    new_palette = ["steelblue" if gene == "N2" else color for gene, color in zip(genes, colors)]
+
     with col10:
         tab7, tab8, tab9 = st.tabs(["Habituation of Response Probability",
                                 "Habituation of Response Duration",
@@ -751,7 +763,7 @@ with custom_select_tab:
                             y="prob",
                             data=gene_tap_data_plot,
                             hue='Gene',  # <- Here we use the extra column from step 6 to separate by group
-                            palette=["steelblue" if gene == "N2" else sns.color_palette()[random.randint(0, len(sns.color_palette())-1)] for gene in gene_tap_data_plot['Gene'].unique()], # N2 to be blue consistently
+                            palette=new_palette,
                             errorbar='se')  # <- Confidence interval. 95 = standard error
             plt.xlabel("Taps")  # <- x-axis title
             plt.ylabel("Probability")  # <- y-axis title
@@ -784,7 +796,7 @@ with custom_select_tab:
                             y="dura",
                             data=gene_tap_data_plot,
                             hue='Gene',
-                            palette=["steelblue" if gene == "N2" else sns.color_palette()[random.randint(0, len(sns.color_palette())-1)] for gene in gene_tap_data_plot['Gene'].unique()], # N2 to be blue consistently
+                            palette=new_palette, # N2 to be blue consistently
                             errorbar='se')
             plt.xlabel("Taps", fontsize='12')
             plt.ylabel("Duration", fontsize='12')
@@ -819,7 +831,7 @@ with custom_select_tab:
                             y="speed",
                             data=gene_tap_data_plot,
                             hue='Gene',
-                            palette=["steelblue" if gene == "N2" else sns.color_palette()[random.randint(0, len(sns.color_palette())-1)] for gene in gene_tap_data_plot['Gene'].unique()], # N2 to be blue consistently
+                            palette=new_palette, # N2 to be blue consistently
                             errorbar='se')
             plt.xlabel("Taps", fontsize='12')
             plt.ylabel("Speed", fontsize='12')
