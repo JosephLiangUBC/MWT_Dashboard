@@ -18,7 +18,6 @@ def convert_df(df):
     return df.to_csv().encode("utf-8")
 
 # Fail gracefully option
-@st.cache_data
 def read(table):
     result = pd.read_sql_query(f"SELECT * FROM {table}", conn)
     return result
@@ -232,7 +231,8 @@ with gene_tab:
     if gene_option:
         gene_id=url_data[url_data['Gene']==gene_option]['Identifier'].values[0]
         glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
-    st.markdown(f'For more information on [{gene_option}](%s)' % glink)
+    st.markdown(f'<p style="font-size:25px">For more information on <a href="{glink}">{gene_option}</a></p>', unsafe_allow_html=True)
+
     tap_output_gene = tap_output[tap_output['Gene'] == gene_option]
     # st.write(tap_output_allele)
     # st.write(tap_output_allele['Date'].unique())
@@ -605,9 +605,6 @@ with allele_tab:
             plt.title("Habituation of Response Duration", fontsize='16')
             plt.ylim(0, None)
             ax.legend(loc='upper right', fontsize='12')
-            tab5.pyplot(fig)
-            tab5.caption(f'Habituation of Response Duration: {allele_option}')
-
             img5 = io.BytesIO()
             plt.savefig(img5, format='png', dpi=300, bbox_inches='tight')
             #display image 
