@@ -1,3 +1,4 @@
+import random
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -750,10 +751,10 @@ with custom_select_tab:
                             y="prob",
                             data=gene_tap_data_plot,
                             hue='Gene',  # <- Here we use the extra column from step 6 to separate by group
-                            palette=["steelblue" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()], # N2 to be blue consistently
+                            palette=["steelblue" if gene == "N2" else sns.color_palette()[random.randint(0, len(sns.color_palette())-1)] for gene in gene_tap_data_plot['Gene'].unique()], # N2 to be blue consistently
                             errorbar='se')  # <- Confidence interval. 95 = standard error
-            plt.xlabel("Taps")  # <- X-axis title
-            plt.ylabel("Probability")  # <- Y-Axis title
+            plt.xlabel("Taps")  # <- x-axis title
+            plt.ylabel("Probability")  # <- y-axis title
             plt.title("Habituation of Response Probability", fontsize='16')  # <- Figure Title
             plt.ylim(0, 1)
             ax.legend(loc='upper right', fontsize='12')  # <- location of your legend
@@ -783,7 +784,7 @@ with custom_select_tab:
                             y="dura",
                             data=gene_tap_data_plot,
                             hue='Gene',
-                            palette=["steelblue" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
+                            palette=["steelblue" if gene == "N2" else sns.color_palette()[random.randint(0, len(sns.color_palette())-1)] for gene in gene_tap_data_plot['Gene'].unique()], # N2 to be blue consistently
                             errorbar='se')
             plt.xlabel("Taps", fontsize='12')
             plt.ylabel("Duration", fontsize='12')
@@ -818,7 +819,7 @@ with custom_select_tab:
                             y="speed",
                             data=gene_tap_data_plot,
                             hue='Gene',
-                            palette=["steelblue" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
+                            palette=["steelblue" if gene == "N2" else sns.color_palette()[random.randint(0, len(sns.color_palette())-1)] for gene in gene_tap_data_plot['Gene'].unique()], # N2 to be blue consistently
                             errorbar='se')
             plt.xlabel("Taps", fontsize='12')
             plt.ylabel("Speed", fontsize='12')
