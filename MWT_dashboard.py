@@ -22,8 +22,8 @@ def read(table):
     result = pd.read_sql_query(f"SELECT * FROM {table}", conn)
     return result
 
-# conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
-conn = sqlite3.connect('/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db')
+conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
+# conn = sqlite3.connect('/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db')
 
 # Read data from SQLite database
 tap_output = read('tap_response_data')
@@ -347,8 +347,8 @@ with gene_tab:
                             y="prob",
                             data=gene_tap_data_plot,
                             hue='Gene',  # <- Here we use the extra column from step 6 to separate by group
-                            errorbar='se',
-                            palette=["steelblue" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()])  # <- Confidence interval. 95 = standard error
+                            palette=["steelblue" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
+                            errorbar='se')  # <- Confidence interval. 95 = standard error
             plt.xlabel("Taps")  # <- X-axis title
             plt.ylabel("Probability")  # <- Y-Axis title
             plt.title("Habituation of Response Probability", fontsize='16')  # <- Figure Title
@@ -750,6 +750,7 @@ with custom_select_tab:
                             y="prob",
                             data=gene_tap_data_plot,
                             hue='Gene',  # <- Here we use the extra column from step 6 to separate by group
+                            palette=["steelblue" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()], # N2 to be blue consistently
                             errorbar='se')  # <- Confidence interval. 95 = standard error
             plt.xlabel("Taps")  # <- X-axis title
             plt.ylabel("Probability")  # <- Y-Axis title
@@ -782,7 +783,7 @@ with custom_select_tab:
                             y="dura",
                             data=gene_tap_data_plot,
                             hue='Gene',
-                            # palette=pal,
+                            palette=["steelblue" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
                             errorbar='se')
             plt.xlabel("Taps", fontsize='12')
             plt.ylabel("Duration", fontsize='12')
@@ -817,6 +818,7 @@ with custom_select_tab:
                             y="speed",
                             data=gene_tap_data_plot,
                             hue='Gene',
+                            palette=["steelblue" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
                             errorbar='se')
             plt.xlabel("Taps", fontsize='12')
             plt.ylabel("Speed", fontsize='12')
