@@ -858,7 +858,6 @@ with custom_select_tab:
     fig, ax = plt.subplots(figsize=(15, 20))
     # fig, ax = plt.subplots()
     # ax = sns.heatmap(glue)
-    st.write(tap_tstat_allele)
     # Filter the dataframe for the selected genes
     tap_tstat_allele_selected = tap_tstat_allele[tap_tstat_allele['Gene'].isin(gene_multiple)]
 
@@ -887,7 +886,7 @@ with custom_select_tab:
                         mime="image/png",
                         key='dnldheatmapcustom')
     col11.download_button(label="Download csv",
-                            data=convert_df(tap_tstat_allele_selected.set_index('Gene').drop(index="N2")),
+                            data=convert_df(tap_tstat_allele_selected.set_index('Gene')),
                             file_name=f"Data Glance Heatmap.csv",
                             mime="text/csv",
                             key='dnldheatmapcsvcustom')
