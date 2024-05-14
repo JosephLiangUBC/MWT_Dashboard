@@ -224,11 +224,12 @@ with gene_tab:
     gene_option = st.selectbox(
         'Select a gene',
         (tap_output['Gene'].unique()), key="geneselect")
-    url_data= pd.read_csv("WB_id.csv")
+    gene_id_data= pd.read_csv("WB_id.csv")
+
     if gene_option:
-        gene_id=url_data[url_data['Gene']==gene_option]['Identifier'].values[0]
+        gene_id=gene_id_data.loc[gene_id_data['Gene']==gene_option,'Identifier'].values[0]
         glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
-    st.markdown(f'<p style="font-size:20px">For more information on <a href="{glink}">{gene_option}</a></p>', unsafe_allow_html=True)
+    st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene_option}</a></p>', unsafe_allow_html=True)
 
     tap_output_gene = tap_output[tap_output['Gene'] == gene_option]
     # st.write(tap_output_allele)
@@ -444,14 +445,26 @@ with allele_tab:
     allele_option = st.selectbox(
         'Select a allele',
         (tap_output['dataset'].unique()))
-    #     wlink=f'https://wormbase.org/species/c_elegans/gene/{allele_id}'
-    # st.markdown(f'For more allele information on [{allele_option}](%s)' % wlink)
-    split=allele_option.split('_')
-    url_data= pd.read_csv("WB_id.csv")
+    #splititing gene allele to get gene and allele columns
+    gene, allele = allele_option.split('_')
+    gene_id_data= pd.read_csv("WB_id.csv")# data for gene id
+    allele_id_data= pd.read_csv("Gene_Allele_WormBaseID.csv",names=['Identifier', 'Gene', 'Allele'])# data for allele id
+
+    # check if allele and gene options match the preexisting list
     if allele_option:
-        gene_id=url_data[url_data['Gene']==split[0]]['Identifier'].values[0]
+        gene_id = gene_id_data.loc[gene_id_data['Gene'] == gene, 'Identifier'].values[0]
+        allele_id = allele_id_data.loc[(allele_id_data['Gene'] == gene) & (allele_id_data['Allele'] == allele), 'Identifier']
+        if allele_id.any():
+            allele_id=allele_id.values[0]
+        else: # if allele option doesnt match then send to default page
+            allele_id= "default value"
+
+        # links to the Alliance Genome and WormBase websote 
         glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
-    st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{split[0]}</a></p>', unsafe_allow_html=True)
+        wlink=f'https://wormbase.org/species/c_elegans/variation/{allele_id}'
+    # display links
+    st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene}</a></p>', unsafe_allow_html=True)
+    st.markdown(f'<p style="font-size:20px">For more allele information on <a href="{wlink}">{allele}</a></p>', unsafe_allow_html=True)
 
     tap_output_allele = tap_output[tap_output['dataset'] == allele_option]
     # st.write(tap_output_allele)
@@ -478,13 +491,16 @@ with allele_tab:
     # download graph button
     allele_profile_plot = io.BytesIO()
     plt.savefig(allele_profile_plot, format='png', dpi=300, bbox_inches='tight')
-    #display image 
+    # display image 
     col5.image(allele_profile_plot,width=None,caption=(f'Phenotypic profile of gene-allele {allele_option}'))
+    # download button for plots
     col5.download_button(label="Download Plot",
                         data=allele_profile_plot,
                         file_name=f"{allele_option}_profile.png",
                         mime="image/png",
                         key='dnldalleleprofile')
+    
+    # download button for data
     col5.download_button(label="Download csv",
                         data=convert_df(allele_profile_data[allele_profile_data.dataset == f"{allele_option}"]),
                         file_name=f"Phenotypic profile of gene-allele {allele_option}.csv",
@@ -658,13 +674,19 @@ with allele_tab:
 with custom_select_tab:
    # multiple selection option for genes
     gene_multiple = st.multiselect(
-    label="Select Genes",
-    options=tap_output['Gene'].unique(),
-    default=tap_output['Gene'].unique()[0],
-    placeholder="make a selection",
-    help="select and de-select genes you want to analyze",
-    key="geneselection")
-  
+        label="Select Genes",
+        options=tap_output['Gene'].unique(),
+        default=tap_output['Gene'].unique()[0],
+        placeholder="make a selection",
+        help="select and de-select genes you want to analyze",
+        key="geneselection")
+    gene_id_data= pd.read_csv("WB_id.csv")
+
+    for gene in gene_multiple:
+        gene_id=gene_id_data.loc[gene_id_data['Gene']==gene,'Identifier'].values[0]
+        glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
+        st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene}</a></p>', unsafe_allow_html=True)
+
     #fiilter data for particular genes
     tap_output_gene = tap_output[tap_output['Gene'].isin(gene_multiple)]
     # st.write(tap_output_allele)
