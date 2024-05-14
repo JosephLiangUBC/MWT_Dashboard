@@ -739,7 +739,7 @@ with custom_select_tab:
     # Create a list of unique colors for the genes
     colors = []
     while len(colors) < len(genes):
-        color = sns.color_palette()[random.randint(0, len(sns.color_palette())-1)]
+        color = sns.color_palette()[random.randint(1, len(sns.color_palette())-1)]
         if color not in colors:
             colors.append(color)
 
