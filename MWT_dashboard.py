@@ -136,9 +136,7 @@ with data_tab:
     colors = ["dimgray"] * len(gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"])
     colors[gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]).reset_index(drop=True)[
         gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == "N2"].index[0]] = "red"
-    figx = col1.slider('Figure width', 1, 20, 4, key="figx_1")
-    figy = col1.slider('Figure Height', 1, 70, 16, key="figy_1")
-    fig, ax = plt.subplots(figsize=(figx, figy))
+    fig, ax = plt.subplots(figsize=(4,16))
     # fig, ax = plt.subplots()
     # ax = sns.pointplot(data = gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]),
     #             x=f"{phenotype_option}-mean",
@@ -186,9 +184,7 @@ with data_tab:
 
     col2.subheader("Comprehensive Heatmap")
     sns.set_context('notebook', font_scale=0.7)
-    figx_hm = col2.slider('Figure Width', 0, 30, 15, key="figx_hm")
-    figy_hm = col2.slider('Figure Height', 0, 70, 20, key="figy_hm")
-    fig, ax = plt.subplots(figsize=(figx_hm, figy_hm))
+    fig, ax = plt.subplots(figsize=(15, 20))
     # fig, ax = plt.subplots()
     # ax = sns.heatmap(glue)
 
@@ -289,7 +285,7 @@ with gene_tab:
     gene_colors[gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)[
         gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == gene_option].index[
         0]] = "magenta"
-    fig, ax = plt.subplots(figsize=(figx, figy))
+    fig, ax = plt.subplots(figsize=(4, 16))
     # ax = sns.pointplot(data = gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]),
     #             x=f"{phenotype_option}-mean",
     #             y="Gene-",
@@ -693,7 +689,7 @@ with custom_select_tab:
     for g in gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)[
         gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"].isin(gene_multiple)].index:
         gene_colors[g] = "magenta"
-    fig, ax = plt.subplots(figsize=(figx, figy))
+    fig, ax = plt.subplots(figsize=(4, 16))
     # ax = sns.pointplot(data = gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]),
     #             x=f"{phenotype_option}-mean",
     #             y="Gene-",
@@ -859,13 +855,14 @@ with custom_select_tab:
 
     col11.subheader("Comprehensive Heatmap")
     sns.set_context('notebook', font_scale=0.7)
-    figx_hm = col11.slider('Figure Width', 0, 30, 15, key="figx_hmcustom")
-    figy_hm = col11.slider('Figure Height', 0, 70, 20, key="figy_hmcustom")
-    fig, ax = plt.subplots(figsize=(figx_hm, figy_hm))
+    fig, ax = plt.subplots(figsize=(15, 20))
     # fig, ax = plt.subplots()
     # ax = sns.heatmap(glue)
+    st.write(tap_tstat_allele)
+    # Filter the dataframe for the selected genes
+    tap_tstat_allele_selected = tap_tstat_allele[tap_tstat_allele['Gene'].isin(gene_multiple)]
 
-    ax = sns.heatmap(data=tap_tstat_allele.set_index('Gene').drop(index="N2"),
+    ax = sns.heatmap(data=tap_tstat_allele_selected.set_index('Gene'),
                     annot=False,
                     linewidth=0.2,
                     square=False,
@@ -890,7 +887,7 @@ with custom_select_tab:
                         mime="image/png",
                         key='dnldheatmapcustom')
     col11.download_button(label="Download csv",
-                            data=convert_df(tap_tstat_allele.set_index('Gene').drop(index="N2")),
+                            data=convert_df(tap_tstat_allele_selected.set_index('Gene').drop(index="N2")),
                             file_name=f"Data Glance Heatmap.csv",
                             mime="text/csv",
                             key='dnldheatmapcsvcustom')
