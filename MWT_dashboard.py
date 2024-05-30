@@ -331,7 +331,7 @@ with gene_tab:
                             key='dnldgenephenotypeprofilecsv')
 
     # Move tabs inside col 7 for better viewing
-    col7.subheader('Habituation Curves')
+    col7.subheader('Habituation Curves (for now navigate using side arrow keys)')
     with col7:
         tab1, tab2, tab3 = st.tabs(["Habituation of Response Probability",
                                 "Habituation of Response Duration",
@@ -569,7 +569,7 @@ with allele_tab:
     # Insert download graph button
 
 
-    col8.subheader('Habituation Curves')
+    col8.subheader('Habituation Curves (for now navigate using side arrow keys)')
     with col8:
         tab4, tab5, tab6 = st.tabs(["Habituation of Response Probability",
                                     "Habituation of Response Duration",
@@ -755,7 +755,7 @@ with custom_select_tab:
                             mime="text/csv",
                             key='dnldmultigenephenotypeprofilecsv')
     
-    col10.subheader('Habituation Curves')
+    col10.subheader('Habituation Curves (for now navigate using side arrow keys)')
     genes = gene_tap_data_plot['Gene'].unique()
 
     # Create a list of unique colors for the genes
