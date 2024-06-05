@@ -227,9 +227,14 @@ with gene_tab:
     gene_id_data= pd.read_csv("WB_id.csv")
 
     if gene_option:
-        gene_id=gene_id_data.loc[gene_id_data['Gene']==gene_option,'Identifier'].values[0]
-        glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
-    st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene_option}</a></p>', unsafe_allow_html=True)
+        try:
+            gene_id=gene_id_data.loc[gene_id_data['Gene']==gene_option,'Identifier'].values[0]
+            glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
+            st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene_option}</a></p>', unsafe_allow_html=True)
+        except:
+            glink = 'https://www.alliancegenome.org'
+            st.markdown(f"information for {gene_option} not available")
+    
 
     tap_output_gene = tap_output[tap_output['Gene'] == gene_option]
     # st.write(tap_output_allele)
@@ -683,9 +688,13 @@ with custom_select_tab:
     gene_id_data= pd.read_csv("WB_id.csv")
 
     for gene in gene_multiple:
-        gene_id=gene_id_data.loc[gene_id_data['Gene']==gene,'Identifier'].values[0]
-        glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
-        st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene}</a></p>', unsafe_allow_html=True)
+        try:
+            gene_id=gene_id_data.loc[gene_id_data['Gene']==gene,'Identifier'].values[0]
+            glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
+            st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene}</a></p>', unsafe_allow_html=True)
+        except:
+            glink = 'https://www.alliancegenome.org'
+            st.markdown(f"information for {gene_option} not available")
 
     #fiilter data for particular genes
     tap_output_gene = tap_output[tap_output['Gene'].isin(gene_multiple)]
