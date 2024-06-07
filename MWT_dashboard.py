@@ -23,8 +23,8 @@ def read(table):
     result = pd.read_sql_query(f"SELECT * FROM {table}", conn)
     return result
 
-conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
-# conn = sqlite3.connect('/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db')
+# conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
+conn = sqlite3.connect('/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db')
 
 # Read data from SQLite database
 tap_output = read('tap_response_data')
@@ -51,7 +51,7 @@ metric_palette = ["k", "k", "k",
                   "thistle", "thistle", "thistle"]
 
 # Streamlit Dashboard title
-st.title('NRSC510B: Data Dashboard for MWT Data')
+st.title('Data Dashboard for MWT Data')
 
 # Select dataset option
 datasets = st.multiselect(
@@ -86,18 +86,11 @@ gene_MSD = gene_MSD[gene_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1
 allele_MSD = allele_MSD[allele_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 
 # creating tabs for dashboard
-tabs_font_css = """
-<style>
-    .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
-    font-size:24px;
-    }
-</style>
-"""
-st.write(tabs_font_css, unsafe_allow_html=True)
-data_tab, gene_tab, allele_tab , custom_select_tab,clustering_tab= st.tabs(["Data at a Glance", "Gene-specific Data", "Allele-specific Data",  "Custom Selection","Clustering"])
+pages = ["Data at a Glance", "Gene-specific Data", "Allele-specific Data",  "Custom Selection","Clustering"]
+page = st.sidebar.selectbox("Select a page", pages)
 
 # Visualisations for data tab
-with data_tab:
+if page ==pages[0]:
     st.header('Data at a glance')
 
 #
@@ -219,7 +212,7 @@ with data_tab:
                             key='dnldheatmapcsv')
     # Insert download graph button
     # Insert download csv
-with gene_tab:
+if page ==pages[1]:
     st.header('Gene-specific Data')
     gene_option = st.selectbox(
         'Select a gene',
@@ -445,7 +438,7 @@ with gene_tab:
         # seaborn graph of Speed Habituation Curve
         # Insert download graph button
 
-with allele_tab:
+if page ==pages[2]:
     st.header('Allele-specific Data')
     # select allele 
     allele_option = st.selectbox(
@@ -676,8 +669,10 @@ with allele_tab:
                                 mime="text/csv",
                                 key='dnldbtn12')
 
-with custom_select_tab:
+if page ==pages[3]:
    # multiple selection option for genes
+    st.header('Custom Gene Selection ')
+
     gene_multiple = st.multiselect(
         label="Select Genes",
         options=tap_output['Gene'].unique(),
@@ -718,12 +713,12 @@ with custom_select_tab:
         key='multigene_phenotype_select')
     # seaborn graph of phenotypic view (sample mean distance) + st.pyplot
     sns.set_context('notebook')
-    gene_colors = ["dimgray"] * len(gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"])
-    gene_colors[gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)[
-        gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == "N2"].index[
+    gene_colors = ["dimgray"] * len(gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])["Gene"])
+    gene_colors[gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"]).reset_index(drop=True)[
+        gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == "N2"].index[
         0]] = "red"
-    for g in gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)[
-        gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"].isin(gene_multiple)].index:
+    for g in gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"]).reset_index(drop=True)[
+        gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"].isin(gene_multiple)].index:
         gene_colors[g] = "magenta"
     fig, ax = plt.subplots(figsize=(4, 16))
     # ax = sns.pointplot(data = gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]),
@@ -731,41 +726,41 @@ with custom_select_tab:
     #             y="Gene-",
     #             # errorbar=list(zip(gene_MSD[f"{phenotype_option}-ci95_lo"],gene_MSD[f"{phenotype_option}-ci95_hi"])),
     #             palette=["dimgray"]).set_title(f"{phenotype_option}")
-    ax = plt.errorbar(x=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-mean"],
-                    y=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"],
-                    xerr=gene_MSD[f"{gene_phenotype_option}-ci95_hi"] - gene_MSD[f"{gene_phenotype_option}-mean"],
+    ax = plt.errorbar(x=gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])[f"{multigene_phenotype_option}-mean"],
+                    y=gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])["Gene"],
+                    xerr=gene_MSD[f"{multigene_phenotype_option}-ci95_hi"] - gene_MSD[f"{multigene_phenotype_option}-mean"],
                     fmt="none", marker="none", ecolor=gene_colors, elinewidth=3)
-    ax = plt.scatter(x=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-mean"],
-                    y=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"],
+    ax = plt.scatter(x=gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])[f"{multigene_phenotype_option}-mean"],
+                    y=gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])["Gene"],
                     marker='o', color=gene_colors)
     plt.yticks(fontsize=7) # added to see the axis labels better
 
     plt.xlabel('Sample Mean Distance')
     plt.ylabel('Genes')
-    plt.title(f"{gene_phenotype_option}")
+    plt.title(f"{multigene_phenotype_option}")
 
     multigene_phenotype_plot = io.BytesIO()
     plt.savefig(multigene_phenotype_plot, format='png', dpi=300, bbox_inches='tight')
     #display image 
-    col9.image(multigene_phenotype_plot, width=None,caption=f'Sample mean distance from wildtype for selected phenotype: {gene_phenotype_option} and selected genes :{gene_multiple}. Error bars are 95% CI.')
+    col9.image(multigene_phenotype_plot, width=None,caption=f'Sample mean distance from wildtype for selected phenotype: {multigene_phenotype_option} and selected genes :{gene_multiple}. Error bars are 95% CI.')
     
     #combine data and rename columns :
-    multigene_dat=pd.concat( [gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"],
-                   gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-mean"],
-                   gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-ci95_lo"],
-                   gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-ci95_hi"]],
+    multigene_dat=pd.concat( [gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])["Gene"],
+                   gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])[f"{multigene_phenotype_option}-mean"],
+                   gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])[f"{multigene_phenotype_option}-ci95_lo"],
+                   gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])[f"{multigene_phenotype_option}-ci95_hi"]],
                    axis=1)
-    gene_dat.columns=["Gene", f"{gene_phenotype_option}", f"{gene_phenotype_option}-lower" ,f"{gene_phenotype_option}-upper"]
+    multigene_dat.columns=["Gene", f"{multigene_phenotype_option}", f"{multigene_phenotype_option}-lower" ,f"{multigene_phenotype_option}-upper"]
     
     # Insert download graph button
     col9.download_button(label="Download Plot",
                         data=multigene_phenotype_plot,
-                        file_name=f"multi_gene_{gene_phenotype_option}_profile.png",
+                        file_name=f"multi_gene_{multigene_phenotype_option}_profile.png",
                         mime="image/png",
                         key='dnldmultigenephenotypeprofile')
     col9.download_button(label="Download csv",
                             data=convert_df(multigene_dat),
-                            file_name=f"Gene-specific Data Sample mean distance {gene_phenotype_option}.csv",
+                            file_name=f"Gene-specific Data Sample mean distance {multigene_phenotype_option}.csv",
                             mime="text/csv",
                             key='dnldmultigenephenotypeprofilecsv')
     
