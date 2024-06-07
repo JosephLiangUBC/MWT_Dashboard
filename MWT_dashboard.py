@@ -336,11 +336,12 @@ with gene_tab:
                             key='dnldgenephenotypeprofilecsv')
 
     # Move tabs inside col 7 for better viewing
-    col7.subheader('Habituation Curves (for now navigate using side arrow keys)')
+    col7.subheader('Habituation Curves of Response')
     with col7:
-        tab1, tab2, tab3 = st.tabs(["Habituation of Response Probability",
-                                "Habituation of Response Duration",
-                                "Habituation of Response Speed"])
+        tab1, tab2, tab3 = st.tabs(["Probability",
+                                "Duration",
+                                "Speed"])
+        
         with tab1:
             #  Habituation of Response Probability Plot
             fig, ax = plt.subplots(figsize=(12, 10))
@@ -573,11 +574,11 @@ with allele_tab:
     # Insert download graph button
 
 
-    col8.subheader('Habituation Curves (for now navigate using side arrow keys)')
+    col8.subheader('Habituation Curves of Response')
     with col8:
-        tab4, tab5, tab6 = st.tabs(["Habituation of Response Probability",
-                                    "Habituation of Response Duration",
-                                    "Habituation of Response Speed"])
+        tab4, tab5, tab6 = st.tabs(["Probability",
+                                    "Duration",
+                                    "Speed"])
 
         with tab4:
             #  Habituation of Response Probability Plot
@@ -685,15 +686,20 @@ with custom_select_tab:
         help="select and de-select genes you want to analyze",
         key="geneselection")
     gene_id_data= pd.read_csv("WB_id.csv")
-
+    na_list=[]
+    g_link_list=[]
     for gene in gene_multiple:
         try:
             gene_id=gene_id_data.loc[gene_id_data['Gene']==gene,'Identifier'].values[0]
             glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
-            st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene}</a></p>', unsafe_allow_html=True)
+            g_link_list.append(f'<a href="{glink}">{gene}</a>')
         except:
-            glink = 'https://www.alliancegenome.org'
-            st.markdown(f"information for {gene_option} not available")
+            na_list.append(gene)
+    st.markdown(f"<p style='font-size:20px'>For more gene information on {', '.join(g_link_list)}</p>", unsafe_allow_html=True)
+    # st.markdown(f"", unsafe_allow_html=True)
+    if na_list:
+        na_links = [f'<a href="https://www.alliancegenome.org">{gene}</a>' for gene in na_list]
+        st.markdown(f"<p style='font-size:20px'>Information not available for: {', '.join(na_links)}</p>", unsafe_allow_html=True)
 
     #fiilter data for particular genes
     tap_output_gene = tap_output[tap_output['Gene'].isin(gene_multiple)]
@@ -763,7 +769,7 @@ with custom_select_tab:
                             mime="text/csv",
                             key='dnldmultigenephenotypeprofilecsv')
     
-    col10.subheader('Habituation Curves (for now navigate using side arrow keys)')
+    col10.subheader('Habituation Curves of Response')
     genes = gene_tap_data_plot['Gene'].unique()
 
     # Create a list of unique colors for the genes
@@ -777,9 +783,9 @@ with custom_select_tab:
     new_palette = ["steelblue" if gene == "N2" else color for gene, color in zip(genes, colors)]
 
     with col10:
-        tab7, tab8, tab9 = st.tabs(["Habituation of Response Probability",
-                                "Habituation of Response Duration",
-                                "Habituation of Response Speed"])
+        tab7, tab8, tab9 = st.tabs(["Probability",
+                                "Duration",
+                                "Speed"])
         with tab7:
             #  Habituation of Response Probability Plot
             fig, ax = plt.subplots(figsize=(12, 10))
