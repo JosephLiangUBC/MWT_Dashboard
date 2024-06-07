@@ -23,8 +23,8 @@ def read(table):
     result = pd.read_sql_query(f"SELECT * FROM {table}", conn)
     return result
 
-# conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
-conn = sqlite3.connect('/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db')
+conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
+# conn = sqlite3.connect('/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db')
 
 # Read data from SQLite database
 tap_output = read('tap_response_data')
@@ -87,7 +87,7 @@ allele_MSD = allele_MSD[allele_MSD['Screen'].isin(datasets)].replace(["N2_N2", "
 
 # creating tabs for dashboard
 pages = ["Data at a Glance", "Gene-specific Data", "Allele-specific Data",  "Custom Selection","Clustering"]
-page = st.sidebar.selectbox("Select a page", pages)
+page = st.sidebar.radio("Select a page", pages)
 
 # Visualisations for data tab
 if page ==pages[0]:
