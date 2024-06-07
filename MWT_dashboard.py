@@ -468,8 +468,7 @@ with allele_tab:
         glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
         wlink=f'https://wormbase.org/species/c_elegans/variation/{allele_id}'
     # display links
-    st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene}</a></p>', unsafe_allow_html=True)
-    st.markdown(f'<p style="font-size:20px">For more allele information on <a href="{wlink}">{allele}</a></p>', unsafe_allow_html=True)
+    st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene}</a> and allele information on <a href="{wlink}">{allele}</a></p>', unsafe_allow_html=True)
 
     tap_output_allele = tap_output[tap_output['dataset'] == allele_option]
     # st.write(tap_output_allele)
