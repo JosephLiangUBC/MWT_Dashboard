@@ -23,9 +23,9 @@ def read(table):
     result = pd.read_sql_query(f"SELECT * FROM {table}", conn)
     return result
 
-conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
+# conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
 # conn = sqlite3.connect('/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db')
-# conn = sqlite3.connect('/Users/rankinlab/Desktop/MWT_Data_App/mwt_data.db')
+conn = sqlite3.connect('/Users/rankinlab/Desktop/MWT_Data_App/mwt_data.db')
 
 # Read data from SQLite database
 tap_output = read('tap_response_data')
