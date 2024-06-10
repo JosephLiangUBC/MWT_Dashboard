@@ -23,10 +23,17 @@ def read(table):
     result = pd.read_sql_query(f"SELECT * FROM {table}", conn)
     return result
 
-# conn = sqlite3.connect('/Users/Joseph/Desktop/NRSC510B/mwt_data.db')
-# conn = sqlite3.connect('/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db')
-conn = sqlite3.connect('/Users/rankinlab/Desktop/MWT_Data_App/mwt_data.db')
-
+# list of connections to run the dashboard
+conn_list=['/Users/Joseph/Desktop/NRSC510B/mwt_data.db',
+           '/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db',
+           '/Users/rankinlab/Desktop/MWT_Data_App/mwt_data.db']
+for conn_path in conn_list:
+    try:
+        conn= sqlite3.connect(conn_path) #tries whichever connection is available
+        break
+    except:
+        pass
+        
 # Read data from SQLite database
 tap_output = read('tap_response_data')
 tap_tstat_allele = read('tstat_gene_data')
