@@ -94,7 +94,7 @@ gene_MSD = gene_MSD[gene_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1
 allele_MSD = allele_MSD[allele_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 
 # creating tabs for dashboard
-pages = ["Data at a Glance", "Gene-specific Data", "Allele-specific Data",  "Custom Selection","Clustering"]
+pages = ["Data at a Glance", "Gene-specific Data", "Allele-specific Data",  "Custom Gene Selection","Custom Allele Selection","Clustering"]
 page = st.sidebar.radio("Select a page", pages)
 
 # Visualisations for data tab
@@ -930,3 +930,263 @@ if page ==pages[3]:
                             mime="text/csv",
                             key='dnldheatmapcsvcustom')
 
+if page ==pages[4]:
+   # multiple selection option for alleles
+    st.header('Custom Allele Selection ')
+    al_options=[]
+    for a in (tap_output['dataset'].unique()):
+        if a not in ['N2','cpr_5_ok2344','lfe-2-sy326']: ### for debugging this is error in backend
+            gene, allele = a.split('_')
+            al_options.append(allele)
+            print(allele)
+            
+    allele_multiple = st.multiselect(
+        label="Select Allele",
+        options=al_options,
+        default=al_options[0],
+        placeholder="make a selection",
+        help="select and de-select alleles you want to analyze",
+        key="alleleselection")
+    
+    ## edit from here
+    allele_id_data= pd.read_csv("Gene_Allele_WormBaseID.csv",names=['Identifier', 'Gene', 'Allele'])# data for allele id
+    na_list=[]
+    g_link_list=[]
+    for allele in allele_multiple:
+        try:
+            gene_id=allele_id_data.loc[allele_id_data['dataset']==allele,'Identifier'].values[0]
+            glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
+            g_link_list.append(f'<a href="{glink}">{gene}</a>')
+        except:
+            na_list.append(gene)
+    st.markdown(f"<p style='font-size:20px'>For more gene information on {', '.join(g_link_list)}</p>", unsafe_allow_html=True)
+    # st.markdown(f"", unsafe_allow_html=True)
+    if na_list:
+        na_links = [f'<a href="https://www.alliancegenome.org">{gene}</a>' for gene in na_list]
+        st.markdown(f"<p style='font-size:20px'>Information not available for: {', '.join(na_links)}</p>", unsafe_allow_html=True)
+
+    #fiilter data for particular genes
+    tap_output_gene = tap_output[tap_output['Gene'].isin(allele_multiple)]
+    # st.write(tap_output_allele)
+    # st.write(tap_output_allele['Date'].unique())
+    gene_tap_data = tap_output[tap_output['Date'].isin(tap_output_gene['Date'].unique())]
+    gene_tap_data_plot = gene_tap_data[gene_tap_data['Gene'].isin(['N2']+ allele_multiple)]
+    gene_tap_data_plot['taps'] = gene_tap_data_plot['taps'].astype(int)
+    
+    #add columns for msd, habituation plots and heatmap plots
+    col9, col10, col11= st.columns([1,1,1])
+    col9.subheader('Rank in phenotype')
+    multigene_phenotype_option = col9.selectbox(
+        'Select a phenotype',
+        np.unique(phenotype_list),
+        key='multigene_phenotype_select')
+    # seaborn graph of phenotypic view (sample mean distance) + st.pyplot
+    sns.set_context('notebook')
+    gene_colors = ["dimgray"] * len(gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])["Gene"])
+    gene_colors[gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"]).reset_index(drop=True)[
+        gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == "N2"].index[
+        0]] = "red"
+    for g in gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"]).reset_index(drop=True)[
+        gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"].isin(allele_multiple)].index:
+        gene_colors[g] = "magenta"
+    fig, ax = plt.subplots(figsize=(4, 16))
+    # ax = sns.pointplot(data = gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]),
+    #             x=f"{phenotype_option}-mean",
+    #             y="Gene-",
+    #             # errorbar=list(zip(gene_MSD[f"{phenotype_option}-ci95_lo"],gene_MSD[f"{phenotype_option}-ci95_hi"])),
+    #             palette=["dimgray"]).set_title(f"{phenotype_option}")
+    ax = plt.errorbar(x=gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])[f"{multigene_phenotype_option}-mean"],
+                    y=gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])["Gene"],
+                    xerr=gene_MSD[f"{multigene_phenotype_option}-ci95_hi"] - gene_MSD[f"{multigene_phenotype_option}-mean"],
+                    fmt="none", marker="none", ecolor=gene_colors, elinewidth=3)
+    ax = plt.scatter(x=gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])[f"{multigene_phenotype_option}-mean"],
+                    y=gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])["Gene"],
+                    marker='o', color=gene_colors)
+    plt.yticks(fontsize=7) # added to see the axis labels better
+
+    plt.xlabel('Sample Mean Distance')
+    plt.ylabel('Genes')
+    plt.title(f"{multigene_phenotype_option}")
+
+    multigene_phenotype_plot = io.BytesIO()
+    plt.savefig(multigene_phenotype_plot, format='png', dpi=300, bbox_inches='tight')
+    #display image 
+    col9.image(multigene_phenotype_plot, width=None,caption=f'Sample mean distance from wildtype for selected phenotype: {multigene_phenotype_option} and selected genes :{allele_multiple}. Error bars are 95% CI.')
+    
+    #combine data and rename columns :
+    multigene_dat=pd.concat( [gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])["Gene"],
+                   gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])[f"{multigene_phenotype_option}-mean"],
+                   gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])[f"{multigene_phenotype_option}-ci95_lo"],
+                   gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])[f"{multigene_phenotype_option}-ci95_hi"]],
+                   axis=1)
+    multigene_dat.columns=["Gene", f"{multigene_phenotype_option}", f"{multigene_phenotype_option}-lower" ,f"{multigene_phenotype_option}-upper"]
+    
+    # Insert download graph button
+    col9.download_button(label="Download Plot",
+                        data=multigene_phenotype_plot,
+                        file_name=f"multi_gene_{multigene_phenotype_option}_profile.png",
+                        mime="image/png",
+                        key='dnldmultigenephenotypeprofile')
+    col9.download_button(label="Download csv",
+                            data=convert_df(multigene_dat),
+                            file_name=f"Gene-specific Data Sample mean distance {multigene_phenotype_option}.csv",
+                            mime="text/csv",
+                            key='dnldmultigenephenotypeprofilecsv')
+    
+    col10.subheader('Habituation Curves of Response')
+    genes = gene_tap_data_plot['Gene'].unique()
+
+    # Create a list of unique colors for the genes
+    colors = []
+    while len(colors) < len(genes):
+        color = sns.color_palette()[random.randint(1, len(sns.color_palette())-1)]
+        if color not in colors:
+            colors.append(color)
+
+    # Create a palette with 'teelblue' for 'N2' and the unique colors for the other genes
+    new_palette = ["steelblue" if gene == "N2" else color for gene, color in zip(genes, colors)]
+
+    with col10:
+        tab7, tab8, tab9 = st.tabs(["Probability",
+                                "Duration",
+                                "Speed"])
+        with tab7:
+            #  Habituation of Response Probability Plot
+            fig, ax = plt.subplots(figsize=(12, 10))
+            # seaborn plot
+            plt.gca().xaxis.grid(False)  # <- gets rid of x-axis markers to make data look clean
+            ax = sns.pointplot(x="taps",  # <- Here we use seaborn as our graphing package.
+                            y="prob",
+                            data=gene_tap_data_plot,
+                            hue='Gene',  # <- Here we use the extra column from step 6 to separate by group
+                            palette=new_palette,
+                            errorbar='se')  # <- Confidence interval. 95 = standard error
+            plt.xlabel("Taps")  # <- x-axis title
+            plt.ylabel("Probability")  # <- y-axis title
+            plt.title("Habituation of Response Probability", fontsize='16')  # <- Figure Title
+            plt.ylim(0, 1)
+            ax.legend(loc='upper right', fontsize='12')  # <- location of your legend
+
+            # download graph button
+            img7 = io.BytesIO()
+            plt.savefig(img7, format='png', dpi=300, bbox_inches='tight')
+            #display image 
+            tab7.image(img7, width=None,caption=(f'Habituation of Response Probability: {allele_multiple}'))
+            # Insert download plot and download csv button
+            st.download_button(label="Download Plot",
+                            data=img7,
+                            file_name=f"Probability of Tap Habituation {allele_multiple}.png",
+                            mime="image/png",
+                            key='dnldbtn13')
+            st.download_button(label="Download csv",
+                            data=convert_df(gene_tap_data_plot),
+                            file_name=f"Gene-specific Data {allele_multiple}.csv",
+                            mime="text/csv",
+                            key='dnldbtn14')
+
+        with tab8:
+            #  Habituation of Response Duration Plot
+            fig, ax = plt.subplots(figsize=(12, 10))
+            # seaborn plot
+            ax = sns.pointplot(x="taps",
+                            y="dura",
+                            data=gene_tap_data_plot,
+                            hue='Gene',
+                            palette=new_palette, # N2 to be blue consistently
+                            errorbar='se')
+            plt.xlabel("Taps", fontsize='12')
+            plt.ylabel("Duration", fontsize='12')
+            plt.title("Habituation of Response Duration", fontsize='16')
+            plt.ylim(0, None)
+            ax.legend(loc='upper right', fontsize='12')
+            
+            # download graph button
+            img8 = io.BytesIO()
+            plt.savefig(img8, format='png', dpi=300, bbox_inches='tight')
+            #display image 
+            tab8.image(img8, width=None,caption=(f'Habituation of Response Duration: {allele_multiple}'))
+            # Insert download plot and download csv button
+
+            st.download_button(label="Download Plot",
+                            data=img8,
+                            file_name=f"Duration of Tap Habituation {allele_multiple}.png",
+                            mime="image/png",
+                            key='dnldbtn15')
+            st.download_button(label="Download csv",
+                            data=convert_df(gene_tap_data_plot),
+                            file_name=f"Gene-specific Data {allele_multiple}.csv",
+                            mime="text/csv",
+                            key='dnldbtn16')
+        # Seaborn Graph of Duration Habituation curve
+
+        with tab9:
+            #  Habituation of Response Speed Plot
+            fig, ax = plt.subplots(figsize=(12, 10))
+            # seaborn plot
+            ax = sns.pointplot(x="taps",
+                            y="speed",
+                            data=gene_tap_data_plot,
+                            hue='Gene',
+                            palette=new_palette, # N2 to be blue consistently
+                            errorbar='se')
+            plt.xlabel("Taps", fontsize='12')
+            plt.ylabel("Speed", fontsize='12')
+            plt.title("Habituation of Response Speed", fontsize='16')
+            plt.ylim(0, None)
+            ax.legend(loc='upper right', fontsize='12')
+        
+            img9 = io.BytesIO()
+            plt.savefig(img9, format='png', dpi=300, bbox_inches='tight')
+            #display image 
+            tab9.image(img9, width=None,caption=(f'Habituation of Response Speed: {allele_multiple}'))
+            # Insert download plot and download csv button
+            st.download_button(label="Download Plot",
+                            data=img9,
+                            file_name=f"Speed of Tap Habituation {allele_multiple}.png",
+                            mime="image/png",
+                            key='dnldbtn17')
+            st.download_button(label="Download csv",
+                            data=convert_df(gene_tap_data_plot),
+                            file_name=f"Gene-specific Data {allele_multiple}.csv",
+                            mime="text/csv",
+                            key='dnldbtn18')
+        # seaborn graph of Speed Habituation Curve
+        # Insert download graph button
+
+    col11.subheader("Comprehensive Heatmap")
+    sns.set_context('notebook', font_scale=0.7)
+    fig, ax = plt.subplots(figsize=(15, 20))
+    # fig, ax = plt.subplots()
+    # ax = sns.heatmap(glue)
+    # Filter the dataframe for the selected genes
+    tap_tstat_allele_selected = tap_tstat_allele[tap_tstat_allele['Gene'].isin(allele_multiple)]
+
+    ax = sns.heatmap(data=tap_tstat_allele_selected.set_index('Gene'),
+                    annot=False,
+                    linewidth=0.2,
+                    square=False,
+                    cmap="vlag",
+                    #                  cmap=sns.diverging_palette(55, 250, s=100, l=40,as_cmap=True),
+                    center=0,
+                    vmax=3,
+                    vmin=-3,
+                    # xticklabels='auto',
+                    # yticklabels='auto',
+                    cbar_kws={"shrink": .05, "pad": 0.01})
+    ax.set(xlabel="", ylabel="")
+    ax.set_facecolor('xkcd:black')
+
+    imgheatmap = io.BytesIO()
+    plt.savefig(imgheatmap, format='png', dpi=300, bbox_inches='tight')
+    #display image 
+    col11.image(imgheatmap,caption='Comprehensive heatmap of the dataset with selected genes', width=None)
+    col11.download_button(label="Download Plot",
+                        data=imgheatmap,
+                        file_name="Heatmap.png",
+                        mime="image/png",
+                        key='dnldheatmapcustom')
+    col11.download_button(label="Download csv",
+                            data=convert_df(tap_tstat_allele_selected.set_index('Gene')),
+                            file_name=f"Data Glance Heatmap.csv",
+                            mime="text/csv",
+                            key='dnldheatmapcsvcustom')
