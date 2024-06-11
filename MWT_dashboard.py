@@ -714,8 +714,47 @@ if page ==pages[3]:
     
     #add columns for msd, habituation plots and heatmap plots
     col9, col10, col11= st.columns([1,1,1])
-    col9.subheader('Rank in phenotype')
-    multigene_phenotype_option = col9.selectbox(
+
+    col9.subheader("Comprehensive Heatmap")
+    sns.set_context('notebook', font_scale=0.7)
+    fig, ax = plt.subplots(figsize=(15, 20))
+    # fig, ax = plt.subplots()
+    # ax = sns.heatmap(glue)
+    # Filter the dataframe for the selected genes
+    tap_tstat_allele_selected = tap_tstat_allele[tap_tstat_allele['Gene'].isin(gene_multiple)]
+
+    ax = sns.heatmap(data=tap_tstat_allele_selected.set_index('Gene'),
+                    annot=False,
+                    linewidth=0.2,
+                    square=False,
+                    cmap="vlag",
+                    #                  cmap=sns.diverging_palette(55, 250, s=100, l=40,as_cmap=True),
+                    center=0,
+                    vmax=3,
+                    vmin=-3,
+                    # xticklabels='auto',
+                    # yticklabels='auto',
+                    cbar_kws={"shrink": .05, "pad": 0.01})
+    ax.set(xlabel="", ylabel="")
+    ax.set_facecolor('xkcd:black')
+
+    imgheatmap = io.BytesIO()
+    plt.savefig(imgheatmap, format='png', dpi=300, bbox_inches='tight')
+    #display image 
+    col9.image(imgheatmap,caption='Comprehensive heatmap of the dataset with selected genes', width=None)
+    col9.download_button(label="Download Plot",
+                        data=imgheatmap,
+                        file_name="Heatmap.png",
+                        mime="image/png",
+                        key='dnldheatmapcustom')
+    col9.download_button(label="Download csv",
+                            data=convert_df(tap_tstat_allele_selected.set_index('Gene')),
+                            file_name=f"Data Glance Heatmap.csv",
+                            mime="text/csv",
+                            key='dnldheatmapcsvcustom')
+    
+    col10.subheader('Rank in phenotype')
+    multigene_phenotype_option = col10.selectbox(
         'Select a phenotype',
         np.unique(phenotype_list),
         key='multigene_phenotype_select')
@@ -750,7 +789,7 @@ if page ==pages[3]:
     multigene_phenotype_plot = io.BytesIO()
     plt.savefig(multigene_phenotype_plot, format='png', dpi=300, bbox_inches='tight')
     #display image 
-    col9.image(multigene_phenotype_plot, width=None,caption=f'Sample mean distance from wildtype for selected phenotype: {multigene_phenotype_option} and selected genes :{gene_multiple}. Error bars are 95% CI.')
+    col10.image(multigene_phenotype_plot, width=None,caption=f'Sample mean distance from wildtype for selected phenotype: {multigene_phenotype_option} and selected genes :{gene_multiple}. Error bars are 95% CI.')
     
     #combine data and rename columns :
     multigene_dat=pd.concat( [gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])["Gene"],
@@ -761,18 +800,18 @@ if page ==pages[3]:
     multigene_dat.columns=["Gene", f"{multigene_phenotype_option}", f"{multigene_phenotype_option}-lower" ,f"{multigene_phenotype_option}-upper"]
     
     # Insert download graph button
-    col9.download_button(label="Download Plot",
+    col10.download_button(label="Download Plot",
                         data=multigene_phenotype_plot,
                         file_name=f"multi_gene_{multigene_phenotype_option}_profile.png",
                         mime="image/png",
                         key='dnldmultigenephenotypeprofile')
-    col9.download_button(label="Download csv",
+    col10.download_button(label="Download csv",
                             data=convert_df(multigene_dat),
                             file_name=f"Gene-specific Data Sample mean distance {multigene_phenotype_option}.csv",
                             mime="text/csv",
                             key='dnldmultigenephenotypeprofilecsv')
     
-    col10.subheader('Habituation Curves of Response')
+    col11.subheader('Habituation Curves of Response')
     genes = gene_tap_data_plot['Gene'].unique()
 
     # Create a list of unique colors for the genes
@@ -785,7 +824,7 @@ if page ==pages[3]:
     # Create a palette with 'teelblue' for 'N2' and the unique colors for the other genes
     new_palette = ["steelblue" if gene == "N2" else color for gene, color in zip(genes, colors)]
 
-    with col10:
+    with col11:
         tab7, tab8, tab9 = st.tabs(["Probability",
                                 "Duration",
                                 "Speed"])
@@ -892,43 +931,6 @@ if page ==pages[3]:
         # seaborn graph of Speed Habituation Curve
         # Insert download graph button
 
-    col11.subheader("Comprehensive Heatmap")
-    sns.set_context('notebook', font_scale=0.7)
-    fig, ax = plt.subplots(figsize=(15, 20))
-    # fig, ax = plt.subplots()
-    # ax = sns.heatmap(glue)
-    # Filter the dataframe for the selected genes
-    tap_tstat_allele_selected = tap_tstat_allele[tap_tstat_allele['Gene'].isin(gene_multiple)]
-
-    ax = sns.heatmap(data=tap_tstat_allele_selected.set_index('Gene'),
-                    annot=False,
-                    linewidth=0.2,
-                    square=False,
-                    cmap="vlag",
-                    #                  cmap=sns.diverging_palette(55, 250, s=100, l=40,as_cmap=True),
-                    center=0,
-                    vmax=3,
-                    vmin=-3,
-                    # xticklabels='auto',
-                    # yticklabels='auto',
-                    cbar_kws={"shrink": .05, "pad": 0.01})
-    ax.set(xlabel="", ylabel="")
-    ax.set_facecolor('xkcd:black')
-
-    imgheatmap = io.BytesIO()
-    plt.savefig(imgheatmap, format='png', dpi=300, bbox_inches='tight')
-    #display image 
-    col11.image(imgheatmap,caption='Comprehensive heatmap of the dataset with selected genes', width=None)
-    col11.download_button(label="Download Plot",
-                        data=imgheatmap,
-                        file_name="Heatmap.png",
-                        mime="image/png",
-                        key='dnldheatmapcustom')
-    col11.download_button(label="Download csv",
-                            data=convert_df(tap_tstat_allele_selected.set_index('Gene')),
-                            file_name=f"Data Glance Heatmap.csv",
-                            mime="text/csv",
-                            key='dnldheatmapcsvcustom')
 
 if page ==pages[4]:
    # multiple selection option for alleles
