@@ -231,7 +231,7 @@ if page ==pages[1]:
         try:
             gene_id=gene_id_data.loc[gene_id_data['Gene']==gene_option,'Identifier'].values[0]
             glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
-            st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene_option}</a></p>', unsafe_allow_html=True)
+            st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene_option}</a> (Source: GenomeAlliance)</p>', unsafe_allow_html=True)
         except:
             glink = 'https://www.alliancegenome.org'
             st.markdown(f"information for {gene_option} not available")
@@ -466,11 +466,11 @@ if page ==pages[2]:
         else: # if allele option doesnt match then send to default page
             allele_id= "default value"
 
-        # links to the Alliance Genome and WormBase websote 
+        # links to the Alliance Genome and WormBase website 
         glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
         wlink=f'https://wormbase.org/species/c_elegans/variation/{allele_id}'
     # display links
-    st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene}</a> and allele information on <a href="{wlink}">{allele}</a></p>', unsafe_allow_html=True)
+    st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene}</a>(Source: GenomeAlliance) and allele information on <a href="{wlink}">{allele}</a>(Source: WormBase)</p>', unsafe_allow_html=True)
 
     tap_output_allele = tap_output[tap_output['dataset'] == allele_option]
     # st.write(tap_output_allele)
@@ -698,7 +698,7 @@ if page ==pages[3]:
             g_link_list.append(f'<a href="{glink}">{gene}</a>')
         except:
             na_list.append(gene)
-    st.markdown(f"<p style='font-size:20px'>For more gene information on {', '.join(g_link_list)}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:20px'>For more gene information on {', '.join(g_link_list)}(Source: GenomeAlliance)</p>", unsafe_allow_html=True)
     # st.markdown(f"", unsafe_allow_html=True)
     if na_list:
         na_links = [f'<a href="https://www.alliancegenome.org">{gene}</a>' for gene in na_list]
@@ -938,9 +938,7 @@ if page ==pages[4]:
     al_options=[]
     for a in (tap_output['dataset'].unique()):
         if a not in ['N2','cpr_5_ok2344','lfe-2-sy326']: ### for debugging this is error in backend
-            gene, allele = a.split('_')
-            al_options.append(allele)
-            print(allele)
+            al_options.append(a)
             
     allele_multiple = st.multiselect(
         label="Select Allele",
@@ -950,23 +948,43 @@ if page ==pages[4]:
         help="select and de-select alleles you want to analyze",
         key="alleleselection")
     
-    ## edit from here
+    gene_id_data= pd.read_csv("WB_id.csv")# data for gene id
     allele_id_data= pd.read_csv("Gene_Allele_WormBaseID.csv",names=['Identifier', 'Gene', 'Allele'])# data for allele id
     na_list=[]
-    g_link_list=[]
-    for allele in allele_multiple:
-        try:
-            gene_id=allele_id_data.loc[allele_id_data['dataset']==allele,'Identifier'].values[0]
+    g_link_list=[] # list for gene links (AllianceGenome)
+    w_link_list=[] # list for allele links (WormBase)
+    for a in allele_multiple:
+        gene, allele= a.split('_')
+        gene_id = gene_id_data.loc[gene_id_data['Gene'] == gene, 'Identifier']
+        allele_id = allele_id_data.loc[(allele_id_data['Gene'] == gene) & (allele_id_data['Allele'] == allele), 'Identifier']
+        
+        if allele_id.any():
+            allele_id=allele_id.values[0]
+            wlink=f'https://wormbase.org/species/c_elegans/variation/{allele_id}'
+            w_link_list.append(f'<a href="{wlink}">{allele}</a>')
+
+        else: # if allele option doesnt match then send to default page
+            allele_id= "default value"
+            na_list.append(allele)
+        
+        if gene_id.any():
+            gene_id=gene_id.values[0]
             glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
             g_link_list.append(f'<a href="{glink}">{gene}</a>')
-        except:
+
+        else:
+            gene_id= "default value"
             na_list.append(gene)
-    st.markdown(f"<p style='font-size:20px'>For more gene information on {', '.join(g_link_list)}</p>", unsafe_allow_html=True)
-    # st.markdown(f"", unsafe_allow_html=True)
+
+    st.markdown(f"<p style='font-size:20px'>For more gene information on {', '.join(g_link_list)}(Source: GenomeAlliance) </p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:20px'>For more allele information on {', '.join(w_link_list)}(Source: WormBase) </p>", unsafe_allow_html=True)
     if na_list:
         na_links = [f'<a href="https://www.alliancegenome.org">{gene}</a>' for gene in na_list]
+        na_links = [f'<a href="https://wormbase.org/species/c_elegans/variation/">{allele}</a>' for allele in na_list]
+
         st.markdown(f"<p style='font-size:20px'>Information not available for: {', '.join(na_links)}</p>", unsafe_allow_html=True)
 
+    #edit from here
     #fiilter data for particular genes
     tap_output_gene = tap_output[tap_output['Gene'].isin(allele_multiple)]
     # st.write(tap_output_allele)
