@@ -37,6 +37,7 @@ for conn_path in conn_list:
 # Read data from SQLite database
 tap_output = read('tap_response_data')
 tap_tstat_allele = read('tstat_gene_data')
+tap_tstat_data = read('tstat_allele_data')
 # allele_metric_data = read('allele_phenotype_data')
 gene_profile_data = read('gene_profile_data')
 allele_profile_data = read('allele_profile_data')
@@ -84,8 +85,9 @@ dropna_features.remove('Spontaneous Recovery of Response Speed')
 
 # filter data for selected dataset
 tap_output = tap_output[tap_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
-# tap_tstat_allele = tap_tstat_allele[tap_tstat_allele['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
 tap_tstat_allele = tap_tstat_allele[tap_tstat_allele['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(
+    columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
+tap_tstat_data = tap_tstat_data[tap_tstat_data['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(
     columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
 gene_profile_data = gene_profile_data[gene_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 allele_profile_data = allele_profile_data[allele_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"],
@@ -101,29 +103,6 @@ page = st.sidebar.radio("Select a page", pages)
 if page ==pages[0]:
     st.header('Data at a glance')
 
-#
-# st.write(datasets)
-# st.write(allele_profile_data)
-# st.write(tap_output)
-# st.write(gene_MSD)
-
-# if st.checkbox('Show MSD data'):
-#     st.subheader('Raw MSD data')
-#     st.write(gene_MSD)
-
-# st.write(gene_MSD[''])
-# if st.checkbox('Show raw tap data'):
-#     st.subheader('Raw tap data')
-#     st.write(tap_output)
-# #
-# if st.checkbox('Show raw baseline data'):
-#     st.subheader('Raw baseline data')
-#     st.write(tap_baseline)
-#
-# if st.checkbox('Show tstat data'):
-#     st.subheader('tstat data')
-#     st.write(tap_tstat_allele)
-
     col1, col2 = st.columns([2, 3])
 
     col1.subheader("For A Single Phenotype")
@@ -138,12 +117,6 @@ if page ==pages[0]:
     colors[gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]).reset_index(drop=True)[
         gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == "N2"].index[0]] = "red"
     fig, ax = plt.subplots(figsize=(4,16))
-    # fig, ax = plt.subplots()
-    # ax = sns.pointplot(data = gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]),
-    #             x=f"{phenotype_option}-mean",
-    #             y="Gene-",
-    #             # errorbar=list(zip(gene_MSD[f"{phenotype_option}-ci95_lo"],gene_MSD[f"{phenotype_option}-ci95_hi"])),
-    #             palette=["dimgray"]).set_title(f"{phenotype_option}")
     ax = plt.errorbar(x=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"],
                     y=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"],
                     xerr=gene_MSD[f"{phenotype_option}-ci95_hi"] - gene_MSD[f"{phenotype_option}-mean"],
@@ -186,20 +159,15 @@ if page ==pages[0]:
     col2.subheader("Comprehensive Heatmap")
     sns.set_context('notebook', font_scale=0.7)
     fig, ax = plt.subplots(figsize=(15, 20))
-    # fig, ax = plt.subplots()
-    # ax = sns.heatmap(glue)
-
+    
     ax = sns.heatmap(data=tap_tstat_allele.set_index('Gene').drop(index="N2"),
                     annot=False,
                     linewidth=0.2,
                     square=False,
                     cmap="vlag",
-                    #                  cmap=sns.diverging_palette(55, 250, s=100, l=40,as_cmap=True),
                     center=0,
                     vmax=3,
                     vmin=-3,
-                    # xticklabels='auto',
-                    # yticklabels='auto',
                     cbar_kws={"shrink": .05, "pad": 0.01})
     ax.set(xlabel="", ylabel="")
     ax.set_facecolor('xkcd:black')
@@ -238,12 +206,9 @@ if page ==pages[1]:
     
 
     tap_output_gene = tap_output[tap_output['Gene'] == gene_option]
-    # st.write(tap_output_allele)
-    # st.write(tap_output_allele['Date'].unique())
     gene_tap_data = tap_output[tap_output['Date'].isin(tap_output_gene['Date'].unique())]
     gene_tap_data_plot = gene_tap_data[gene_tap_data['Gene'].isin(['N2', gene_option])]
     gene_tap_data_plot['taps'] = gene_tap_data_plot['taps'].astype(int)
-    # st.write(gene_tap_data_plot)
 
  # added extra column to show abituation curves in landscape 
     col3, col4, col7 = st.columns([1, 1, 1])
@@ -293,11 +258,6 @@ if page ==pages[1]:
         gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == gene_option].index[
         0]] = "magenta"
     fig, ax = plt.subplots(figsize=(4, 16))
-    # ax = sns.pointplot(data = gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]),
-    #             x=f"{phenotype_option}-mean",
-    #             y="Gene-",
-    #             # errorbar=list(zip(gene_MSD[f"{phenotype_option}-ci95_lo"],gene_MSD[f"{phenotype_option}-ci95_hi"])),
-    #             palette=["dimgray"]).set_title(f"{phenotype_option}")
     ax = plt.errorbar(x=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-mean"],
                     y=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"],
                     xerr=gene_MSD[f"{gene_phenotype_option}-ci95_hi"] - gene_MSD[f"{gene_phenotype_option}-mean"],
@@ -473,12 +433,9 @@ if page ==pages[2]:
     st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene}</a>(Source: GenomeAlliance) and allele information on <a href="{wlink}">{allele}</a>(Source: WormBase)</p>', unsafe_allow_html=True)
 
     tap_output_allele = tap_output[tap_output['dataset'] == allele_option]
-    # st.write(tap_output_allele)
-    # st.write(tap_output_allele['Date'].unique())
     allele_tap_data = tap_output[tap_output['Date'].isin(tap_output_allele['Date'].unique())]
     allele_tap_data_plot = allele_tap_data[allele_tap_data['dataset'].isin(['N2', allele_option])]
     allele_tap_data_plot['taps'] = allele_tap_data_plot['taps'].astype(int)
-    # st.write(allele_tap_data_plot)
 
     col5, col6, col8 = st.columns([1, 1, 1])
     col5.subheader('Phenotypic profile')
@@ -530,11 +487,6 @@ if page ==pages[2]:
         0]] = "magenta"
 
     fig, ax = plt.subplots(figsize=(4, 16))
-    # ax = sns.pointplot(data = gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]),
-    #             x=f"{phenotype_option}-mean",
-    #             y="Gene-",
-    #             # errorbar=list(zip(gene_MSD[f"{phenotype_option}-ci95_lo"],gene_MSD[f"{phenotype_option}-ci95_hi"])),
-    #             palette=["dimgray"]).set_title(f"{phenotype_option}")
     ax = plt.errorbar(x=allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])[f"{allele_phenotype_option}-mean"],
                     y=allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset"],
                     xerr=allele_MSD[f"{allele_phenotype_option}-ci95_hi"] - allele_MSD[f"{allele_phenotype_option}-mean"],
@@ -699,15 +651,12 @@ if page ==pages[3]:
         except:
             na_list.append(gene)
     st.markdown(f"<p style='font-size:20px'>For more gene information on {', '.join(g_link_list)}(Source: GenomeAlliance)</p>", unsafe_allow_html=True)
-    # st.markdown(f"", unsafe_allow_html=True)
     if na_list:
         na_links = [f'<a href="https://www.alliancegenome.org">{gene}</a>' for gene in na_list]
         st.markdown(f"<p style='font-size:20px'>Information not available for: {', '.join(na_links)}</p>", unsafe_allow_html=True)
 
-    #fiilter data for particular genes
+    #filter data for particular genes
     tap_output_gene = tap_output[tap_output['Gene'].isin(gene_multiple)]
-    # st.write(tap_output_allele)
-    # st.write(tap_output_allele['Date'].unique())
     gene_tap_data = tap_output[tap_output['Date'].isin(tap_output_gene['Date'].unique())]
     gene_tap_data_plot = gene_tap_data[gene_tap_data['Gene'].isin(['N2']+ gene_multiple)]
     gene_tap_data_plot['taps'] = gene_tap_data_plot['taps'].astype(int)
@@ -718,9 +667,6 @@ if page ==pages[3]:
     col9.subheader("Comprehensive Heatmap")
     sns.set_context('notebook', font_scale=0.7)
     fig, ax = plt.subplots(figsize=(15, 20))
-    # fig, ax = plt.subplots()
-    # ax = sns.heatmap(glue)
-    # Filter the dataframe for the selected genes
     tap_tstat_allele_selected = tap_tstat_allele[tap_tstat_allele['Gene'].isin(gene_multiple)]
 
     ax = sns.heatmap(data=tap_tstat_allele_selected.set_index('Gene'),
@@ -728,12 +674,9 @@ if page ==pages[3]:
                     linewidth=0.2,
                     square=False,
                     cmap="vlag",
-                    #                  cmap=sns.diverging_palette(55, 250, s=100, l=40,as_cmap=True),
                     center=0,
                     vmax=3,
                     vmin=-3,
-                    # xticklabels='auto',
-                    # yticklabels='auto',
                     cbar_kws={"shrink": .05, "pad": 0.01})
     ax.set(xlabel="", ylabel="")
     ax.set_facecolor('xkcd:black')
@@ -741,7 +684,7 @@ if page ==pages[3]:
     imgheatmap = io.BytesIO()
     plt.savefig(imgheatmap, format='png', dpi=300, bbox_inches='tight')
     #display image 
-    col9.image(imgheatmap,caption='Comprehensive heatmap of the dataset with selected genes', width=None)
+    col9.image(imgheatmap,caption=f'Comprehensive heatmap of the dataset with selected genes: {gene_multiple}', width=None)
     col9.download_button(label="Download Plot",
                         data=imgheatmap,
                         file_name="Heatmap.png",
@@ -768,11 +711,6 @@ if page ==pages[3]:
         gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"].isin(gene_multiple)].index:
         gene_colors[g] = "magenta"
     fig, ax = plt.subplots(figsize=(4, 16))
-    # ax = sns.pointplot(data = gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]),
-    #             x=f"{phenotype_option}-mean",
-    #             y="Gene-",
-    #             # errorbar=list(zip(gene_MSD[f"{phenotype_option}-ci95_lo"],gene_MSD[f"{phenotype_option}-ci95_hi"])),
-    #             palette=["dimgray"]).set_title(f"{phenotype_option}")
     ax = plt.errorbar(x=gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])[f"{multigene_phenotype_option}-mean"],
                     y=gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])["Gene"],
                     xerr=gene_MSD[f"{multigene_phenotype_option}-ci95_hi"] - gene_MSD[f"{multigene_phenotype_option}-mean"],
@@ -953,10 +891,10 @@ if page ==pages[4]:
     na_list=[]
     g_link_list=[] # list for gene links (AllianceGenome)
     w_link_list=[] # list for allele links (WormBase)
-    gene_list=[]
+    allele_list=[]
     for a in allele_multiple:
         gene, allele= a.split('_')
-        gene_list.append(gene)
+        allele_list.append(a)
         gene_id = gene_id_data.loc[gene_id_data['Gene'] == gene, 'Identifier']
         allele_id = allele_id_data.loc[(allele_id_data['Gene'] == gene) & (allele_id_data['Allele'] == allele), 'Identifier']
         
@@ -1000,11 +938,10 @@ if page ==pages[4]:
     fig, ax = plt.subplots(figsize=(15, 20))
 
     # Filter the dataframe for the selected genes
-    print(tap_tstat_allele)
+    
+    tap_tstat_data_selected = tap_tstat_data[tap_tstat_data['dataset'].isin(allele_list)]
 
-    tap_tstat_allele_selected = tap_tstat_allele[tap_tstat_allele['Gene'].isin(gene_list)]
-
-    ax = sns.heatmap(data=tap_tstat_allele_selected.set_index('Gene'),
+    ax = sns.heatmap(data=tap_tstat_data_selected.set_index('dataset'),
                     annot=False,
                     linewidth=0.2,
                     square=False,
@@ -1019,14 +956,14 @@ if page ==pages[4]:
     imgheatmap = io.BytesIO()
     plt.savefig(imgheatmap, format='png', dpi=300, bbox_inches='tight')
     #display image 
-    col12.image(imgheatmap,caption='Comprehensive heatmap of the dataset with selected alleles', width=None)
+    col12.image(imgheatmap,caption=f'Comprehensive heatmap of the dataset with selected alleles: {allele_list}', width=None)
     col12.download_button(label="Download Plot",
                         data=imgheatmap,
                         file_name="Heatmap.png",
                         mime="image/png",
                         key='dnldheatmapcustomallele')
     col12.download_button(label="Download csv",
-                            data=convert_df(tap_tstat_allele_selected.set_index('Gene')),
+                            data=convert_df(tap_tstat_data_selected.set_index('dataset')),
                             file_name=f"Data Glance Heatmap.csv",
                             mime="text/csv",
                             key='dnldheatmapcsvcustomallele')
@@ -1105,7 +1042,6 @@ if page ==pages[4]:
                                 "Duration",
                                 "Speed"])
         with tab10:
-            print(alleles)
             #  Habituation of Response Probability Plot
             fig, ax = plt.subplots(figsize=(12, 10))
             # seaborn plot
