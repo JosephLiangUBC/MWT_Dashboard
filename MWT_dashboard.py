@@ -188,7 +188,7 @@ if page ==pages[0]:
                             key='dnldheatmapcsv')
     # Insert download graph button
     # Insert download csv
-if page ==pages[1]:
+if page == pages[1]:
     st.header('Gene-specific Data')
     gene_option = st.selectbox(
         'Select a gene',
@@ -207,10 +207,11 @@ if page ==pages[1]:
 
     tap_output_gene = tap_output[tap_output['Gene'] == gene_option]
     gene_tap_data = tap_output[tap_output['Date'].isin(tap_output_gene['Date'].unique())]
-    gene_tap_data_plot = gene_tap_data[gene_tap_data['Gene'].isin(['N2', gene_option])]
+    gene_tap_data_plot = gene_tap_data[gene_tap_data['Gene'].isin(['N2', gene_option])].dropna(subset=['taps'])
+    # st.write(gene_tap_data_plot)
     gene_tap_data_plot['taps'] = gene_tap_data_plot['taps'].astype(int)
 
- # added extra column to show abituation curves in landscape 
+ # added extra column to show habituation curves in landscape 
     col3, col4, col7 = st.columns([1, 1, 1])
     col3.subheader('Phenotypic profile')
 
@@ -434,7 +435,7 @@ if page ==pages[2]:
 
     tap_output_allele = tap_output[tap_output['dataset'] == allele_option]
     allele_tap_data = tap_output[tap_output['Date'].isin(tap_output_allele['Date'].unique())]
-    allele_tap_data_plot = allele_tap_data[allele_tap_data['dataset'].isin(['N2', allele_option])]
+    allele_tap_data_plot = allele_tap_data[allele_tap_data['dataset'].isin(['N2', allele_option])].dropna(subset=['taps'])
     allele_tap_data_plot['taps'] = allele_tap_data_plot['taps'].astype(int)
 
     col5, col6, col8 = st.columns([1, 1, 1])
@@ -658,7 +659,7 @@ if page ==pages[3]:
     #filter data for particular genes
     tap_output_gene = tap_output[tap_output['Gene'].isin(gene_multiple)]
     gene_tap_data = tap_output[tap_output['Date'].isin(tap_output_gene['Date'].unique())]
-    gene_tap_data_plot = gene_tap_data[gene_tap_data['Gene'].isin(['N2']+ gene_multiple)]
+    gene_tap_data_plot = gene_tap_data[gene_tap_data['Gene'].isin(['N2']+ gene_multiple)].dropna(subset=['taps'])
     gene_tap_data_plot['taps'] = gene_tap_data_plot['taps'].astype(int)
     
     #add columns for msd, habituation plots and heatmap plots
@@ -928,8 +929,9 @@ if page ==pages[4]:
 
     tap_output_allele = tap_output[tap_output['dataset'].isin(allele_multiple)]
     allele_tap_data = tap_output[tap_output['Date'].isin(tap_output_allele['Date'].unique())]
-    allele_tap_data_plot = allele_tap_data[allele_tap_data['dataset'].isin(['N2']+ allele_multiple)]
+    allele_tap_data_plot = allele_tap_data[allele_tap_data['dataset'].isin(['N2']+ allele_multiple)].dropna(subset=['taps'])
     allele_tap_data_plot['taps'] = np.nan_to_num(allele_tap_data_plot['taps']).astype(int)
+    # st.write(allele_tap_data_plot)
   
     #add columns for msd, habituation plots and heatmap plots
     col12, col13, col14= st.columns([1,1,1])
@@ -1034,6 +1036,7 @@ if page ==pages[4]:
         if color not in colors:
             colors.append(color)
 
+
     # Create a palette with 'teelblue' for 'N2' and the unique colors for the other genes
     new_palette = ["steelblue" if allele == "N2" else color for allele, color in zip(alleles, colors)]
 
@@ -1049,14 +1052,14 @@ if page ==pages[4]:
             ax = sns.pointplot(x="taps",  # <- Here we use seaborn as our graphing package.
                             y="prob",
                             data=allele_tap_data_plot,
-                            hue='dataset',  # <- Here we use the extra column from step 6 to separate by group
+                            hue='Strain',  # <- Here we use the extra column from step 6 to separate by group
                             palette=new_palette,
                             errorbar='se')  # <- Confidence interval. 95 = standard error
             plt.xlabel("Taps")  # <- x-axis title
             plt.ylabel("Probability")  # <- y-axis title
             plt.title("Habituation of Response Probability", fontsize='16')  # <- Figure Title
             plt.ylim(0, 1)
-            ax.legend(loc='upper right', fontsize='12')  # <- location of your legend
+            # ax.legend(loc='upper right', fontsize='12')  # <- location of your legend
 
             # download graph button
             img10 = io.BytesIO()
@@ -1082,14 +1085,14 @@ if page ==pages[4]:
             ax = sns.pointplot(x="taps",
                             y="dura",
                             data=allele_tap_data_plot,
-                            hue='dataset',
+                            hue='Strain',
                             palette=new_palette, # N2 to be blue consistently
                             errorbar='se')
             plt.xlabel("Taps", fontsize='12')
             plt.ylabel("Duration", fontsize='12')
             plt.title("Habituation of Response Duration", fontsize='16')
             plt.ylim(0, None)
-            ax.legend(loc='upper right', fontsize='12')
+            # ax.legend(loc='upper right', fontsize='12')
             
             # download graph button
             img11 = io.BytesIO()
@@ -1116,14 +1119,14 @@ if page ==pages[4]:
             ax = sns.pointplot(x="taps",
                             y="speed",
                             data=allele_tap_data_plot,
-                            hue='dataset',
+                            hue='Strain',
                             palette=new_palette, # N2 to be blue consistently
                             errorbar='se')
             plt.xlabel("Taps", fontsize='12')
             plt.ylabel("Speed", fontsize='12')
             plt.title("Habituation of Response Speed", fontsize='16')
             plt.ylim(0, None)
-            ax.legend(loc='upper right', fontsize='12')
+            # ax.legend(loc='upper right', fontsize='12')
         
             img12 = io.BytesIO()
             plt.savefig(img12, format='png', dpi=300, bbox_inches='tight')
