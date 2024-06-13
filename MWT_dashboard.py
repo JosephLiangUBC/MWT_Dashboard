@@ -1059,7 +1059,7 @@ if page ==pages[4]:
             plt.ylabel("Probability")  # <- y-axis title
             plt.title("Habituation of Response Probability", fontsize='16')  # <- Figure Title
             plt.ylim(0, 1)
-            # ax.legend(loc='upper right', fontsize='12')  # <- location of your legend
+            ax.legend(loc='upper right', fontsize='12')  # <- location of your legend
 
             # download graph button
             img10 = io.BytesIO()
@@ -1092,7 +1092,7 @@ if page ==pages[4]:
             plt.ylabel("Duration", fontsize='12')
             plt.title("Habituation of Response Duration", fontsize='16')
             plt.ylim(0, None)
-            # ax.legend(loc='upper right', fontsize='12')
+            ax.legend(loc='upper right', fontsize='12')
             
             # download graph button
             img11 = io.BytesIO()
@@ -1126,7 +1126,7 @@ if page ==pages[4]:
             plt.ylabel("Speed", fontsize='12')
             plt.title("Habituation of Response Speed", fontsize='16')
             plt.ylim(0, None)
-            # ax.legend(loc='upper right', fontsize='12')
+            ax.legend(loc='upper right', fontsize='12')
         
             img12 = io.BytesIO()
             plt.savefig(img12, format='png', dpi=300, bbox_inches='tight')
