@@ -1,3 +1,4 @@
+import itertools
 import random
 import streamlit as st
 import pandas as pd
@@ -930,7 +931,7 @@ if page ==pages[4]:
     tap_output_allele = tap_output[tap_output['dataset'].isin(allele_multiple)]
     allele_tap_data = tap_output[tap_output['Date'].isin(tap_output_allele['Date'].unique())]
     allele_tap_data_plot = allele_tap_data[allele_tap_data['dataset'].isin(['N2']+ allele_multiple)].dropna(subset=['taps'])
-    allele_tap_data_plot['taps'] = np.nan_to_num(allele_tap_data_plot['taps']).astype(int)
+    allele_tap_data_plot.loc[:,'taps'] = np. nan_to_num(allele_tap_data_plot ['taps']).astype(int)
     # st.write(allele_tap_data_plot)
   
     #add columns for msd, habituation plots and heatmap plots
@@ -1029,13 +1030,12 @@ if page ==pages[4]:
     col14.subheader('Habituation Curves of Response')
     alleles = allele_tap_data_plot['dataset'].unique()
 
-    # Create a list of unique colors for the genes
-    colors = []
-    while len(colors) < len(alleles):
-        color = sns.color_palette()[random.randint(1, len(sns.color_palette())-1)]
-        if color not in colors:
-            colors.append(color)
+    # Create a cycle of unique colors
+    colors_list = sns.color_palette()[1:] # excludes steelblue from palette
+    color_cycle = itertools.cycle(colors_list)
 
+    # Create a list of unique colors for the alleles
+    colors = [next(color_cycle) for _ in range(len(alleles))]
 
     # Create a palette with 'teelblue' for 'N2' and the unique colors for the other genes
     new_palette = ["steelblue" if allele == "N2" else color for allele, color in zip(alleles, colors)]
