@@ -931,7 +931,7 @@ if page ==pages[4]:
     tap_output_allele = tap_output[tap_output['dataset'].isin(allele_multiple)]
     allele_tap_data = tap_output[tap_output['Date'].isin(tap_output_allele['Date'].unique())]
     allele_tap_data_plot = allele_tap_data[allele_tap_data['dataset'].isin(['N2']+ allele_multiple)].dropna(subset=['taps'])
-    allele_tap_data_plot.loc[:,'taps'] = np. nan_to_num(allele_tap_data_plot ['taps']).astype(int)
+    allele_tap_data_plot['taps'] = allele_tap_data_plot['taps'].astype(int)
     # st.write(allele_tap_data_plot)
   
     #add columns for msd, habituation plots and heatmap plots
