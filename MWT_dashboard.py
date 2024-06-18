@@ -78,6 +78,8 @@ for a in gene_MSD.columns[1:]:
     b = a.split("-", 1)[0]
     phenotype_list.append(b)
 
+phenotype_list.remove('Screen')
+
 dropna_features = list(np.unique(phenotype_list))
 dropna_features.remove('Spontaneous Recovery of Response Duration')
 dropna_features.remove('Spontaneous Recovery of Response Probability')
