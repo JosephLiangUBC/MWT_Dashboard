@@ -37,6 +37,7 @@ for conn_path in conn_list:
         
 # Read data from SQLite database
 tap_output = read('tap_response_data')
+# baseline_output=read('tap_baseline_data') # for raw baseline data
 tap_tstat_allele = read('tstat_gene_data')
 tap_tstat_data = read('tstat_allele_data')
 # allele_metric_data = read('allele_phenotype_data')
@@ -146,12 +147,13 @@ if page ==pages[0]:
     data_dat.columns=["Gene", f"{phenotype_option}", f"{phenotype_option}-lower" ,f"{phenotype_option}-upper"]
 
     # Insert download graph button
-    col1.download_button(label="Download Plot",
+    col1_1,col1_2=col1.columns(2)
+    col1_1.download_button(label="Download Plot",
                         data=phenotype_plot,
                         file_name=f"{phenotype_option}_profile.png",
                         mime="image/png",
                         key='dnldphenotypeprofile')
-    col1.download_button(label="Download csv",
+    col1_2.download_button(label="Download csv",
                             data=convert_df(data_dat),
                             file_name=f"Data Glance Sample mean distance {phenotype_option}.csv",
                             mime="text/csv",
@@ -179,12 +181,13 @@ if page ==pages[0]:
     plt.savefig(imgheatmap, format='png', dpi=300, bbox_inches='tight')
     #display image 
     col2.image(imgheatmap,caption='Comprehensive heatmap of entire dataset', width=None)
-    col2.download_button(label="Download Plot",
+    col2_1,col2_2= col2.columns(2)
+    col2_1.download_button(label="Download Plot",
                         data=imgheatmap,
                         file_name="Heatmap.png",
                         mime="image/png",
                         key='dnldheatmap')
-    col2.download_button(label="Download csv",
+    col2_2.download_button(label="Download csv",
                             data=convert_df(tap_tstat_allele.set_index('Gene').drop(index="N2")),
                             file_name=f"Data Glance Heatmap.csv",
                             mime="text/csv",
@@ -234,12 +237,13 @@ if page == pages[1]:
     plt.savefig(gene_profile_plot, format='png', dpi=300, bbox_inches='tight')
     #display image 
     col3.image(gene_profile_plot,width=None,caption=(f'Phenotypic profile of {gene_option}.'))
-    col3.download_button(label="Download Plot",
+    col3_1,col3_2= col3.columns(2)
+    col3_1.download_button(label="Download Plot",
                         data=gene_profile_plot,
                         file_name=f"{gene_option}_profile.png",
                         mime="image/png",
                         key='dnldgeneprofile')
-    col3.download_button(label="Download csv",
+    col3_2.download_button(label="Download csv",
                         data=convert_df(gene_profile_data[gene_profile_data.Gene == f"{gene_option}"]),
                         file_name=f"Phenotypic profile of {gene_option}.csv",
                         mime="text/csv",
@@ -289,12 +293,13 @@ if page == pages[1]:
     gene_dat.columns=["Gene", f"{gene_phenotype_option}", f"{gene_phenotype_option}-lower" ,f"{gene_phenotype_option}-upper"]
     
     # Insert download graph button
-    col4.download_button(label="Download Plot",
+    col4_1,col4_2= col4.columns(2)
+    col4_1.download_button(label="Download Plot",
                         data=gene_phenotype_plot,
                         file_name=f"{gene_option}_{gene_phenotype_option}_profile.png",
                         mime="image/png",
                         key='dnldgenephenotypeprofile')
-    col4.download_button(label="Download csv",
+    col4_2.download_button(label="Download csv",
                             data=convert_df(gene_dat),
                             file_name=f"Gene-specific Data Sample mean distance {gene_phenotype_option}.csv",
                             mime="text/csv",
@@ -330,12 +335,14 @@ if page == pages[1]:
             #display image 
             tab1.image(img1, width=None,caption=(f'Habituation of Response Probability: {gene_option}'))
             # Insert download plot and download csv button
-            st.download_button(label="Download Plot",
+            tab1_1,tab1_2= tab1.columns(2)
+
+            tab1_1.download_button(label="Download Plot",
                             data=img1,
                             file_name=f"Probability of Tap Habituation {gene_option}.png",
                             mime="image/png",
                             key='dnldbtn1')
-            st.download_button(label="Download csv",
+            tab1_2.download_button(label="Download csv",
                             data=convert_df(gene_tap_data_plot),
                             file_name=f"Gene-specific Data {gene_option}.csv",
                             mime="text/csv",
@@ -363,13 +370,13 @@ if page == pages[1]:
             #display image 
             tab2.image(img2, width=None,caption=(f'Habituation of Response Duration: {gene_option}'))
             # Insert download plot and download csv button
-
-            st.download_button(label="Download Plot",
+            tab2_1,tab2_2=tab2.columns(2)
+            tab2_1.download_button(label="Download Plot",
                             data=img2,
                             file_name=f"Duration of Tap Habituation {gene_option}.png",
                             mime="image/png",
                             key='dnldbtn2')
-            st.download_button(label="Download csv",
+            tab2_2.download_button(label="Download csv",
                             data=convert_df(gene_tap_data_plot),
                             file_name=f"Gene-specific Data {gene_option}.csv",
                             mime="text/csv",
@@ -397,12 +404,13 @@ if page == pages[1]:
             #display image 
             tab3.image(img3, width=None,caption=(f'Habituation of Response Speed: {gene_option}'))
             # Insert download plot and download csv button
-            st.download_button(label="Download Plot",
+            tab3_1,tab3_2=tab3.columns(2)
+            tab3_1.download_button(label="Download Plot",
                             data=img3,
                             file_name=f"Speed of Tap Habituation {gene_option}.png",
                             mime="image/png",
                             key='dnldbtn3')
-            st.download_button(label="Download csv",
+            tab3_2.download_button(label="Download csv",
                             data=convert_df(gene_tap_data_plot),
                             file_name=f"Gene-specific Data {gene_option}.csv",
                             mime="text/csv",
@@ -461,14 +469,15 @@ if page ==pages[2]:
     # display image 
     col5.image(allele_profile_plot,width=None,caption=(f'Phenotypic profile of gene-allele {allele_option}'))
     # download button for plots
-    col5.download_button(label="Download Plot",
+    col5_1,col5_2=col5.columns(2)
+    col5_1.download_button(label="Download Plot",
                         data=allele_profile_plot,
                         file_name=f"{allele_option}_profile.png",
                         mime="image/png",
                         key='dnldalleleprofile')
     
     # download button for data
-    col5.download_button(label="Download csv",
+    col5_2.download_button(label="Download csv",
                         data=convert_df(allele_profile_data[allele_profile_data.dataset == f"{allele_option}"]),
                         file_name=f"Phenotypic profile of gene-allele {allele_option}.csv",
                         mime="text/csv",
@@ -518,12 +527,13 @@ if page ==pages[2]:
     dat.columns=["gene-allele", f"{allele_phenotype_option}", f"{allele_phenotype_option}-lower" ,f"{allele_phenotype_option}-upper"]
     
     # Insert download graph button
-    col6.download_button(label="Download Plot",
+    col6_1,col6_2=col6.columns(2)
+    col6_1.download_button(label="Download Plot",
                         data=allele_phenotype_plot,
                         file_name=f"{allele_option}_{allele_phenotype_option}_profile.png",
                         mime="image/png",
                         key='dnldallelephenotypeprofile')
-    col6.download_button(label="Download csv",
+    col6_2.download_button(label="Download csv",
                         data=convert_df(dat),
                         file_name=f"Allele-specific Data Sample mean distance {allele_phenotype_option}.csv",
                         mime="text/csv",
@@ -559,12 +569,13 @@ if page ==pages[2]:
             #display image 
             tab4.image(img4, width=None,caption=(f'Habituation of Response Probability: {allele_option}'))
             # Insert download plot and download csv button
-            st.download_button(label="Download Plot",
+            tab4_1,tab4_2=tab4.columns(2)
+            tab4_1.download_button(label="Download Plot",
                             data=img4,
                             file_name=f"Probability of Tap Habituation {allele_option}.png",
                             mime="image/png",
                             key='dnldbtn4')
-            st.download_button(label="Download csv",
+            tab4_2.download_button(label="Download csv",
                                 data=convert_df(allele_tap_data_plot),
                                 file_name=f"Allele-specific Data {allele_option}.csv",
                                 mime="text/csv",
@@ -590,12 +601,13 @@ if page ==pages[2]:
             #display image 
             tab5.image(img5, width=None,caption=(f'Habituation of Response Duration: {allele_option}'))
             # Insert download plot and download csv button
-            st.download_button(label="Download Plot",
+            tab5_1,tab5_2=tab5.columns(2)
+            tab5_1.download_button(label="Download Plot",
                             data=img5,
                             file_name=f"Duration of Tap Habituation {allele_option}.png",
                             mime="image/png",
                             key='dnldbtn5')
-            st.download_button(label="Download csv",
+            tab5_2.download_button(label="Download csv",
                                 data=convert_df(allele_tap_data_plot),
                                 file_name=f"Allele-specific Data {allele_option}.csv",
                                 mime="text/csv",
@@ -622,12 +634,13 @@ if page ==pages[2]:
             #display image 
             tab6.image(img6, width=None,caption=(f'Habituation of Response Speed: {allele_option}'))        
             # Insert download plot and download csv button
-            st.download_button(label="Download Plot",
+            tab6_1,tab6_2=tab6.columns(2)
+            tab6_1.download_button(label="Download Plot",
                             data=img6,
                             file_name=f"Speed of Tap Habituation {allele_option}.png",
                             mime="image/png",
                             key='dnldbtn6')
-            st.download_button(label="Download csv",
+            tab6_2.download_button(label="Download csv",
                                 data=convert_df(allele_tap_data_plot),
                                 file_name=f"Allele-specific Data {allele_option}.csv",
                                 mime="text/csv",
@@ -689,12 +702,13 @@ if page ==pages[3]:
     plt.savefig(imgheatmap, format='png', dpi=300, bbox_inches='tight')
     #display image 
     col9.image(imgheatmap,caption=f'Comprehensive heatmap of the dataset with selected genes: {gene_multiple}', width=None)
-    col9.download_button(label="Download Plot",
+    col9_1,col9_2=col9.columns(2)
+    col9_1.download_button(label="Download Plot",
                         data=imgheatmap,
                         file_name="Heatmap.png",
                         mime="image/png",
                         key='dnldheatmapcustom')
-    col9.download_button(label="Download csv",
+    col9_2.download_button(label="Download csv",
                             data=convert_df(tap_tstat_allele_selected.set_index('Gene')),
                             file_name=f"Data Glance Heatmap.csv",
                             mime="text/csv",
@@ -742,12 +756,13 @@ if page ==pages[3]:
     multigene_dat.columns=["Gene", f"{multigene_phenotype_option}", f"{multigene_phenotype_option}-lower" ,f"{multigene_phenotype_option}-upper"]
     
     # Insert download graph button
-    col10.download_button(label="Download Plot",
+    col10_1,col10_2=col10.columns(2)
+    col10_1.download_button(label="Download Plot",
                         data=multigene_phenotype_plot,
                         file_name=f"multi_gene_{multigene_phenotype_option}_profile.png",
                         mime="image/png",
                         key='dnldmultigenephenotypeprofile')
-    col10.download_button(label="Download csv",
+    col10_2.download_button(label="Download csv",
                             data=convert_df(multigene_dat),
                             file_name=f"Gene-specific Data Sample mean distance {multigene_phenotype_option}.csv",
                             mime="text/csv",
@@ -793,12 +808,13 @@ if page ==pages[3]:
             #display image 
             tab7.image(img7, width=None,caption=(f'Habituation of Response Probability: {gene_multiple}'))
             # Insert download plot and download csv button
-            st.download_button(label="Download Plot",
+            tab7_1,tab7_2=tab7.columns(2)
+            tab7_1.download_button(label="Download Plot",
                             data=img7,
                             file_name=f"Probability of Tap Habituation {gene_multiple}.png",
                             mime="image/png",
                             key='dnldbtn13')
-            st.download_button(label="Download csv",
+            tab7_2.download_button(label="Download csv",
                             data=convert_df(gene_tap_data_plot),
                             file_name=f"Gene-specific Data {gene_multiple}.csv",
                             mime="text/csv",
@@ -826,13 +842,13 @@ if page ==pages[3]:
             #display image 
             tab8.image(img8, width=None,caption=(f'Habituation of Response Duration: {gene_multiple}'))
             # Insert download plot and download csv button
-
-            st.download_button(label="Download Plot",
+            tab8_1,tab8_2=tab8.columns(2)
+            tab8_1.download_button(label="Download Plot",
                             data=img8,
                             file_name=f"Duration of Tap Habituation {gene_multiple}.png",
                             mime="image/png",
                             key='dnldbtn15')
-            st.download_button(label="Download csv",
+            tab8_2.download_button(label="Download csv",
                             data=convert_df(gene_tap_data_plot),
                             file_name=f"Gene-specific Data {gene_multiple}.csv",
                             mime="text/csv",
@@ -860,12 +876,13 @@ if page ==pages[3]:
             #display image 
             tab9.image(img9, width=None,caption=(f'Habituation of Response Speed: {gene_multiple}'))
             # Insert download plot and download csv button
-            st.download_button(label="Download Plot",
+            tab9_1,tab9_2=tab9.columns(2)
+            tab9_1.download_button(label="Download Plot",
                             data=img9,
                             file_name=f"Speed of Tap Habituation {gene_multiple}.png",
                             mime="image/png",
                             key='dnldbtn17')
-            st.download_button(label="Download csv",
+            tab9_2.download_button(label="Download csv",
                             data=convert_df(gene_tap_data_plot),
                             file_name=f"Gene-specific Data {gene_multiple}.csv",
                             mime="text/csv",
@@ -962,12 +979,13 @@ if page ==pages[4]:
     plt.savefig(imgheatmap, format='png', dpi=300, bbox_inches='tight')
     #display image 
     col12.image(imgheatmap,caption=f'Comprehensive heatmap of the dataset with selected alleles: {allele_list}', width=None)
-    col12.download_button(label="Download Plot",
+    col12_1,col12_2=col12.columns(2)
+    col12_1.download_button(label="Download Plot",
                         data=imgheatmap,
                         file_name="Heatmap.png",
                         mime="image/png",
                         key='dnldheatmapcustomallele')
-    col12.download_button(label="Download csv",
+    col12_2.download_button(label="Download csv",
                             data=convert_df(tap_tstat_data_selected.set_index('dataset')),
                             file_name=f"Data Glance Heatmap.csv",
                             mime="text/csv",
@@ -1018,12 +1036,13 @@ if page ==pages[4]:
     multiallele_dat.columns=["Allele", f"{multiallele_phenotype_option}", f"{multiallele_phenotype_option}-lower" ,f"{multiallele_phenotype_option}-upper"]
     
     # Insert download graph button
-    col13.download_button(label="Download Plot",
+    col13_1,col13_2=col13.columns(2)
+    col13_1.download_button(label="Download Plot",
                         data=multiallele_phenotype_plot,
                         file_name=f"multi_allele_{multiallele_phenotype_option}_profile.png",
                         mime="image/png",
                         key='dnldmultiallelephenotypeprofile')
-    col13.download_button(label="Download csv",
+    col13_2.download_button(label="Download csv",
                             data=convert_df(multiallele_dat),
                             file_name=f"Allele-specific Data Sample mean distance {multiallele_phenotype_option}.csv",
                             mime="text/csv",
@@ -1069,12 +1088,13 @@ if page ==pages[4]:
             #display image 
             tab10.image(img10, width=None,caption=(f'Habituation of Response Probability: {allele_multiple}'))
             # Insert download plot and download csv button
-            st.download_button(label="Download Plot",
+            tab10_1,tab10_2=tab10.columns(2)
+            tab10_1.download_button(label="Download Plot",
                             data=img10,
                             file_name=f"Probability of Tap Habituation {allele_multiple}.png",
                             mime="image/png",
                             key='dnldbtn19')
-            st.download_button(label="Download csv",
+            tab10_2.download_button(label="Download csv",
                             data=convert_df(allele_tap_data_plot),
                             file_name=f"Allele-specific Data {allele_multiple}.csv",
                             mime="text/csv",
@@ -1102,13 +1122,13 @@ if page ==pages[4]:
             #display image 
             tab11.image(img11, width=None,caption=(f'Habituation of Response Duration: {allele_multiple}'))
             # Insert download plot and download csv button
-
-            st.download_button(label="Download Plot",
+            tab11_1,tab11_2=tab11.columns(2)
+            tab11_1.download_button(label="Download Plot",
                             data=img11,
                             file_name=f"Duration of Tap Habituation {allele_multiple}.png",
                             mime="image/png",
                             key='dnldbtn21')
-            st.download_button(label="Download csv",
+            tab11_2.download_button(label="Download csv",
                             data=convert_df(allele_tap_data_plot),
                             file_name=f"Allele-specific Data {allele_multiple}.csv",
                             mime="text/csv",
@@ -1137,12 +1157,13 @@ if page ==pages[4]:
             tab12.image(img12, width=None,caption=(f'Habituation of Response Speed: {allele_multiple}'))
             
             # Insert download plot and download csv button
-            st.download_button(label="Download Plot",
+            tab12_1,tab12_2=tab12.columns(2)
+            tab12_1.download_button(label="Download Plot",
                             data=img12,
                             file_name=f"Speed of Tap Habituation {allele_multiple}.png",
                             mime="image/png",
                             key='dnldbtn23')
-            st.download_button(label="Download csv",
+            tab12_2.download_button(label="Download csv",
                             data=convert_df(allele_tap_data_plot),
                             file_name=f"Allele-specific Data {allele_multiple}.csv",
                             mime="text/csv",
