@@ -26,7 +26,8 @@ def read(table):
 
 # list of connections to run the dashboard
 conn_list=['/Users/Joseph/Desktop/NRSC510B/mwt_data.db',
-           '/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db',
+        #    '/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db',
+           '/Users/lavanya/Documents/RankinLab/MWT_Dashboard/mwt_data_updated.db',
            '/Users/rankinlab/Desktop/MWT_Data_App/mwt_data.db']
 for conn_path in conn_list:
     try:
@@ -37,7 +38,7 @@ for conn_path in conn_list:
         
 # Read data from SQLite database
 tap_output = read('tap_response_data')
-# baseline_output=read('tap_baseline_data') # for raw baseline data
+baseline_output=read('tap_baseline_data') # for raw baseline data
 tap_tstat_allele = read('tstat_gene_data')
 tap_tstat_data = read('tstat_allele_data')
 # allele_metric_data = read('allele_phenotype_data')
@@ -45,7 +46,6 @@ gene_profile_data = read('gene_profile_data')
 allele_profile_data = read('allele_profile_data')
 gene_MSD = read('gene_MSD')
 allele_MSD = read('allele_MSD')
-
 # st.write(gene_MSD[gene_MSD['Screen']=='G-Protein_Screen'])
 # tap_output = pd.read_sql_query("SELECT * FROM tap_response_data", conn)
 # tap_baseline = pd.read_sql_query("SELECT * FROM tap_baseline_data", conn)
@@ -417,6 +417,11 @@ if page == pages[1]:
                             key='dnldbtn9')
         # seaborn graph of Speed Habituation Curve
         # Insert download graph button
+    st.download_button(label="Download raw baseline data",
+                    data=convert_df(baseline_output),
+                    file_name=f"{gene_option}_baseline_data.csv",
+                    mime="text/csv",
+                    key='dnldgenebaseoutcsv')
 
 if page ==pages[2]:
     st.header('Allele-specific Data')
@@ -645,6 +650,11 @@ if page ==pages[2]:
                                 file_name=f"Allele-specific Data {allele_option}.csv",
                                 mime="text/csv",
                                 key='dnldbtn12')
+    st.download_button(label="Download raw baseline data",
+                    data=convert_df(baseline_output),
+                    file_name=f"{allele_option}_baseline_data.csv",
+                    mime="text/csv",
+                    key='dnldallelebaseoutcsv')
 
 if page ==pages[3]:
    # multiple selection option for genes
@@ -889,6 +899,11 @@ if page ==pages[3]:
                             key='dnldbtn18')
         # seaborn graph of Speed Habituation Curve
         # Insert download graph button
+    st.download_button(label="Download raw baseline data",
+                    data=convert_df(baseline_output),
+                    file_name=f"{gene_multiple}_baseline_data.csv",
+                    mime="text/csv",
+                    key='dnldgenemultibaseoutcsv')
 
 
 if page ==pages[4]:
@@ -960,9 +975,7 @@ if page ==pages[4]:
     fig, ax = plt.subplots(figsize=(15, 20))
 
     # Filter the dataframe for the selected genes
-    
     tap_tstat_data_selected = tap_tstat_data[tap_tstat_data['dataset'].isin(allele_list)]
-
     ax = sns.heatmap(data=tap_tstat_data_selected.set_index('dataset'),
                     annot=False,
                     linewidth=0.2,
@@ -1036,7 +1049,7 @@ if page ==pages[4]:
     multiallele_dat.columns=["Allele", f"{multiallele_phenotype_option}", f"{multiallele_phenotype_option}-lower" ,f"{multiallele_phenotype_option}-upper"]
     
     # Insert download graph button
-    col13_1,col13_2=col13.columns(2)
+    col13_1,col13_2 = col13.columns(2)
     col13_1.download_button(label="Download Plot",
                         data=multiallele_phenotype_plot,
                         file_name=f"multi_allele_{multiallele_phenotype_option}_profile.png",
@@ -1168,6 +1181,12 @@ if page ==pages[4]:
                             file_name=f"Allele-specific Data {allele_multiple}.csv",
                             mime="text/csv",
                             key='dnldbtn24')
+    st.download_button(label="Download raw baseline data",
+                        data=convert_df(baseline_output),
+                        file_name=f"{allele_multiple}_baseline_data.csv",
+                        mime="text/csv",
+                        key='dnldallelemultibaseoutcsv')
+    
         
 
     
