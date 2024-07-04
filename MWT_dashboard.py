@@ -26,8 +26,7 @@ def read(table):
 
 # list of connections to run the dashboard
 conn_list=['/Users/Joseph/Desktop/NRSC510B/mwt_data.db',
-        #    '/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data.db',
-           '/Users/lavanya/Documents/RankinLab/MWT_Dashboard/mwt_data_updated.db',
+           '/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data_updated.db',
            '/Users/rankinlab/Desktop/MWT_Data_App/mwt_data.db']
 for conn_path in conn_list:
     try:
@@ -420,7 +419,7 @@ if page == pages[1]:
         # Insert download graph button
     st.download_button(label="Download raw baseline data",
                     data=convert_df(baseline_output),
-                    file_name=f"{gene_option}_baseline_data.csv",
+                    file_name=f"raw_baseline_data.csv",
                     mime="text/csv",
                     key='dnldgenebaseoutcsv')
 
@@ -653,7 +652,7 @@ if page ==pages[2]:
                                 key='dnldbtn12')
     st.download_button(label="Download raw baseline data",
                     data=convert_df(baseline_output),
-                    file_name=f"{allele_option}_baseline_data.csv",
+                    file_name=f"raw_baseline_data.csv",
                     mime="text/csv",
                     key='dnldallelebaseoutcsv')
 
@@ -902,7 +901,7 @@ if page ==pages[3]:
         # Insert download graph button
     st.download_button(label="Download raw baseline data",
                     data=convert_df(baseline_output),
-                    file_name=f"{gene_multiple}_baseline_data.csv",
+                    file_name=f"raw_baseline_data.csv",
                     mime="text/csv",
                     key='dnldgenemultibaseoutcsv')
 
@@ -1184,7 +1183,7 @@ if page ==pages[4]:
                             key='dnldbtn24')
     st.download_button(label="Download raw baseline data",
                         data=convert_df(baseline_output),
-                        file_name=f"{allele_multiple}_baseline_data.csv",
+                        file_name=f"raw_baseline_data.csv",
                         mime="text/csv",
                         key='dnldallelemultibaseoutcsv')
     
