@@ -198,7 +198,8 @@ if page == pages[1]:
     st.header('Gene-specific Data')
     gene_option = st.selectbox(
         'Select a gene',
-        (tap_output['Gene'].unique()), key="geneselect")
+        [gene for gene in tap_output['Gene'].unique()if gene != 'N2'], 
+        key="geneselect")
     gene_id_data= pd.read_csv("WB_id.csv")
 
     if gene_option:
@@ -428,7 +429,7 @@ if page ==pages[2]:
     # select allele 
     allele_option = st.selectbox(
         'Select a allele',
-        (tap_output['dataset'].unique()))
+        [allele for allele in tap_output['dataset'].unique() if allele != 'N2'])
     #splititing gene allele to get gene and allele columns
     gene, allele = allele_option.split('_')
     gene_id_data= pd.read_csv("WB_id.csv")# data for gene id
@@ -662,8 +663,8 @@ if page ==pages[3]:
 
     gene_multiple = st.multiselect(
         label="Select Genes",
-        options=tap_output['Gene'].unique(),
-        default=tap_output['Gene'].unique()[0],
+        options=[gene for gene in tap_output['Gene'].unique() if gene != 'N2'],
+        default=[gene for gene in tap_output['Gene'].unique() if gene != 'N2'][0],
         placeholder="make a selection",
         help="select and de-select genes you want to analyze",
         key="geneselection")
