@@ -38,7 +38,7 @@ for conn_path in conn_list:
         
 # Read data from SQLite database
 tap_output = read('tap_response_data')
-baseline_output=read('tap_baseline_data') # for raw baseline data
+# baseline_output=read('tap_baseline_data') # for raw baseline data
 tap_tstat_allele = read('tstat_gene_data')
 tap_tstat_data = read('tstat_allele_data')
 # allele_metric_data = read('allele_phenotype_data')
@@ -428,11 +428,11 @@ if page == pages[1]:
                             key='dnldbtn9')
         # seaborn graph of Speed Habituation Curve
         # Insert download graph button
-    st.download_button(label="Download raw baseline data",
-                    data=convert_df(baseline_output),
-                    file_name=f"raw_baseline_data.csv",
-                    mime="text/csv",
-                    key='dnldgenebaseoutcsv')
+    # st.download_button(label="Download raw baseline data",
+    #                 data=convert_df(baseline_output),
+    #                 file_name=f"raw_baseline_data.csv",
+    #                 mime="text/csv",
+    #                 key='dnldgenebaseoutcsv')
 
 if page ==pages[2]:
     st.header('Allele-specific Data')
@@ -661,11 +661,11 @@ if page ==pages[2]:
                                 file_name=f"Allele-specific Data {allele_option}.csv",
                                 mime="text/csv",
                                 key='dnldbtn12')
-    st.download_button(label="Download raw baseline data",
-                    data=convert_df(baseline_output),
-                    file_name=f"raw_baseline_data.csv",
-                    mime="text/csv",
-                    key='dnldallelebaseoutcsv')
+    # st.download_button(label="Download raw baseline data",
+    #                 data=convert_df(baseline_output),
+    #                 file_name=f"raw_baseline_data.csv",
+    #                 mime="text/csv",
+    #                 key='dnldallelebaseoutcsv')
 
 if page ==pages[3]:
    # multiple selection option for genes
@@ -922,11 +922,11 @@ if page ==pages[3]:
                             key='dnldbtn18')
         # seaborn graph of Speed Habituation Curve
         # Insert download graph button
-    st.download_button(label="Download raw baseline data",
-                    data=convert_df(baseline_output),
-                    file_name=f"raw_baseline_data.csv",
-                    mime="text/csv",
-                    key='dnldgenemultibaseoutcsv')
+    # st.download_button(label="Download raw baseline data",
+    #                 data=convert_df(baseline_output),
+    #                 file_name=f"raw_baseline_data.csv",
+    #                 mime="text/csv",
+    #                 key='dnldgenemultibaseoutcsv')
 
 
 if page ==pages[4]:
@@ -1215,11 +1215,11 @@ if page ==pages[4]:
                             file_name=f"Allele-specific Data {allele_multiple}.csv",
                             mime="text/csv",
                             key='dnldbtn24')
-    st.download_button(label="Download raw baseline data",
-                        data=convert_df(baseline_output),
-                        file_name=f"raw_baseline_data.csv",
-                        mime="text/csv",
-                        key='dnldallelemultibaseoutcsv')
+    # st.download_button(label="Download raw baseline data",
+    #                     data=convert_df(baseline_output),
+    #                     file_name=f"raw_baseline_data.csv",
+    #                     mime="text/csv",
+    #                     key='dnldallelemultibaseoutcsv')
     
         
 
