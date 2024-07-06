@@ -8,6 +8,7 @@ import seaborn as sns
 import matplotlib as mpl
 import sqlite3
 import io
+import plotly.graph_objects as go
 
 # Added configuration to wide for desktop screen (do not remove)
 # it has to be the first command in the file for it to run
@@ -160,39 +161,49 @@ if page ==pages[0]:
 
     # Insert download graph button
 
-    col2.subheader("Comprehensive Heatmap")
-    sns.set_context('notebook', font_scale=0.7)
-    fig, ax = plt.subplots(figsize=(15, 20))
-    
-    ax = sns.heatmap(data=tap_tstat_allele.set_index('Gene').drop(index="N2"),
-                    annot=False,
-                    linewidth=0.2,
-                    square=False,
-                    cmap="vlag",
-                    center=0,
-                    vmax=3,
-                    vmin=-3,
-                    cbar_kws={"shrink": .05, "pad": 0.01})
-    ax.set(xlabel="", ylabel="")
-    ax.set_facecolor('xkcd:black')
+    # Create a heatmap
+    fig = go.Figure(data=go.Heatmap(
+        z=tap_tstat_allele.set_index('Gene').drop(index="N2").values,
+        x=tap_tstat_allele.set_index('Gene').drop(index="N2").columns,
+        y=tap_tstat_allele.set_index('Gene').drop(index="N2").index,
+        colorscale='RdBu',
+        zmin=-3,
+        zmax=3,
+        colorbar=dict(
+            len=0.95,
+            thickness=10,
+            tickvals=[-3, 0, 3],
+            ticktext=['-3', '0', '3'],
+            title="",
+            titleside="right"
+        )
+    ))
+
+    fig.update_layout(
+        width=900,
+        height=1200,
+        margin=dict(l=50, r=50, t=50, b=50),
+        xaxis_title="",
+        yaxis_title=""
+    )
 
     imgheatmap = io.BytesIO()
-    plt.savefig(imgheatmap, format='png', dpi=300, bbox_inches='tight')
-    #display image 
-    col2.image(imgheatmap,caption='Comprehensive heatmap of entire dataset', width=None)
-    col2_1,col2_2= col2.columns(2)
-    col2_1.download_button(label="Download Plot",
-                        data=imgheatmap,
-                        file_name="Heatmap.png",
-                        mime="image/png",
-                        key='dnldheatmap')
-    col2_2.download_button(label="Download csv",
-                            data=convert_df(tap_tstat_allele.set_index('Gene').drop(index="N2")),
-                            file_name=f"Data Glance Heatmap.csv",
-                            mime="text/csv",
-                            key='dnldheatmapcsv')
-    # Insert download graph button
-    # Insert download csv
+    fig.write_image(imgheatmap, format='png', scale=3)
+    imgheatmap.seek(0)
+
+    # Display the heatmap in Streamlit
+    col2.subheader("Comprehensive Heatmap of entire dataset")
+    col2.plotly_chart(fig, use_container_width=True)
+
+    # Add download buttons    
+    col2.download_button(
+        label="Download CSV",
+        data=convert_df(tap_tstat_allele.set_index('Gene').drop(index="N2")),
+        file_name="Data_Glance_Heatmap.csv",
+        mime="text/csv",
+        key='dnldheatmapcsv'
+    )
+
 if page == pages[1]:
     st.header('Gene-specific Data')
     gene_option = st.selectbox(
@@ -690,40 +701,52 @@ if page ==pages[3]:
     
     #add columns for msd, habituation plots and heatmap plots
     col9, col10, col11= st.columns([1,1,1])
-
-    col9.subheader("Comprehensive Heatmap")
-    sns.set_context('notebook', font_scale=0.7)
-    fig, ax = plt.subplots(figsize=(15, 20))
     tap_tstat_allele_selected = tap_tstat_allele[tap_tstat_allele['Gene'].isin(gene_multiple)]
 
-    ax = sns.heatmap(data=tap_tstat_allele_selected.set_index('Gene'),
-                    annot=False,
-                    linewidth=0.2,
-                    square=False,
-                    cmap="vlag",
-                    center=0,
-                    vmax=3,
-                    vmin=-3,
-                    cbar_kws={"shrink": .05, "pad": 0.01})
-    ax.set(xlabel="", ylabel="")
-    ax.set_facecolor('xkcd:black')
+
+    # Create a heatmap
+    fig = go.Figure(data=go.Heatmap(
+        z=tap_tstat_allele_selected.set_index('Gene').values,
+        x=tap_tstat_allele_selected.set_index('Gene').columns,
+        y=tap_tstat_allele_selected.set_index('Gene').index,
+        colorscale='RdBu',
+        zmin=-3,
+        zmax=3,
+        colorbar=dict(
+            len=0.95,
+            thickness=10,
+            tickvals=[-3, 0, 3],
+            ticktext=['-3', '0', '3'],
+            title="",
+            titleside="right"
+        )
+    ))
+
+    fig.update_layout(
+        width=900,
+        height=1200,
+        margin=dict(l=50, r=50, t=100, b=50),
+        xaxis_title="",
+        yaxis_title=""
+    )
 
     imgheatmap = io.BytesIO()
-    plt.savefig(imgheatmap, format='png', dpi=300, bbox_inches='tight')
-    #display image 
-    col9.image(imgheatmap,caption=f'Comprehensive heatmap of the dataset with selected genes: {gene_multiple}', width=None)
-    col9_1,col9_2=col9.columns(2)
-    col9_1.download_button(label="Download Plot",
-                        data=imgheatmap,
-                        file_name="Heatmap.png",
-                        mime="image/png",
-                        key='dnldheatmapcustom')
-    col9_2.download_button(label="Download csv",
-                            data=convert_df(tap_tstat_allele_selected.set_index('Gene')),
-                            file_name=f"Data Glance Heatmap.csv",
-                            mime="text/csv",
-                            key='dnldheatmapcsvcustom')
-    
+    fig.write_image(imgheatmap, format='png', scale=3)
+    imgheatmap.seek(0)
+
+    # Display the heatmap in Streamlit
+    col9.subheader(f'Comprehensive heatmap of the dataset with selected genes')
+    col9.plotly_chart(fig, use_container_width=True)
+
+    # Add download buttons
+    col9.download_button(
+        label="Download CSV",
+        data=convert_df(tap_tstat_allele_selected.set_index('Gene')),
+        file_name="Data_Glance_Heatmap.csv",
+        mime="text/csv",
+        key='dnldheatmapcsvcustom'
+    )
+
     col10.subheader('Rank in phenotype')
     multigene_phenotype_option = col10.selectbox(
         'Select a phenotype',
@@ -970,40 +993,51 @@ if page ==pages[4]:
   
     #add columns for msd, habituation plots and heatmap plots
     col12, col13, col14= st.columns([1,1,1])
-    col12.subheader("Comprehensive Heatmap")
-    sns.set_context('notebook', font_scale=0.7)
-    fig, ax = plt.subplots(figsize=(15, 20))
-
     # Filter the dataframe for the selected genes
     tap_tstat_data_selected = tap_tstat_data[tap_tstat_data['dataset'].isin(allele_list)]
-    ax = sns.heatmap(data=tap_tstat_data_selected.set_index('dataset'),
-                    annot=False,
-                    linewidth=0.2,
-                    square=False,
-                    cmap="vlag",
-                    center=0,
-                    vmax=3,
-                    vmin=-3,
-                    cbar_kws={"shrink": .05, "pad": 0.01})
-    ax.set(xlabel="", ylabel="")
-    ax.set_facecolor('xkcd:black')
+    
+    # Create a heatmap
+    fig = go.Figure(data=go.Heatmap(
+        z=tap_tstat_data_selected.set_index('dataset').values,
+        x=tap_tstat_data_selected.set_index('dataset').columns,
+        y=tap_tstat_data_selected.set_index('dataset').index,
+        colorscale='RdBu',
+        zmin=-3,
+        zmax=3,
+        colorbar=dict(
+            len=0.95,
+            thickness=10,
+            tickvals=[-3, 0, 3],
+            ticktext=['-3', '0', '3'],
+            title="",
+            titleside="right"
+        )
+    ))
+
+    fig.update_layout(
+        width=900,
+        height=1200,
+        margin=dict(l=50, r=50, t=100, b=50),
+        xaxis_title="",
+        yaxis_title=""
+    )
 
     imgheatmap = io.BytesIO()
-    plt.savefig(imgheatmap, format='png', dpi=300, bbox_inches='tight')
-    #display image 
-    col12.image(imgheatmap,caption=f'Comprehensive heatmap of the dataset with selected alleles: {allele_list}', width=None)
-    col12_1,col12_2=col12.columns(2)
-    col12_1.download_button(label="Download Plot",
-                        data=imgheatmap,
-                        file_name="Heatmap.png",
-                        mime="image/png",
-                        key='dnldheatmapcustomallele')
-    col12_2.download_button(label="Download csv",
-                            data=convert_df(tap_tstat_data_selected.set_index('dataset')),
-                            file_name=f"Data Glance Heatmap.csv",
-                            mime="text/csv",
-                            key='dnldheatmapcsvcustomallele')
-    
+    fig.write_image(imgheatmap, format='png', scale=3)
+    imgheatmap.seek(0)
+
+    # Display the heatmap in Streamlit
+    col12.subheader(f'Comprehensive heatmap of the dataset with selected alleles')
+    col12.plotly_chart(fig, use_container_width=True)
+
+    # Add download buttons
+    col12.download_button(
+        label="Download CSV",
+        data=convert_df(tap_tstat_data_selected.set_index('dataset')),
+        file_name="Data_Glance_Heatmap.csv",
+        mime="text/csv",
+        key='dnldheatmapcsvcustomallele'
+    )
 
     col13.subheader('Rank in phenotype')
     multiallele_phenotype_option = col13.selectbox(
