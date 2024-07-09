@@ -47,8 +47,7 @@ allele_profile_data = read('allele_profile_data')
 gene_MSD = read('gene_MSD')
 allele_MSD = read('allele_MSD')
 # st.write(gene_MSD[gene_MSD['Screen']=='G-Protein_Screen'])
-# tap_output = pd.read_sql_query("SELECT * FROM tap_response_data", conn)
-# tap_baseline = pd.read_sql_query("SELECT * FROM tap_baseline_data", conn)
+
 conn.close()
 
 tap_output['Strain'] = tap_output['Gene'] + " (" + tap_output['Allele'] + ")"
@@ -115,29 +114,67 @@ if page ==pages[0]:
         'Select a phenotype',
         np.unique(phenotype_list), key="phenotypeselect")
 
-    # seaborn graph of phenotypic view (sample mean distance if possible) + st.pyplot()
-    sns.set_context('notebook')
-    colors = ["dimgray"] * len(gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"])
+    colors = ['dimgrey'] * len(gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"])
     colors[gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]).reset_index(drop=True)[
         gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == "N2"].index[0]] = "red"
-    fig, ax = plt.subplots(figsize=(4,16))
-    ax = plt.errorbar(x=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"],
-                    y=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"],
-                    xerr=gene_MSD[f"{phenotype_option}-ci95_hi"] - gene_MSD[f"{phenotype_option}-mean"],
-                    fmt="none", marker="none", ecolor=colors, elinewidth=3)
-    ax = plt.scatter(x=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"],
-                    y=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"],
-                    marker='o', color=colors)
+    fig=go.Figure()
+    fig.add_trace(go.Scatter(
+        x=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"],
+        y=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"],
+        error_x=dict(
+            type='data',
+            array=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-ci95_hi"] - gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"],
+            arrayminus=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"] - gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-ci95_lo"],
+            visible=True,
+            color="dimgray",
+            thickness=3,
+            width=0
+        ),
+        mode='markers',
+        marker=dict(
+            color=colors,
+            size=12,
+            symbol='circle',
+            line=dict(
+                color='rgb(0,0,0)',
+                width=1
+            ),
+        ),
+        name='Sample Mean Distance'
+    ))
 
-    plt.xlabel('Sample Mean Distance')
-    plt.ylabel('Gene')
-    plt.title(f"{phenotype_option}")
+    # Update layout with labels and title
+    fig.update_layout(
+        title=f"{phenotype_option}",
+        xaxis_title='Sample Mean Distance',
+        yaxis_title='Gene',
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        width=600,
+        height=1200,
+        margin=dict(l=100, r=50, t=100, b=50),  # Adjust margins as needed
+        annotations=[
+            dict(
+                text=f'Sample mean distance from wildtype for all strains for selected phenotype: {phenotype_option}. Error bars are 95% CI',
+                xref="paper",
+                yref="paper",
+                x=0,
+                y=-0.2,
+                showarrow=False,
+                font=dict(
+                    size=12,
+                    color="black"
+                )
+            )
+        ]
+    )
+
     
     phenotype_plot = io.BytesIO()
-    plt.savefig(phenotype_plot, format='png', dpi=300, bbox_inches='tight')
-    #display image 
-    col1.image(phenotype_plot, width=None, caption=(f'Sample mean distance from wildtype for all strains for selected phenotype: {phenotype_option}. Error bars are 95% CI')) ## added
-        
+    fig.write_image(phenotype_plot, format='png',scale=3)
+    phenotype_plot.seek(0)
+    col1.plotly_chart(fig, use_container_width=True)
+    
     #combine data and rename columns :
     data_dat=pd.concat([gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"],
                         gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"],
