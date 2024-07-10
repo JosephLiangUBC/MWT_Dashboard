@@ -114,34 +114,46 @@ if page ==pages[0]:
         'Select a phenotype',
         np.unique(phenotype_list), key="phenotypeselect")
 
-    colors = ['dimgrey'] * len(gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"])
-    colors[gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]).reset_index(drop=True)[
-        gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == "N2"].index[0]] = "red"
-    fig=go.Figure()
-    fig.add_trace(go.Scatter(
-        x=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"],
-        y=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"],
-        error_x=dict(
-            type='data',
-            array=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-ci95_hi"] - gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"],
-            arrayminus=gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"] - gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-ci95_lo"],
-            visible=True,
-            color="dimgray",
-            thickness=3,
-            width=0
-        ),
-        mode='markers',
-        marker=dict(
-            color=colors,
-            size=12,
-            symbol='circle',
-            line=dict(
-                color='rgb(0,0,0)',
-                width=1
+
+
+    data_sorted = gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]).reset_index(drop=True)
+    colors = ["dimgrey"] * len(data_sorted)
+
+    fig = go.Figure()
+
+    # Add scatter plot with error bars
+    for i, row in data_sorted.iterrows():
+        # color = colors[i]
+        if row['Gene'] == "N2":
+            colors="red"
+        else:
+            colors="dimgray"
+        fig.add_trace(go.Scatter(
+            x=[row[f"{phenotype_option}-mean"]],
+            y=[row["Gene"]],
+            error_x=dict(
+                type='data',
+                array=[row[f"{phenotype_option}-ci95_hi"] - row[f"{phenotype_option}-mean"]],
+                arrayminus=[row[f"{phenotype_option}-mean"] - row[f"{phenotype_option}-ci95_lo"]],
+                visible=True,
+                color=colors,
+                thickness=3,
+                width=0
             ),
-        ),
-        name='Sample Mean Distance'
-    ))
+            mode='markers',
+            marker=dict(
+                color=colors,
+                size=12,
+                symbol='circle',
+                line=dict(
+                    color='rgb(0,0,0)',
+                    width=1
+                ),
+            ),
+            showlegend=False,  # Hide individual points from legend
+            name=""
+            
+        ))
 
     # Update layout with labels and title
     fig.update_layout(
@@ -305,33 +317,78 @@ if page == pages[1]:
 
 
     # seaborn graph of phenotypic view (sample mean distance) + st.pyplot
-    sns.set_context('notebook')
-    gene_colors = ["dimgray"] * len(gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"])
-    gene_colors[gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)[
-        gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == "N2"].index[
-        0]] = "red"
-    gene_colors[gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)[
-        gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == gene_option].index[
-        0]] = "magenta"
-    fig, ax = plt.subplots(figsize=(4, 16))
-    ax = plt.errorbar(x=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-mean"],
-                    y=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"],
-                    xerr=gene_MSD[f"{gene_phenotype_option}-ci95_hi"] - gene_MSD[f"{gene_phenotype_option}-mean"],
-                    fmt="none", marker="none", ecolor=gene_colors, elinewidth=3)
-    ax = plt.scatter(x=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-mean"],
-                    y=gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"],
-                    marker='o', color=gene_colors)
-    plt.yticks(fontsize=7) # added to see the axis labels better
+    data_sorted = gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])
+    gene_colors = ["dimgray"] * len(data_sorted["Gene"])
+    fig = go.Figure()
 
-    plt.xlabel('Sample Mean Distance')
-    plt.ylabel('Gene')
-    plt.title(f"{gene_phenotype_option}")
+    # Add scatter plot with error bars
+    for i, row in data_sorted.iterrows():
+        if row['Gene'] == "N2":
+            gene_colors="red"
+        elif row['Gene'] == gene_option:
+            gene_colors="magenta"
+        else:
+            gene_colors="dimgray"
+        # color = "red" if row['Gene'] == "N2" else "dimgrey"
+        fig.add_trace(go.Scatter(
+            x=[row[f"{gene_phenotype_option}-mean"]],
+            y=[row["Gene"]],
+            error_x=dict(
+                type='data',
+                array=[row[f"{gene_phenotype_option}-ci95_hi"] - row[f"{gene_phenotype_option}-mean"]],
+                arrayminus=[row[f"{gene_phenotype_option}-mean"] - row[f"{gene_phenotype_option}-ci95_lo"]],
+                visible=True,
+                color=gene_colors,
+                thickness=3,
+                width=0
+            ),
+            mode='markers',
+            marker=dict(
+                color=gene_colors,
+                size=12,
+                symbol='circle',
+                line=dict(
+                    color='rgb(0,0,0)',
+                    width=1
+                ),
+            ),
+            showlegend=False,  # Hide individual points from legend
+            name=""
+            
+        ))
+
+    # Update layout with labels and title
+    fig.update_layout(
+        title=f"{gene_phenotype_option}",
+        xaxis_title='Sample Mean Distance',
+        yaxis_title='Gene',
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        width=600,
+        height=1200,
+        margin=dict(l=100, r=50, t=100, b=50),  # Adjust margins as needed
+        annotations=[
+            dict(
+                text=f'Sample mean distance from wildtype for all strains for selected phenotype: {gene_phenotype_option}. Error bars are 95% CI',
+                xref="paper",
+                yref="paper",
+                x=0,
+                y=-0.2,
+                showarrow=False,
+                font=dict(
+                    size=12,
+                    color="black"
+                )
+            )
+        ]
+    )
+
 
     gene_phenotype_plot = io.BytesIO()
-    plt.savefig(gene_phenotype_plot, format='png', dpi=300, bbox_inches='tight')
-    #display image 
-    col4.image(gene_phenotype_plot, width=None,caption=f'Sample mean distance from wildtype for selected phenotype: {gene_phenotype_option}. Error bars are 95% CI.')
-    
+    fig.write_image(gene_phenotype_plot, format='png',scale=3)
+    gene_phenotype_plot.seek(0)
+    col4.plotly_chart(fig, use_container_width=True)
+
     #combine data and rename columns :
     gene_dat=pd.concat( [gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"],
                    gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])[f"{gene_phenotype_option}-mean"],
@@ -541,35 +598,76 @@ if page ==pages[2]:
         'Select a phenotype',
         np.unique(phenotype_list), key='allele_phenotype_select')
     # seaborn graph of phenotypic view (sample mean distance) + st.pyplot
+    
+    data_sorted = allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])
+    allele_colors = ["dimgray"] * len(data_sorted["dataset"])
+    fig = go.Figure()
 
-    sns.set_context('notebook')
-    allele_colors = ["dimgray"] * len(allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset"])
-    allele_colors[allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"]).reset_index(drop=True)[
-        allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"]).reset_index(drop=True)["dataset"] == "N2"].index[
-        0]] = "red"
-    allele_colors[allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"]).reset_index(drop=True)[
-        allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"]).reset_index(drop=True)[
-            "dataset"] == allele_option].index[
-        0]] = "magenta"
+    # Add scatter plot with error bars
+    for i, row in data_sorted.iterrows():
+        if row['dataset'] == "N2":
+            allele_colors="red"
+        elif row['dataset'] == allele_option:
+            allele_colors="magenta"
+        else:
+            allele_colors="dimgrey"
+        # color = "red" if row['Gene'] == "N2" else "dimgrey"
+        fig.add_trace(go.Scatter(
+            x=[row[f"{allele_phenotype_option}-mean"]],
+            y=[row["dataset"]],
+            error_x=dict(
+                type='data',
+                array=[row[f"{allele_phenotype_option}-ci95_hi"] - row[f"{allele_phenotype_option}-mean"]],
+                arrayminus=[row[f"{allele_phenotype_option}-mean"] - row[f"{allele_phenotype_option}-ci95_lo"]],
+                visible=True,
+                color=allele_colors,
+                thickness=3,
+                width=0
+            ),
+            mode='markers',
+            marker=dict(
+                color=allele_colors,
+                size=12,
+                symbol='circle',
+                line=dict(
+                    color='rgb(0,0,0)',
+                    width=1
+                ),
+            ),
+            name="",
+            showlegend=False  # Hide individual points from legend
+        ))
 
-    fig, ax = plt.subplots(figsize=(4, 16))
-    ax = plt.errorbar(x=allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])[f"{allele_phenotype_option}-mean"],
-                    y=allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset"],
-                    xerr=allele_MSD[f"{allele_phenotype_option}-ci95_hi"] - allele_MSD[f"{allele_phenotype_option}-mean"],
-                    fmt="none", marker="none", ecolor=allele_colors, elinewidth=3)
-    ax = plt.scatter(x=allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])[f"{allele_phenotype_option}-mean"],
-                    y=allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset"],
-                    marker='o', color=allele_colors)
-    plt.yticks(fontsize=5)
-
-    plt.xlabel('Sample Mean Distance')
-    plt.ylabel('Gene_Allele')
-    plt.title(f"{allele_phenotype_option}")
+    # Update layout with labels and title
+    fig.update_layout(
+        title=f"{allele_phenotype_option}",
+        xaxis_title='Sample Mean Distance',
+        yaxis_title='Gene',
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        width=600,
+        height=1200,
+        margin=dict(l=100, r=50, t=100, b=50),  # Adjust margins as needed
+        annotations=[
+            dict(
+                text=f'Sample mean distance from wildtype for all strains for selected phenotype: {allele_phenotype_option}. Error bars are 95% CI',
+                xref="paper",
+                yref="paper",
+                x=0,
+                y=-0.2,
+                showarrow=False,
+                font=dict(
+                    size=12,
+                    color="black"
+                )
+            )
+        ]
+    )
 
     allele_phenotype_plot = io.BytesIO()
-    plt.savefig(allele_phenotype_plot, format='png', dpi=300, bbox_inches='tight')
-    #display image 
-    col6.image(allele_phenotype_plot,width=None,caption=(f'Sample mean distance from wildtype for selected phenotype: {allele_phenotype_option}. Error bars are 95% CI.'))
+    fig.write_image(allele_phenotype_plot, format='png',scale=3)
+    allele_phenotype_plot.seek(0)
+    col6.plotly_chart(fig, use_container_width=True)
 
     #combine data and rename columns :
     dat=pd.concat( [allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset"],
