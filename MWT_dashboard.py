@@ -164,6 +164,7 @@ if page ==pages[0]:
         paper_bgcolor='white',
         width=600,
         height=1200,
+        yaxis=dict(showticklabels=False),
         margin=dict(l=100, r=50, t=100, b=50),  # Adjust margins as needed
         annotations=[
             dict(
