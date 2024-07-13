@@ -868,13 +868,16 @@ if page ==pages[3]:
             titleside="right"
         )
     ))
-
+    max_height = 1200
+    h = min(200*len(gene_multiple), max_height)
     fig.update_layout(
         width=900,
-        height=1200,
+        height=h,
         margin=dict(l=50, r=50, t=100, b=50),
         xaxis_title="",
-        yaxis_title=""
+        yaxis_title="",
+        yaxis=dict(tickangle=90),
+        xaxis=dict(showticklabels=True,tickfont=dict(size=8))
     )
 
     imgheatmap = io.BytesIO()
@@ -1166,13 +1169,16 @@ if page ==pages[4]:
             titleside="right"
         )
     ))
-
+    max_height = 1200
+    h = min(200*len(allele_multiple), max_height)
     fig.update_layout(
         width=900,
-        height=1200,
+        height=h,
         margin=dict(l=50, r=50, t=100, b=50),
         xaxis_title="",
-        yaxis_title=""
+        yaxis_title="",
+        yaxis=dict(tickangle=90),
+        xaxis=dict(showticklabels=True,tickfont=dict(size=8))
     )
 
     imgheatmap = io.BytesIO()
