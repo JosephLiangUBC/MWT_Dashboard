@@ -1173,7 +1173,7 @@ if page ==pages[4]:
         )
     ))
     max_height = 1200
-    h = min(200*len(allele_multiple), max_height)
+    h = min(300*len(allele_multiple), max_height)
     fig.update_layout(
         width=900,
         height=h,
