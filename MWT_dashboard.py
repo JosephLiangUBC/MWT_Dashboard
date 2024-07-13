@@ -38,7 +38,7 @@ for conn_path in conn_list:
         
 # Read data from SQLite database
 tap_output = read('tap_response_data')
-# baseline_output=read('tap_baseline_data') # for raw baseline data
+baseline_output=read('tap_baseline_data') # for raw baseline data
 tap_tstat_allele = read('tstat_gene_data')
 tap_tstat_data = read('tstat_allele_data')
 # allele_metric_data = read('allele_phenotype_data')
@@ -244,14 +244,26 @@ if page ==pages[0]:
     col2.subheader("Comprehensive Heatmap of entire dataset")
     col2.plotly_chart(fig, use_container_width=True)
 
+    col2_1,col2_2= col2.columns(2)
+    col2_1.download_button(label="Download Plot",
+                        data=imgheatmap,
+                        file_name="Heatmap.png",
+                        mime="image/png",
+                        key='dnldheatmap')
     # Add download buttons    
-    col2.download_button(
+    col2_2.download_button(
         label="Download CSV",
         data=convert_df(tap_tstat_allele.set_index('Gene').drop(index="N2")),
         file_name="Data_Glance_Heatmap.csv",
         mime="text/csv",
         key='dnldheatmapcsv'
     )
+
+    st.download_button(label="Download raw baseline data",
+                    data=convert_df(baseline_output),
+                    file_name=f"raw_baseline_data.csv",
+                    mime="text/csv",
+                    key='dnldbaseoutcsv')
 
 if page == pages[1]:
     st.header('Gene-specific Data')
@@ -874,7 +886,13 @@ if page ==pages[3]:
     col9.plotly_chart(fig, use_container_width=True)
 
     # Add download buttons
-    col9.download_button(
+    col9_1,col9_2=col9.columns(2)
+    col9_1.download_button(label="Download Plot",
+                        data=imgheatmap,
+                        file_name="Heatmap.png",
+                        mime="image/png",
+                        key='dnldheatmapcustom')
+    col9_2.download_button(
         label="Download CSV",
         data=convert_df(tap_tstat_allele_selected.set_index('Gene')),
         file_name="Data_Glance_Heatmap.csv",
@@ -1166,7 +1184,13 @@ if page ==pages[4]:
     col12.plotly_chart(fig, use_container_width=True)
 
     # Add download buttons
-    col12.download_button(
+    col12_1,col12_2=col12.columns(2)
+    col12_1.download_button(label="Download Plot",
+                        data=imgheatmap,
+                        file_name="Heatmap.png",
+                        mime="image/png",
+                        key='dnldheatmapcustomallele')
+    col12_2.download_button(
         label="Download CSV",
         data=convert_df(tap_tstat_data_selected.set_index('dataset')),
         file_name="Data_Glance_Heatmap.csv",
