@@ -1264,36 +1264,86 @@ if page ==pages[4]:
         'Select a phenotype',
         np.unique(phenotype_list),
         key='multiallele_phenotype_select')
-    # seaborn graph of phenotypic view (sample mean distance) + st.pyplot
-    sns.set_context('notebook')
-    allele_colors = ["dimgray"] * len(allele_MSD.sort_values(by=[f"{multiallele_phenotype_option}-mean"])["dataset"])
-    allele_colors[allele_MSD.sort_values(by=[f"{multiallele_phenotype_option}-mean"]).reset_index(drop=True)[
-        allele_MSD.sort_values(by=[f"{multiallele_phenotype_option}-mean"]).reset_index(drop=True)["dataset"] == "N2"].index[
-        0]] = "red"
-    for a in allele_MSD.sort_values(by=[f"{multiallele_phenotype_option}-mean"]).reset_index(drop=True)[
-        allele_MSD.sort_values(by=[f"{multiallele_phenotype_option}-mean"]).reset_index(drop=True)["dataset"].isin(allele_multiple)].index:
-        allele_colors[a] = "magenta"
-    fig, ax = plt.subplots(figsize=(4, 16))
-   
-    ax = plt.errorbar(x=allele_MSD.sort_values(by=[f"{multiallele_phenotype_option}-mean"])[f"{multiallele_phenotype_option}-mean"],
-                    y=allele_MSD.sort_values(by=[f"{multiallele_phenotype_option}-mean"])["dataset"],
-                    xerr=allele_MSD[f"{multiallele_phenotype_option}-ci95_hi"] - allele_MSD[f"{multiallele_phenotype_option}-mean"],
-                    fmt="none", marker="none", ecolor=allele_colors, elinewidth=3)
-    ax = plt.scatter(x=allele_MSD.sort_values(by=[f"{multiallele_phenotype_option}-mean"])[f"{multiallele_phenotype_option}-mean"],
-                    y=allele_MSD.sort_values(by=[f"{multiallele_phenotype_option}-mean"])["dataset"],
-                    marker='o', color=allele_colors)
-    plt.yticks(fontsize=7) # added to see the axis labels better
+    data_sorted= allele_MSD.sort_values(by=[f"{multiallele_phenotype_option}-mean"])
+    allele_colors = ["dimgray"] * len(data_sorted["dataset"])
+    ticktext = []
+    tickvals = []
+    fig = go.Figure()
+    # Add scatter plot with error bars
+    for i, row in data_sorted.iterrows():
+        if row['dataset'] == "N2":
+            allele_colors="red"
+            ticktext.append(row['dataset'])
+            tickvals.append(row['dataset'])
+        elif row['dataset'] in (allele_multiple):
+            allele_colors="magenta"
+            ticktext.append(row['dataset'])
+            tickvals.append(row['dataset'])
+        else:
+            allele_colors="dimgray"
+        # color = "red" if row['Gene'] == "N2" else "dimgrey"
+        fig.add_trace(go.Scatter(
+            x=[row[f"{multiallele_phenotype_option}-mean"]],
+            y=[row["dataset"]],
+            error_x=dict(
+                type='data',
+                array=[row[f"{multiallele_phenotype_option}-ci95_hi"] - row[f"{multiallele_phenotype_option}-mean"]],
+                arrayminus=[row[f"{multiallele_phenotype_option}-mean"] - row[f"{multiallele_phenotype_option}-ci95_lo"]],
+                visible=True,
+                color=allele_colors,
+                thickness=3,
+                width=0
+            ),
+            mode='markers',
+            marker=dict(
+                color=allele_colors,
+                size=12,
+                symbol='circle',
+                line=dict(
+                    color='rgb(0,0,0)',
+                    width=1
+                ),
+            ),
+            showlegend=False,  # Hide individual points from legend
+            name=""
+            
+        ))
 
-    plt.xlabel('Sample Mean Distance')
-    plt.ylabel('Gene_Allele')
-    plt.title(f"{multiallele_phenotype_option}")
+        # Update layout with labels and title
+        fig.update_layout(
+            title=f"{multiallele_phenotype_option}",
+            xaxis_title='Sample Mean Distance',
+            yaxis_title='Gene',
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            width=600,
+            height=1200,
+            yaxis=dict(
+            tickmode='array',
+            tickvals=tickvals,
+            ticktext=ticktext),
+            margin=dict(l=100, r=50, t=100, b=50),  # Adjust margins as needed
+            annotations=[
+                dict(
+                    text=f'Sample mean distance from wildtype for all strains for selected phenotypes: {multiallele_phenotype_option}. Error bars are 95% CI',
+                    xref="paper",
+                    yref="paper",
+                    x=0,
+                    y=-0.2,
+                    showarrow=False,
+                    font=dict(
+                        size=12,
+                        color="black"
+                    )
+                )
+            ]
+        )
     
-    #edit from here
     multiallele_phenotype_plot = io.BytesIO()
-    plt.savefig(multiallele_phenotype_plot, format='png', dpi=300, bbox_inches='tight')
-    #display image 
-    col13.image(multiallele_phenotype_plot, width=None,caption=f'Sample mean distance from wildtype for selected phenotype: {multiallele_phenotype_option} and selected alleles :{allele_multiple}. Error bars are 95% CI.')
-    
+    fig.write_image(multiallele_phenotype_plot, format='png',scale=3)
+    multiallele_phenotype_plot.seek(0)
+    col13.plotly_chart(fig, use_container_width=True)
+   
     #combine data and rename columns :
     multiallele_dat=pd.concat( [allele_MSD.sort_values(by=[f"{multiallele_phenotype_option}-mean"])["dataset"],
                    allele_MSD.sort_values(by=[f"{multiallele_phenotype_option}-mean"])[f"{multiallele_phenotype_option}-mean"],
