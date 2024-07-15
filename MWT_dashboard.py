@@ -912,33 +912,85 @@ if page ==pages[3]:
         np.unique(phenotype_list),
         key='multigene_phenotype_select')
     # seaborn graph of phenotypic view (sample mean distance) + st.pyplot
-    sns.set_context('notebook')
-    gene_colors = ["dimgray"] * len(gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])["Gene"])
-    gene_colors[gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"]).reset_index(drop=True)[
-        gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"] == "N2"].index[
-        0]] = "red"
-    for g in gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"]).reset_index(drop=True)[
-        gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"]).reset_index(drop=True)["Gene"].isin(gene_multiple)].index:
-        gene_colors[g] = "magenta"
-    fig, ax = plt.subplots(figsize=(4, 16))
-    ax = plt.errorbar(x=gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])[f"{multigene_phenotype_option}-mean"],
-                    y=gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])["Gene"],
-                    xerr=gene_MSD[f"{multigene_phenotype_option}-ci95_hi"] - gene_MSD[f"{multigene_phenotype_option}-mean"],
-                    fmt="none", marker="none", ecolor=gene_colors, elinewidth=3)
-    ax = plt.scatter(x=gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])[f"{multigene_phenotype_option}-mean"],
-                    y=gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])["Gene"],
-                    marker='o', color=gene_colors)
-    plt.yticks(fontsize=7) # added to see the axis labels better
+    data_sorted=gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])
+    gene_colors = ["dimgray"] * len(data_sorted["Gene"])
+    ticktext = []
+    tickvals = []
+    fig = go.Figure()
+    # Add scatter plot with error bars
+    for i, row in data_sorted.iterrows():
+        if row['Gene'] == "N2":
+            gene_colors="red"
+            ticktext.append(row['Gene'])
+            tickvals.append(row['Gene'])
+        elif row['Gene'] in (gene_multiple):
+            gene_colors="magenta"
+            ticktext.append(row['Gene'])
+            tickvals.append(row['Gene'])
+        else:
+            gene_colors="dimgray"
+        # color = "red" if row['Gene'] == "N2" else "dimgrey"
+        fig.add_trace(go.Scatter(
+            x=[row[f"{multigene_phenotype_option}-mean"]],
+            y=[row["Gene"]],
+            error_x=dict(
+                type='data',
+                array=[row[f"{multigene_phenotype_option}-ci95_hi"] - row[f"{multigene_phenotype_option}-mean"]],
+                arrayminus=[row[f"{multigene_phenotype_option}-mean"] - row[f"{multigene_phenotype_option}-ci95_lo"]],
+                visible=True,
+                color=gene_colors,
+                thickness=3,
+                width=0
+            ),
+            mode='markers',
+            marker=dict(
+                color=gene_colors,
+                size=12,
+                symbol='circle',
+                line=dict(
+                    color='rgb(0,0,0)',
+                    width=1
+                ),
+            ),
+            showlegend=False,  # Hide individual points from legend
+            name=""
+            
+        ))
 
-    plt.xlabel('Sample Mean Distance')
-    plt.ylabel('Genes')
-    plt.title(f"{multigene_phenotype_option}")
-
+        # Update layout with labels and title
+        fig.update_layout(
+            title=f"{multigene_phenotype_option}",
+            xaxis_title='Sample Mean Distance',
+            yaxis_title='Gene',
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            width=600,
+            height=1200,
+            yaxis=dict(
+            tickmode='array',
+            tickvals=tickvals,
+            ticktext=ticktext),
+            margin=dict(l=100, r=50, t=100, b=50),  # Adjust margins as needed
+            annotations=[
+                dict(
+                    text=f'Sample mean distance from wildtype for all strains for selected phenotypes: {multigene_phenotype_option}. Error bars are 95% CI',
+                    xref="paper",
+                    yref="paper",
+                    x=0,
+                    y=-0.2,
+                    showarrow=False,
+                    font=dict(
+                        size=12,
+                        color="black"
+                    )
+                )
+            ]
+        )
     multigene_phenotype_plot = io.BytesIO()
-    plt.savefig(multigene_phenotype_plot, format='png', dpi=300, bbox_inches='tight')
-    #display image 
-    col10.image(multigene_phenotype_plot, width=None,caption=f'Sample mean distance from wildtype for selected phenotype: {multigene_phenotype_option} and selected genes :{gene_multiple}. Error bars are 95% CI.')
-    
+    fig.write_image(multigene_phenotype_plot, format='png',scale=3)
+    multigene_phenotype_plot.seek(0)
+    col10.plotly_chart(fig, use_container_width=True)
+   
     #combine data and rename columns :
     multigene_dat=pd.concat( [gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])["Gene"],
                    gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])[f"{multigene_phenotype_option}-mean"],
