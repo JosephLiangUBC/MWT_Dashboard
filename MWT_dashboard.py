@@ -868,7 +868,6 @@ if page ==pages[3]:
             titleside="right"
         )
     ))
-    max_height = 1200
     h = 200*len(gene_multiple)
     fig.update_layout(
         width=900,
@@ -1220,8 +1219,7 @@ if page ==pages[4]:
             titleside="right"
         )
     ))
-    max_height = 1200
-    h = min(300*len(allele_multiple), max_height)
+    h = 300*len(allele_multiple)
     fig.update_layout(
         width=900,
         height=h,
