@@ -27,7 +27,7 @@ def read(table):
 
 # list of connections to run the dashboard
 conn_list=['/Users/Joseph/Desktop/NRSC510B/mwt_data.db',
-           '/Users/lavanya/Downloads/MWT_Dashboard-main/Test/mwt_data_updated.db',
+           '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
            '/Users/rankinlab/Desktop/MWT_Data_App/mwt_data.db']
 for conn_path in conn_list:
     try:
@@ -213,9 +213,9 @@ if page ==pages[0]:
 
     # Create a heatmap
     fig = go.Figure(data=go.Heatmap(
-        z=tap_tstat_allele.set_index('Gene').drop(index="N2").values,
-        x=tap_tstat_allele.set_index('Gene').drop(index="N2").columns,
-        y=tap_tstat_allele.set_index('Gene').drop(index="N2").index,
+        z=tap_tstat_allele.set_index('Gene').values,
+        x=tap_tstat_allele.set_index('Gene').columns,
+        y=tap_tstat_allele.set_index('Gene').index,
         colorscale='RdBu',
         zmin=-3,
         zmax=3,
@@ -254,7 +254,7 @@ if page ==pages[0]:
     # Add download buttons    
     col2_2.download_button(
         label="Download CSV",
-        data=convert_df(tap_tstat_allele.set_index('Gene').drop(index="N2")),
+        data=convert_df(tap_tstat_allele.set_index('Gene')),
         file_name="Data_Glance_Heatmap.csv",
         mime="text/csv",
         key='dnldheatmapcsv'
@@ -534,13 +534,12 @@ if page == pages[1]:
                             file_name=f"Gene-specific Data {gene_option}.csv",
                             mime="text/csv",
                             key='dnldbtn9')
-        # seaborn graph of Speed Habituation Curve
-        # Insert download graph button
-    # st.download_button(label="Download raw baseline data",
-    #                 data=convert_df(baseline_output),
-    #                 file_name=f"raw_baseline_data.csv",
-    #                 mime="text/csv",
-    #                 key='dnldgenebaseoutcsv')
+    
+    st.download_button(label="Download raw baseline data",
+                    data=convert_df(baseline_output[baseline_output['Gene']== gene_option]),
+                    file_name=f"raw_baseline_data.csv",
+                    mime="text/csv",
+                    key='dnldgenebaseoutcsv')
 
 if page ==pages[2]:
     st.header('Allele-specific Data')
@@ -704,8 +703,6 @@ if page ==pages[2]:
                         file_name=f"Allele-specific Data Sample mean distance {allele_phenotype_option}.csv",
                         mime="text/csv",
                         key='dnldallelephenotypeprofilecsv')
-    # Insert download graph button
-
 
     col8.subheader('Habituation Curves of Response')
     with col8:
@@ -811,11 +808,11 @@ if page ==pages[2]:
                                 file_name=f"Allele-specific Data {allele_option}.csv",
                                 mime="text/csv",
                                 key='dnldbtn12')
-    # st.download_button(label="Download raw baseline data",
-    #                 data=convert_df(baseline_output),
-    #                 file_name=f"raw_baseline_data.csv",
-    #                 mime="text/csv",
-    #                 key='dnldallelebaseoutcsv')
+    st.download_button(label="Download raw baseline data",
+                    data=convert_df(baseline_output[baseline_output['dataset']== allele_option]),
+                    file_name=f"raw_baseline_data.csv",
+                    mime="text/csv",
+                    key='dnldallelebaseoutcsv')
 
 if page ==pages[3]:
    # multiple selection option for genes
@@ -872,7 +869,7 @@ if page ==pages[3]:
         )
     ))
     max_height = 1200
-    h = min(200*len(gene_multiple), max_height)
+    h = 200*len(gene_multiple)
     fig.update_layout(
         width=900,
         height=h,
@@ -1131,13 +1128,12 @@ if page ==pages[3]:
                             file_name=f"Gene-specific Data {gene_multiple}.csv",
                             mime="text/csv",
                             key='dnldbtn18')
-        # seaborn graph of Speed Habituation Curve
-        # Insert download graph button
-    # st.download_button(label="Download raw baseline data",
-    #                 data=convert_df(baseline_output),
-    #                 file_name=f"raw_baseline_data.csv",
-    #                 mime="text/csv",
-    #                 key='dnldgenemultibaseoutcsv')
+       
+    st.download_button(label="Download raw baseline data",
+                    data=convert_df(baseline_output[baseline_output['Gene'].isin(gene_multiple)]),
+                    file_name=f"raw_baseline_data.csv",
+                    mime="text/csv",
+                    key='dnldgenemultibaseoutcsv')
 
 
 if page ==pages[4]:
@@ -1485,11 +1481,11 @@ if page ==pages[4]:
                             file_name=f"Allele-specific Data {allele_multiple}.csv",
                             mime="text/csv",
                             key='dnldbtn24')
-    # st.download_button(label="Download raw baseline data",
-    #                     data=convert_df(baseline_output),
-    #                     file_name=f"raw_baseline_data.csv",
-    #                     mime="text/csv",
-    #                     key='dnldallelemultibaseoutcsv')
+    st.download_button(label="Download raw baseline data",
+                        data=convert_df(baseline_output[baseline_output['dataset'].isin(allele_multiple)]),
+                        file_name=f"raw_baseline_data.csv",
+                        mime="text/csv",
+                        key='dnldallelemultibaseoutcsv')
     
         
 
