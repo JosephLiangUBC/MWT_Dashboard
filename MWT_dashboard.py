@@ -234,7 +234,8 @@ if page ==pages[0]:
         height=1200,
         margin=dict(l=50, r=50, t=50, b=50),
         xaxis_title="",
-        yaxis_title=""
+        yaxis_title="",
+        yaxis=dict(showticklabels=False),
     )
 
     imgheatmap = io.BytesIO()
@@ -1003,7 +1004,7 @@ if page ==pages[3]:
                         mime="image/png",
                         key='dnldmultigenephenotypeprofile')
     col10_2.download_button(label="Download csv",
-                            data=convert_df(multigene_dat),
+                            data=convert_df(multigene_dat[multigene_dat['Gene'].isin(gene_multiple)]),
                             file_name=f"Gene-specific Data Sample mean distance {multigene_phenotype_option}.csv",
                             mime="text/csv",
                             key='dnldmultigenephenotypeprofilecsv')
@@ -1354,7 +1355,7 @@ if page ==pages[4]:
                         mime="image/png",
                         key='dnldmultiallelephenotypeprofile')
     col13_2.download_button(label="Download csv",
-                            data=convert_df(multiallele_dat),
+                            data=convert_df(multiallele_dat[multiallele_dat['dataset'].isin(allele_list)]),
                             file_name=f"Allele-specific Data Sample mean distance {multiallele_phenotype_option}.csv",
                             mime="text/csv",
                             key='dnldmultiallelephenotypeprofilecsv')
