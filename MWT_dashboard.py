@@ -26,9 +26,9 @@ def read(table):
     return result
 
 # list of connections to run the dashboard
-conn_list=['/Users/Joseph/Desktop/NRSC510B/mwt_data.db',
+conn_list=['/Users/Joseph/Desktop/NRSC510B/data_updated.db',
            '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
-           '/Users/rankinlab/Desktop/MWT_Data_App/mwt_data.db']
+           '/Users/rankinlab/Desktop/MWT_Data_App/data_updated.db']
 for conn_path in conn_list:
     try:
         conn= sqlite3.connect(conn_path) #tries whichever connection is available
