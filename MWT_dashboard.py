@@ -26,9 +26,9 @@ def read(table):
     return result
 
 # list of connections to run the dashboard
-conn_list=['/Users/Joseph/Desktop/NRSC510B/mwt_data.db',
+conn_list=['/Users/Joseph/Desktop/NRSC510B/data_updated.db',
            '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
-           '/Users/rankinlab/Desktop/MWT_Data_App/mwt_data.db']
+           '/Users/rankinlab/Desktop/MWT_Data_App/data_updated.db']
 for conn_path in conn_list:
     try:
         conn= sqlite3.connect(conn_path) #tries whichever connection is available
@@ -38,7 +38,6 @@ for conn_path in conn_list:
         
 # Read data from SQLite database
 tap_output = read('tap_response_data')
-baseline_output=read('tap_baseline_data') # for raw baseline data
 tap_tstat_allele = read('tstat_gene_data')
 tap_tstat_data = read('tstat_allele_data')
 # allele_metric_data = read('allele_phenotype_data')
@@ -60,47 +59,47 @@ metric_palette = ["k", "k", "k",
                   "cadetblue", "cadetblue", "cadetblue",
                   "thistle", "thistle", "thistle"]
 
+# creating tabs for dashboard
+pages = ["Data at a Glance", "Gene-specific Data", "Allele-specific Data",  "Custom Gene Selection","Custom Allele Selection","Clustering", "Citations"]
+page = st.sidebar.radio("Select a page", pages)
+
 # Streamlit Dashboard title
 st.title('Data Dashboard for MWT Data')
+if page != pages[6]:
+    # Select dataset option
+    datasets = st.multiselect(
+        label="Select Datasets",
+        options=gene_MSD.Screen.unique(),
+        default=gene_MSD.Screen.unique()[0],
+        placeholder="make a selection",
+        help="select and de-select datasets you want to analyze",
+        key="datasetselection"
+    )
 
-# Select dataset option
-datasets = st.multiselect(
-    label="Select Datasets",
-    options=gene_MSD.Screen.unique(),
-    default=gene_MSD.Screen.unique()[0],
-    placeholder="make a selection",
-    help="select and de-select datasets you want to analyze",
-    key="datasetselection"
-)
+    phenotype_list = []
+    for a in gene_MSD.columns[1:]:
+        b = a.split("-", 1)[0]
+        phenotype_list.append(b)
 
-phenotype_list = []
-for a in gene_MSD.columns[1:]:
-    b = a.split("-", 1)[0]
-    phenotype_list.append(b)
+    phenotype_list.remove('Screen')
 
-phenotype_list.remove('Screen')
+    dropna_features = list(np.unique(phenotype_list))
+    dropna_features.remove('Spontaneous Recovery of Response Duration')
+    dropna_features.remove('Spontaneous Recovery of Response Probability')
+    dropna_features.remove('Spontaneous Recovery of Response Speed')
+    # st.write(dropna_features)
 
-dropna_features = list(np.unique(phenotype_list))
-dropna_features.remove('Spontaneous Recovery of Response Duration')
-dropna_features.remove('Spontaneous Recovery of Response Probability')
-dropna_features.remove('Spontaneous Recovery of Response Speed')
-# st.write(dropna_features)
-
-# filter data for selected dataset
-tap_output = tap_output[tap_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
-tap_tstat_allele = tap_tstat_allele[tap_tstat_allele['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(
-    columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
-tap_tstat_data = tap_tstat_data[tap_tstat_data['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(
-    columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
-gene_profile_data = gene_profile_data[gene_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
-allele_profile_data = allele_profile_data[allele_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"],
-                                                                                                "N2")
-gene_MSD = gene_MSD[gene_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
-allele_MSD = allele_MSD[allele_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
-
-# creating tabs for dashboard
-pages = ["Data at a Glance", "Gene-specific Data", "Allele-specific Data",  "Custom Gene Selection","Custom Allele Selection","Clustering"]
-page = st.sidebar.radio("Select a page", pages)
+    # filter data for selected dataset
+    tap_output = tap_output[tap_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+    tap_tstat_allele = tap_tstat_allele[tap_tstat_allele['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(
+        columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
+    tap_tstat_data = tap_tstat_data[tap_tstat_data['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(
+        columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
+    gene_profile_data = gene_profile_data[gene_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+    allele_profile_data = allele_profile_data[allele_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"],
+                                                                                                    "N2")
+    gene_MSD = gene_MSD[gene_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+    allele_MSD = allele_MSD[allele_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 
 # Visualisations for data tab
 if page ==pages[0]:
@@ -261,11 +260,6 @@ if page ==pages[0]:
         key='dnldheatmapcsv'
     )
 
-    st.download_button(label="Download raw baseline data",
-                    data=convert_df(baseline_output),
-                    file_name=f"raw_baseline_data.csv",
-                    mime="text/csv",
-                    key='dnldbaseoutcsv')
 
 if page == pages[1]:
     st.header('Gene-specific Data')
@@ -536,11 +530,11 @@ if page == pages[1]:
                             mime="text/csv",
                             key='dnldbtn9')
     
-    st.download_button(label="Download raw baseline data",
-                    data=convert_df(baseline_output[baseline_output['Gene']== gene_option]),
-                    file_name=f"raw_baseline_data.csv",
-                    mime="text/csv",
-                    key='dnldgenebaseoutcsv')
+    # st.download_button(label="Download raw baseline data",
+    #                 data=convert_df(baseline_output[baseline_output['Gene']== gene_option]),
+    #                 file_name=f"raw_baseline_data.csv",
+    #                 mime="text/csv",
+    #                 key='dnldgenebaseoutcsv')
 
 if page ==pages[2]:
     st.header('Allele-specific Data')
@@ -809,11 +803,11 @@ if page ==pages[2]:
                                 file_name=f"Allele-specific Data {allele_option}.csv",
                                 mime="text/csv",
                                 key='dnldbtn12')
-    st.download_button(label="Download raw baseline data",
-                    data=convert_df(baseline_output[baseline_output['dataset']== allele_option]),
-                    file_name=f"raw_baseline_data.csv",
-                    mime="text/csv",
-                    key='dnldallelebaseoutcsv')
+    # st.download_button(label="Download raw baseline data",
+    #                 data=convert_df(baseline_output[baseline_output['dataset']== allele_option]),
+    #                 file_name=f"raw_baseline_data.csv",
+    #                 mime="text/csv",
+    #                 key='dnldallelebaseoutcsv')
 
 if page ==pages[3]:
    # multiple selection option for genes
@@ -1129,11 +1123,11 @@ if page ==pages[3]:
                             mime="text/csv",
                             key='dnldbtn18')
        
-    st.download_button(label="Download raw baseline data",
-                    data=convert_df(baseline_output[baseline_output['Gene'].isin(gene_multiple)]),
-                    file_name=f"raw_baseline_data.csv",
-                    mime="text/csv",
-                    key='dnldgenemultibaseoutcsv')
+    # st.download_button(label="Download raw baseline data",
+    #                 data=convert_df(baseline_output[baseline_output['Gene'].isin(gene_multiple)]),
+    #                 file_name=f"raw_baseline_data.csv",
+    #                 mime="text/csv",
+    #                 key='dnldgenemultibaseoutcsv')
 
 
 if page ==pages[4]:
@@ -1480,11 +1474,58 @@ if page ==pages[4]:
                             file_name=f"Allele-specific Data {allele_multiple}.csv",
                             mime="text/csv",
                             key='dnldbtn24')
+    # st.download_button(label="Download raw baseline data",
+    #                     data=convert_df(baseline_output[baseline_output['dataset'].isin(allele_multiple)]),
+    #                     file_name=f"raw_baseline_data.csv",
+    #                     mime="text/csv",
+    #                     key='dnldallelemultibaseoutcsv')
+    
+if page ==pages[6]:
+    st.markdown("""
+    ## References
+
+    ### Multi-Worm Tracker:
+    1. Swierczek, N. A., et al. (2011). High-throughput behavioral analysis in *C. elegans*. *Nature Methods, 8*(7), 592-598. https://doi.org/10.1038/nmeth.1625
+
+    ### Neuronal Screen:
+    2. Giles, A. C. (2012). *Candidate gene and high throughput genetic analysis of habituation in Caenorhabditis elegans*. University of British Columbia.
+
+    ### G-Protein Screen:
+    3. McEwan, A. (2013). *Modulation of habituation kinetics and behavioural shifts by members of the heterotrimeric G-protein signaling pathways*. University of British Columbia.
+
+    ### Autism Spectrum Disorder (ASD) Screen:
+    4. McDiarmid, T. A., et al. (2020). Systematic phenomics analysis of autism-associated genes reveals parallel networks underlying reversible impairments in habituation. *Proceedings of the National Academy of Sciences of the United States of America, 117*(1), 656-667. https://doi.org/10.1073/pnas.1912049116
+
+    ### Unpublished Screens So Far:
+    5. Liang, J. (n.d.). *Parkinson's disease screen*. Unpublished.
+
+    6. Kepler, L. (n.d.). *Glia genes screen*. Unpublished.
+
+    ### Online Resources:
+    7. Harris, T. W., et al. (2020). WormBase: A modern model organism information resource. *Nucleic Acids Research, 48*(D1), D762-D767. https://doi.org/10.1093/nar/gkz920
+
+    8. Kishore, R., et al. (2020). Automated generation of gene summaries at the Alliance of Genome Resources. *Database: The Journal of Biological Databases and Curation, 2020*, baaa037. https://doi.org/10.1093/database/baaa037
+
+    ### CeNGEN:
+    9. (Empty for now)
+    """)
+    conn_list=['/Users/Joseph/Desktop/NRSC510B/data_updated.db',
+            '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
+            '/Users/rankinlab/Desktop/MWT_Data_App/data_updated.db']
+    for conn_path in conn_list:
+        try:
+            conn= sqlite3.connect(conn_path) #tries whichever connection is available
+            break
+        except:
+            pass
+    baseline_output=read('tap_baseline_data') # for raw baseline data (makes the code super slow )
+    conn.close()
     st.download_button(label="Download raw baseline data",
-                        data=convert_df(baseline_output[baseline_output['dataset'].isin(allele_multiple)]),
-                        file_name=f"raw_baseline_data.csv",
-                        mime="text/csv",
-                        key='dnldallelemultibaseoutcsv')
+                    data=convert_df(baseline_output),
+                    file_name=f"raw_baseline_data.csv",
+                    mime="text/csv",
+                    key='dnldbaseoutcsv')
+
     
         
 
