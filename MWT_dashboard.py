@@ -45,7 +45,6 @@ gene_profile_data = read('gene_profile_data')
 allele_profile_data = read('allele_profile_data')
 gene_MSD = read('gene_MSD')
 allele_MSD = read('allele_MSD')
-# st.write(gene_MSD[gene_MSD['Screen']=='G-Protein_Screen'])
 
 conn.close()
 
@@ -259,6 +258,33 @@ if page ==pages[0]:
         mime="text/csv",
         key='dnldheatmapcsv'
     )
+
+    conn_list=['/Users/Joseph/Desktop/NRSC510B/data_updated.db',
+            '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
+            '/Users/rankinlab/Desktop/MWT_Data_App/data_updated.db']
+
+    # Create a flag variable
+    read_data_flag = False
+    if st.button('Read and get Download button for Baseline Data',key='readbaseoutcsv'):
+        read_data_flag = True
+        st.warning("Please wait, another button will open up to download the data. This might take several minutes ")
+
+    # If the button is pressed, read the data and then show show button to download it
+    if read_data_flag:
+        for conn_path in conn_list:
+            try:
+                conn = sqlite3.connect(conn_path) 
+                break
+            except:
+                pass
+        baseline_output = read('tap_baseline_data')
+        baseline_output = baseline_output[baseline_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+        conn.close()
+        st.download_button(label="Download raw baseline data",
+                        data=convert_df(baseline_output),
+                        file_name=f"raw_baseline_data.csv",
+                        mime="text/csv",
+                        key='dnldbaseoutcsv')
 
 
 if page == pages[1]:
@@ -529,12 +555,32 @@ if page == pages[1]:
                             file_name=f"Gene-specific Data {gene_option}.csv",
                             mime="text/csv",
                             key='dnldbtn9')
-    
-    # st.download_button(label="Download raw baseline data",
-    #                 data=convert_df(baseline_output[baseline_output['Gene']== gene_option]),
-    #                 file_name=f"raw_baseline_data.csv",
-    #                 mime="text/csv",
-    #                 key='dnldgenebaseoutcsv')
+    conn_list=['/Users/Joseph/Desktop/NRSC510B/data_updated.db',
+            '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
+            '/Users/rankinlab/Desktop/MWT_Data_App/data_updated.db']
+
+    # Create a flag variable
+    read_data_flag = False
+    if st.button('Read and get Download button for Baseline Data',key='readgenebaseoutcsv'):
+        read_data_flag = True
+        st.warning("Please wait, another button will open up to download the data. This might take several minutes ")
+
+    # If the button is pressed, read the data and then show show button to download it
+    if read_data_flag:
+        for conn_path in conn_list:
+            try:
+                conn = sqlite3.connect(conn_path) 
+                break
+            except:
+                pass
+        baseline_output = read('tap_baseline_data')
+        baseline_output = baseline_output[baseline_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+        conn.close()
+        st.download_button(label="Download raw baseline data",
+                        data=convert_df(baseline_output[baseline_output['Gene']== gene_option]),
+                        file_name=f"raw_baseline_data.csv",
+                        mime="text/csv",
+                        key='dnldgenebaseoutcsv')
 
 if page ==pages[2]:
     st.header('Allele-specific Data')
@@ -803,11 +849,33 @@ if page ==pages[2]:
                                 file_name=f"Allele-specific Data {allele_option}.csv",
                                 mime="text/csv",
                                 key='dnldbtn12')
-    # st.download_button(label="Download raw baseline data",
-    #                 data=convert_df(baseline_output[baseline_output['dataset']== allele_option]),
-    #                 file_name=f"raw_baseline_data.csv",
-    #                 mime="text/csv",
-    #                 key='dnldallelebaseoutcsv')
+   
+    conn_list=['/Users/Joseph/Desktop/NRSC510B/data_updated.db',
+            '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
+            '/Users/rankinlab/Desktop/MWT_Data_App/data_updated.db']
+
+    # Create a flag variable
+    read_data_flag = False
+    if st.button('Read and get Download button for Baseline Data',key='readallelebaseoutcsv'):
+        read_data_flag = True
+        st.warning("Please wait, another button will open up to download the data. This might take several minutes ")
+
+    # If the button is pressed, read the data and then show show button to download it
+    if read_data_flag:
+        for conn_path in conn_list:
+            try:
+                conn = sqlite3.connect(conn_path) 
+                break
+            except:
+                pass
+        baseline_output = read('tap_baseline_data')
+        baseline_output = baseline_output[baseline_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+        conn.close()
+        st.download_button(label="Download raw baseline data",
+                        data=convert_df(baseline_output[baseline_output['dataset']== allele_option]),
+                        file_name=f"raw_baseline_data.csv",
+                        mime="text/csv",
+                        key='dnldallelebaseoutcsv')
 
 if page ==pages[3]:
    # multiple selection option for genes
@@ -1122,12 +1190,33 @@ if page ==pages[3]:
                             file_name=f"Gene-specific Data {gene_multiple}.csv",
                             mime="text/csv",
                             key='dnldbtn18')
-       
-    # st.download_button(label="Download raw baseline data",
-    #                 data=convert_df(baseline_output[baseline_output['Gene'].isin(gene_multiple)]),
-    #                 file_name=f"raw_baseline_data.csv",
-    #                 mime="text/csv",
-    #                 key='dnldgenemultibaseoutcsv')
+
+    conn_list=['/Users/Joseph/Desktop/NRSC510B/data_updated.db',
+            '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
+            '/Users/rankinlab/Desktop/MWT_Data_App/data_updated.db']
+
+    # Create a flag variable
+    read_data_flag = False
+    if st.button('Read and get Download button for Baseline Data',key='readgenemultibaseoutcsv'):
+        read_data_flag = True
+        st.warning("Please wait, another button will open up to download the data. This might take several minutes ")
+
+    # If the button is pressed, read the data and then show show button to download it
+    if read_data_flag:
+        for conn_path in conn_list:
+            try:
+                conn = sqlite3.connect(conn_path) 
+                break
+            except:
+                pass
+        baseline_output = read('tap_baseline_data')
+        baseline_output = baseline_output[baseline_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+        conn.close()
+        st.download_button(label="Download raw baseline data",
+                        data=convert_df(baseline_output[baseline_output['Gene'].isin(gene_multiple)]),
+                        file_name=f"raw_baseline_data.csv",
+                        mime="text/csv",
+                        key='dnldgenemultibaseoutcsv')
 
 
 if page ==pages[4]:
@@ -1349,7 +1438,7 @@ if page ==pages[4]:
                         mime="image/png",
                         key='dnldmultiallelephenotypeprofile')
     col13_2.download_button(label="Download csv",
-                            data=convert_df(multiallele_dat[multiallele_dat['dataset'].isin(allele_list)]),
+                            data=convert_df(multiallele_dat[multiallele_dat['Allele'].isin(allele_list)]),
                             file_name=f"Allele-specific Data Sample mean distance {multiallele_phenotype_option}.csv",
                             mime="text/csv",
                             key='dnldmultiallelephenotypeprofilecsv')
@@ -1474,11 +1563,33 @@ if page ==pages[4]:
                             file_name=f"Allele-specific Data {allele_multiple}.csv",
                             mime="text/csv",
                             key='dnldbtn24')
-    # st.download_button(label="Download raw baseline data",
-    #                     data=convert_df(baseline_output[baseline_output['dataset'].isin(allele_multiple)]),
-    #                     file_name=f"raw_baseline_data.csv",
-    #                     mime="text/csv",
-    #                     key='dnldallelemultibaseoutcsv')
+            
+    conn_list=['/Users/Joseph/Desktop/NRSC510B/data_updated.db',
+            '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
+            '/Users/rankinlab/Desktop/MWT_Data_App/data_updated.db']
+
+    # Create a flag variable
+    read_data_flag = False
+    if st.button('Read and get Download button for Baseline Data',key='readallelemultibaseoutcsv'):
+        read_data_flag = True
+        st.warning("Please wait, another button will open up to download the data. This might take several minutes ")
+
+    # If the button is pressed, read the data and then show show button to download it
+    if read_data_flag:
+        for conn_path in conn_list:
+            try:
+                conn = sqlite3.connect(conn_path) 
+                break
+            except:
+                pass
+        baseline_output = read('tap_baseline_data')
+        baseline_output = baseline_output[baseline_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+        conn.close()
+        st.download_button(label="Download raw baseline data",
+                        data=convert_df(baseline_output[baseline_output['dataset'].isin(allele_multiple)]),
+                        file_name=f"raw_baseline_data.csv",
+                        mime="text/csv",
+                        key='dnldallelemultibaseoutcsv')
     
 if page ==pages[6]:
     st.markdown("""
@@ -1509,22 +1620,6 @@ if page ==pages[6]:
     ### CeNGEN:
     9. (Empty for now)
     """)
-    conn_list=['/Users/Joseph/Desktop/NRSC510B/data_updated.db',
-            '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
-            '/Users/rankinlab/Desktop/MWT_Data_App/data_updated.db']
-    for conn_path in conn_list:
-        try:
-            conn= sqlite3.connect(conn_path) #tries whichever connection is available
-            break
-        except:
-            pass
-    baseline_output=read('tap_baseline_data') # for raw baseline data (makes the code super slow )
-    conn.close()
-    st.download_button(label="Download raw baseline data",
-                    data=convert_df(baseline_output),
-                    file_name=f"raw_baseline_data.csv",
-                    mime="text/csv",
-                    key='dnldbaseoutcsv')
 
     
         
