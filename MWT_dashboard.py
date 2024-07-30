@@ -1286,6 +1286,17 @@ if page ==pages[4]:
     tap_tstat_data_selected = tap_tstat_data[tap_tstat_data['dataset'].isin(allele_list)]
     
     # Create a heatmap
+
+    config = {
+      'toImageButtonOptions': {
+        'format': 'png', # one of png, svg, jpeg, webp
+        'filename': 'heatmap',
+        'height': None,
+        'width': None,
+        'scale': 3 # Multiply title/legend/axis/canvas sizes by this factor
+          }
+    }
+    
     fig = go.Figure(data=go.Heatmap(
         z=tap_tstat_data_selected.set_index('dataset').values,
         x=tap_tstat_data_selected.set_index('dataset').columns,
@@ -1314,12 +1325,13 @@ if page ==pages[4]:
     )
 
     imgheatmap = io.BytesIO()
-    fig.write_image(imgheatmap, format='png', scale=3)
+    #imgheatmap=fig.to_image(imgheatmap, format='png', width=1100, height=h+200, scale=3)
+    fig.write_image(imgheatmap, format="png", width=1100, height=h+200, scale=3)
     imgheatmap.seek(0)
 
     # Display the heatmap in Streamlit
     col12.subheader(f'Comprehensive heatmap of the dataset with selected alleles')
-    col12.plotly_chart(fig, use_container_width=True)
+    col12.plotly_chart(fig, use_container_width=True,**{'config': config})
 
     # Add download buttons
     col12_1,col12_2=col12.columns(2)
