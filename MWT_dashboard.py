@@ -1074,14 +1074,14 @@ if page ==pages[3]:
     col11.subheader('Habituation Curves of Response')
     genes = gene_tap_data_plot['Gene'].unique()
     # Create a cycle of unique colors
-    colors_list = sns.color_palette()[1:] # excludes steelblue from palette
+    colors_list = sns.color_palette("husl",n_colors=len(genes)+1)[:] 
     color_cycle = itertools.cycle(colors_list)
 
     # Create a list of unique colors for the alleles
     colors = [next(color_cycle) for _ in range(len(genes))]
 
     # Create a palette with 'teelblue' for 'N2' and the unique colors for the other genes
-    new_palette = ["steelblue" if gene == "N2" else color for gene, color in zip(genes, colors)]
+    new_palette = ["black" if gene == "N2" else color for gene, color in zip(genes, colors)]
 
     with col11:
         tab7, tab8, tab9 = st.tabs(["Probability",
