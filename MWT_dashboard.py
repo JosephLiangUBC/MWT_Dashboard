@@ -1302,14 +1302,14 @@ if page ==pages[4]:
             titleside="right"
         )
     ))
-    h = 300*len(allele_multiple)
+    h = 100*len(allele_multiple)
     fig.update_layout(
         width=900,
         height=h,
         margin=dict(l=50, r=50, t=100, b=50),
         xaxis_title="",
         yaxis_title="",
-        yaxis=dict(tickangle=90),
+        yaxis=dict(tickangle=0),
         xaxis=dict(showticklabels=True,tickfont=dict(size=8))
     )
 
@@ -1446,7 +1446,7 @@ if page ==pages[4]:
     alleles = allele_tap_data_plot['dataset'].unique()
 
     # Create a cycle of unique colors
-    colors_list = sns.color_palette()[1:] # excludes steelblue from palette
+    colors_list = sns.color_palette(n_colors=len(alleles)+1)[:] # excludes steelblue from palette
     color_cycle = itertools.cycle(colors_list)
 
     # Create a list of unique colors for the alleles
