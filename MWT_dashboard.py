@@ -1220,7 +1220,7 @@ if page ==pages[3]:
 
 if page ==pages[4]:
    # multiple selection option for alleles
-    st.header('Custom Allele Selection ')
+    st.header('Custom Allele Selection')
     al_options=[]
     for a in (tap_output['dataset'].unique()):
         if a not in ['N2','cpr_5_ok2344','lfe-2-sy326']: ### for debugging this is error in backend
@@ -1458,14 +1458,14 @@ if page ==pages[4]:
     alleles = allele_tap_data_plot['dataset'].unique()
 
     # Create a cycle of unique colors
-    colors_list = sns.color_palette(n_colors=len(alleles)+1)[:] # excludes steelblue from palette
+    colors_list = sns.color_palette("husl",n_colors=len(alleles)+1)[:] # excludes steelblue from palette
     color_cycle = itertools.cycle(colors_list)
 
     # Create a list of unique colors for the alleles
     colors = [next(color_cycle) for _ in range(len(alleles))]
 
     # Create a palette with 'teelblue' for 'N2' and the unique colors for the other genes
-    new_palette = ["steelblue" if allele == "N2" else color for allele, color in zip(alleles, colors)]
+    new_palette = ["black" if allele == "N2" else color for allele, color in zip(alleles, colors)]
 
     with col14:
         tab10, tab11, tab12 = st.tabs(["Probability",
