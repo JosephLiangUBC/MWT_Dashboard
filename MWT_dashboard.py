@@ -577,7 +577,7 @@ if page == pages[1]:
         baseline_output = baseline_output[baseline_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
         conn.close()
         st.download_button(label="Download raw baseline data",
-                        data=convert_df(baseline_output[baseline_output['Gene']== gene_option]),
+                        data=convert_df(baseline_output),
                         file_name=f"raw_baseline_data.csv",
                         mime="text/csv",
                         key='dnldgenebaseoutcsv')
@@ -872,7 +872,7 @@ if page ==pages[2]:
         baseline_output = baseline_output[baseline_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
         conn.close()
         st.download_button(label="Download raw baseline data",
-                        data=convert_df(baseline_output[baseline_output['dataset']== allele_option]),
+                        data=convert_df(baseline_output),
                         file_name=f"raw_baseline_data.csv",
                         mime="text/csv",
                         key='dnldallelebaseoutcsv')
