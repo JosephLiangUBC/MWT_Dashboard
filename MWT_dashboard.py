@@ -58,6 +58,17 @@ metric_palette = ["k", "k", "k",
                   "cadetblue", "cadetblue", "cadetblue",
                   "thistle", "thistle", "thistle"]
 
+# config setting for plotly
+config = {
+  'toImageButtonOptions': {
+    'format': 'png', # one of png, svg, jpeg, webp
+    'filename': 'Image',
+    'height': None,
+    'width': None,
+    'scale': 3 # Multiply title/legend/axis/canvas sizes by this factor
+  }
+}
+
 # creating tabs for dashboard
 pages = ["Data at a Glance", "Gene-specific Data", "Allele-specific Data",  "Custom Gene Selection","Custom Allele Selection","Clustering", "Citations"]
 page = st.sidebar.radio("Select a page", pages)
@@ -1320,7 +1331,7 @@ if page ==pages[4]:
 
     # Display the heatmap in Streamlit
     col12.subheader(f'Comprehensive heatmap of the dataset with selected alleles')
-    col12.plotly_chart(fig, use_container_width=True)
+    col12.plotly_chart(fig, use_container_width=True, **{'config': config})
 
     # Add download buttons
     col12_1,col12_2=col12.columns(2)
