@@ -938,7 +938,7 @@ if page ==pages[3]:
         margin=dict(l=50, r=50, t=100, b=50),
         xaxis_title="",
         yaxis_title="",
-        yaxis=dict(tickangle=90),
+        yaxis=dict(tickangle=0),
         xaxis=dict(showticklabels=True,tickfont=dict(size=8))
     )
 
@@ -1309,7 +1309,7 @@ if page ==pages[4]:
         margin=dict(l=50, r=50, t=100, b=50),
         xaxis_title="",
         yaxis_title="",
-        yaxis=dict(tickangle=90),
+        yaxis=dict(tickangle=0),
         xaxis=dict(showticklabels=True,tickfont=dict(size=8))
     )
 
