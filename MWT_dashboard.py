@@ -195,7 +195,7 @@ if page ==pages[0]:
     phenotype_plot = io.BytesIO()
     fig.write_image(phenotype_plot, format='png',scale=3)
     phenotype_plot.seek(0)
-    col1.plotly_chart(fig, use_container_width=True)
+    col1.plotly_chart(fig, use_container_width=True, **{'config': config})
     
     #combine data and rename columns :
     data_dat=pd.concat([gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"],
@@ -253,7 +253,7 @@ if page ==pages[0]:
 
     # Display the heatmap in Streamlit
     col2.subheader("Comprehensive Heatmap of entire dataset")
-    col2.plotly_chart(fig, use_container_width=True)
+    col2.plotly_chart(fig, use_container_width=True, **{'config': config})
 
     col2_1,col2_2= col2.columns(2)
     col2_1.download_button(label="Download Plot",
@@ -433,7 +433,7 @@ if page == pages[1]:
     gene_phenotype_plot = io.BytesIO()
     fig.write_image(gene_phenotype_plot, format='png',scale=3)
     gene_phenotype_plot.seek(0)
-    col4.plotly_chart(fig, use_container_width=True)
+    col4.plotly_chart(fig, use_container_width=True, **{'config': config})
 
     #combine data and rename columns :
     gene_dat=pd.concat( [gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])["Gene"],
@@ -733,7 +733,7 @@ if page ==pages[2]:
     allele_phenotype_plot = io.BytesIO()
     fig.write_image(allele_phenotype_plot, format='png',scale=3)
     allele_phenotype_plot.seek(0)
-    col6.plotly_chart(fig, use_container_width=True)
+    col6.plotly_chart(fig, use_container_width=True, **{'config': config})
 
     #combine data and rename columns :
     dat=pd.concat( [allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])["dataset"],
@@ -959,7 +959,7 @@ if page ==pages[3]:
 
     # Display the heatmap in Streamlit
     col9.subheader(f'Comprehensive heatmap of the dataset with selected genes')
-    col9.plotly_chart(fig, use_container_width=True)
+    col9.plotly_chart(fig, use_container_width=True, **{'config': config})
 
     # Add download buttons
     col9_1,col9_2=col9.columns(2)
@@ -1059,7 +1059,7 @@ if page ==pages[3]:
     multigene_phenotype_plot = io.BytesIO()
     fig.write_image(multigene_phenotype_plot, format='png',scale=3)
     multigene_phenotype_plot.seek(0)
-    col10.plotly_chart(fig, use_container_width=True)
+    col10.plotly_chart(fig, use_container_width=True, **{'config': config})
    
     #combine data and rename columns :
     multigene_dat=pd.concat( [gene_MSD.sort_values(by=[f"{multigene_phenotype_option}-mean"])["Gene"],
@@ -1431,7 +1431,7 @@ if page ==pages[4]:
     multiallele_phenotype_plot = io.BytesIO()
     fig.write_image(multiallele_phenotype_plot, format='png',scale=3)
     multiallele_phenotype_plot.seek(0)
-    col13.plotly_chart(fig, use_container_width=True)
+    col13.plotly_chart(fig, use_container_width=True, **{'config': config})
    
     #combine data and rename columns :
     multiallele_dat=pd.concat( [allele_MSD.sort_values(by=[f"{multiallele_phenotype_option}-mean"])["dataset"],
