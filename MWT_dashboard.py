@@ -35,19 +35,66 @@ for conn_path in conn_list:
         break
     except:
         pass
+
+def aggregate_unique_values(df ,by):
+    """Aggregate and transform tstat_gene_data table"""
+    grouped = df.groupby(by).agg(
+        {col: 'mean' for col in df.columns if col not in by+ ['Screen']}).reset_index()
+
+    # Aggregate the Screen column into a list
+    grouped['Screen'] = df.groupby(by)['Screen'].apply(lambda x: list(set(x))).reset_index(drop=True)
+
+    return grouped
+
+@st.cache_data
+def aggregate_unique_values_MSD(df, by):
+    """Aggregate and transform tstat_gene_data table"""
+    # Define the columns to aggregate
+    agg_cols = [col for col in df.columns if col not in by + ['Screen']]
+
+    # Aggregate the columns using a weighted average
+    grouped = df.groupby(by).apply(lambda x: pd.Series({
+        col: (x[col] * x[col.replace('-mean', '-count')]).sum() / x[col.replace('-mean', '-count')].sum()
+        if '-mean' in col
+        else np.sqrt((x[col] ** 2 * x[col.replace('-sem', '-count')]).sum() / x[col.replace('-sem', '-count')].sum())
+        if '-sem' in col
+        else x[col].sum()
+        if '-count' in col
+        else np.nan
+        for col in agg_cols
+    })).reset_index()
+
+    # Calculate new confidence intervals
+    for col in grouped.columns:
+        if '-mean' in col:
+            mean_col = col
+            sem_col = col.replace('-mean', '-sem')
+            count_col = col.replace('-mean', '-count')
+            ci95_lo_col = col.replace('-mean', '-ci95_lo')
+            ci95_hi_col = col.replace('-mean', '-ci95_hi')
+
+            grouped[ci95_lo_col] = grouped[mean_col] - 1.96 * grouped[sem_col] / np.sqrt(grouped[count_col])
+            grouped[ci95_hi_col] = grouped[mean_col] + 1.96 * grouped[sem_col] / np.sqrt(grouped[count_col])
+
+    # Aggregate the Screen column into a list
+    grouped['Screen'] = df.groupby(by)['Screen'].apply(lambda x: list(set(x))).reset_index(drop=True)
+
+    return grouped
+
         
 # Read data from SQLite database
 tap_output = read('tap_response_data')
-tap_tstat_allele = read('tstat_gene_data')
-tap_tstat_data = read('tstat_allele_data')
+tap_tstat_allele = aggregate_unique_values(read('tstat_gene_data'),["Gene"]).explode('Screen').reset_index(drop=True)
+tap_tstat_data = aggregate_unique_values(read('tstat_allele_data'),["dataset"]).explode('Screen').reset_index(drop=True)
 # allele_metric_data = read('allele_phenotype_data')
-gene_profile_data = read('gene_profile_data')
-allele_profile_data = read('allele_profile_data')
-gene_MSD = read('gene_MSD')
-allele_MSD = read('allele_MSD')
+gene_profile_data = aggregate_unique_values(read('gene_profile_data'),['Gene','Metric']).explode('Screen').reset_index(drop=True)
+allele_profile_data = aggregate_unique_values(read('allele_profile_data'),['dataset','Metric']).explode('Screen').reset_index(drop=True)
+gene_MSD = aggregate_unique_values_MSD(read('gene_MSD'),["Gene"]).explode('Screen').reset_index(drop=True)
+allele_MSD = aggregate_unique_values_MSD(read('allele_MSD'),["dataset"]).explode('Screen').reset_index(drop=True)
 
 conn.close()
 
+st.write(tap_output)
 tap_output['Strain'] = tap_output['Gene'] + " (" + tap_output['Allele'] + ")"
 
 # Defining the color palette for the plots
@@ -472,7 +519,7 @@ if page == pages[1]:
                             y="prob",
                             data=gene_tap_data_plot,
                             hue='Gene',  # <- Here we use the extra column from step 6 to separate by group
-                            palette=["steelblue" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
+                            palette=["black" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
                             errorbar='se')  # <- Confidence interval. 95 = standard error
             plt.xlabel("Taps")  # <- X-axis title
             plt.ylabel("Probability")  # <- Y-Axis title
@@ -507,7 +554,7 @@ if page == pages[1]:
                             y="dura",
                             data=gene_tap_data_plot,
                             hue='Gene',
-                            palette=["steelblue" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
+                            palette=["black" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
                             errorbar='se')
             plt.xlabel("Taps", fontsize='12')
             plt.ylabel("Duration", fontsize='12')
@@ -542,7 +589,7 @@ if page == pages[1]:
                             y="speed",
                             data=gene_tap_data_plot,
                             hue='Gene',
-                            palette=["steelblue" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
+                            palette=["black" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
                             errorbar='se')
             plt.xlabel("Taps", fontsize='12')
             plt.ylabel("Speed", fontsize='12')
@@ -771,7 +818,7 @@ if page ==pages[2]:
                             y="prob",
                             data=allele_tap_data_plot,
                             hue='dataset',  # <- Here we use the extra column from step 6 to separate by group
-                            palette=["steelblue" if gene == "N2" else "darkorange" for gene in allele_tap_data_plot['dataset'].unique()],
+                            palette=["black" if gene == "N2" else "darkorange" for gene in allele_tap_data_plot['dataset'].unique()],
                             errorbar='se')  # <- Confidence interval. 95 = standard error
             plt.xlabel("Taps")  # <- X-axis title
             plt.ylabel("Probability")  # <- Y-Axis title
@@ -804,7 +851,7 @@ if page ==pages[2]:
                             y="dura",
                             data=allele_tap_data_plot,
                             hue='dataset',
-                            palette=["steelblue" if gene == "N2" else "darkorange" for gene in allele_tap_data_plot['dataset'].unique()],
+                            palette=["black" if gene == "N2" else "darkorange" for gene in allele_tap_data_plot['dataset'].unique()],
                             errorbar='se')
             plt.xlabel("Taps", fontsize='12')
             plt.ylabel("Duration", fontsize='12')
@@ -836,7 +883,7 @@ if page ==pages[2]:
                             y="speed",
                             data=allele_tap_data_plot,
                             hue='dataset',
-                            palette=["steelblue" if gene == "N2" else "darkorange" for gene in allele_tap_data_plot['dataset'].unique()],
+                            palette=["black" if gene == "N2" else "darkorange" for gene in allele_tap_data_plot['dataset'].unique()],
                             errorbar='se')
             plt.xlabel("Taps", fontsize='12')
             plt.ylabel("Speed", fontsize='12')
