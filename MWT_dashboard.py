@@ -94,7 +94,6 @@ allele_MSD = aggregate_unique_values_MSD(read('allele_MSD'),["dataset"]).explode
 
 conn.close()
 
-st.write(tap_output)
 tap_output['Strain'] = tap_output['Gene'] + " (" + tap_output['Allele'] + ")"
 
 # Defining the color palette for the plots
