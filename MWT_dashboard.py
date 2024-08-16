@@ -37,7 +37,7 @@ for conn_path in conn_list:
         pass
 
 def aggregate_unique_values(df ,by):
-    """Aggregate and transform tstat_gene_data table"""
+    """Aggregate and transform tstat_gene_data, tstat_allele_data , gene_profile_data, and  allele_profile_data table"""
     grouped = df.groupby(by).agg(
         {col: 'mean' for col in df.columns if col not in by+ ['Screen']}).reset_index()
 
@@ -48,7 +48,7 @@ def aggregate_unique_values(df ,by):
 
 @st.cache_data
 def aggregate_unique_values_MSD(df, by):
-    """Aggregate and transform tstat_gene_data table"""
+    """Aggregate and transform gene_MSD and allele_MSD table"""
     # Define the columns to aggregate
     agg_cols = [col for col in df.columns if col not in by + ['Screen']]
 
@@ -126,7 +126,7 @@ if page != pages[6]:
     datasets = st.multiselect(
         label="Select Datasets",
         options=gene_MSD.Screen.unique(),
-        default=gene_MSD.Screen.unique()[0],
+        default="PD_Screen",
         placeholder="make a selection",
         help="select and de-select datasets you want to analyze",
         key="datasetselection"
@@ -143,6 +143,9 @@ if page != pages[6]:
     dropna_features.remove('Spontaneous Recovery of Response Duration')
     dropna_features.remove('Spontaneous Recovery of Response Probability')
     dropna_features.remove('Spontaneous Recovery of Response Speed')
+    dropna_features.remove('Memory Retention of Response Duration')
+    dropna_features.remove('Memory Retention of Response Probability')
+    dropna_features.remove('Memory Retention of Response Speed')
     # st.write(dropna_features)
 
     # filter data for selected dataset
@@ -316,10 +319,6 @@ if page ==pages[0]:
         key='dnldheatmapcsv'
     )
 
-    conn_list=['/Users/Joseph/Desktop/NRSC510B/data_updated.db',
-            '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
-            '/Users/rankinlab/Desktop/MWT_Data_App/data_updated.db']
-
     # Create a flag variable
     read_data_flag = False
     if st.button('Read and get Download button for Baseline Data',key='readbaseoutcsv'):
@@ -346,10 +345,17 @@ if page ==pages[0]:
 
 if page == pages[1]:
     st.header('Gene-specific Data')
+    # Create a session state for the gene selection
+    st.session_state.setdefault('gene_select', None)
     gene_option = st.selectbox(
         'Select a gene',
         [gene for gene in tap_output['Gene'].unique()if gene != 'N2'], 
-        key="geneselect")
+        key="geneselect",
+        index=[gene for gene in tap_output['Gene'].unique() if gene != 'N2'].index(st.session_state.gene_select) if st.session_state.gene_select else 0        
+        )
+    
+    st.session_state.gene_select = gene_option
+
     gene_id_data= pd.read_csv("WB_id.csv")
 
     if gene_option:
@@ -612,9 +618,6 @@ if page == pages[1]:
                             file_name=f"Gene-specific Data {gene_option}.csv",
                             mime="text/csv",
                             key='dnldbtn9')
-    conn_list=['/Users/Joseph/Desktop/NRSC510B/data_updated.db',
-            '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
-            '/Users/rankinlab/Desktop/MWT_Data_App/data_updated.db']
 
     # Create a flag variable
     read_data_flag = False
@@ -642,9 +645,15 @@ if page == pages[1]:
 if page ==pages[2]:
     st.header('Allele-specific Data')
     # select allele 
+    st.session_state.setdefault('allele_select', None)
     allele_option = st.selectbox(
         'Select a allele',
-        [allele for allele in tap_output['dataset'].unique() if allele != 'N2'])
+        [allele for allele in tap_output['dataset'].unique() if allele != 'N2'],
+        index=[allele for allele in tap_output['dataset'].unique() if allele != 'N2'].index(st.session_state.allele_select) if st.session_state.allele_select else 0
+        )
+    
+    st.session_state.allele_select = allele_option
+
     #splititing gene allele to get gene and allele columns
     gene, allele = allele_option.split('_')
     gene_id_data= pd.read_csv("WB_id.csv")# data for gene id
@@ -906,10 +915,7 @@ if page ==pages[2]:
                                 file_name=f"Allele-specific Data {allele_option}.csv",
                                 mime="text/csv",
                                 key='dnldbtn12')
-   
-    conn_list=['/Users/Joseph/Desktop/NRSC510B/data_updated.db',
-            '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
-            '/Users/rankinlab/Desktop/MWT_Data_App/data_updated.db']
+
 
     # Create a flag variable
     read_data_flag = False
@@ -1247,9 +1253,6 @@ if page ==pages[3]:
                             mime="text/csv",
                             key='dnldbtn18')
 
-    conn_list=['/Users/Joseph/Desktop/NRSC510B/data_updated.db',
-            '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
-            '/Users/rankinlab/Desktop/MWT_Data_App/data_updated.db']
 
     # Create a flag variable
     read_data_flag = False
@@ -1621,9 +1624,6 @@ if page ==pages[4]:
                             mime="text/csv",
                             key='dnldbtn24')
             
-    conn_list=['/Users/Joseph/Desktop/NRSC510B/data_updated.db',
-            '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
-            '/Users/rankinlab/Desktop/MWT_Data_App/data_updated.db']
 
     # Create a flag variable
     read_data_flag = False
