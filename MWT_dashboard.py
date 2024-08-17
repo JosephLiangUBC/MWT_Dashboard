@@ -1143,7 +1143,7 @@ if page ==pages[3]:
     # Create a list of unique colors for the alleles
     colors = [next(color_cycle) for _ in range(len(genes))]
 
-    # Create a palette with 'teelblue' for 'N2' and the unique colors for the other genes
+    # Create a palette with 'black' for 'N2' and the unique colors for the other genes
     new_palette = ["black" if gene == "N2" else color for gene, color in zip(genes, colors)]
 
     with col11:
@@ -1513,7 +1513,7 @@ if page ==pages[4]:
     # Create a list of unique colors for the alleles
     colors = [next(color_cycle) for _ in range(len(alleles))]
 
-    # Create a palette with 'teelblue' for 'N2' and the unique colors for the other genes
+    # Create a palette with 'black' for 'N2' and the unique colors for the other genes
     new_palette = ["black" if allele == "N2" else color for allele, color in zip(alleles, colors)]
 
     with col14:
@@ -1528,7 +1528,7 @@ if page ==pages[4]:
             ax = sns.pointplot(x="taps",  # <- Here we use seaborn as our graphing package.
                             y="prob",
                             data=allele_tap_data_plot,
-                            hue='Strain',  # <- Here we use the extra column from step 6 to separate by group
+                            hue='dataset',  # <- Here we use the extra column from step 6 to separate by group
                             palette=new_palette,
                             errorbar='se')  # <- Confidence interval. 95 = standard error
             plt.xlabel("Taps")  # <- x-axis title
@@ -1562,7 +1562,7 @@ if page ==pages[4]:
             ax = sns.pointplot(x="taps",
                             y="dura",
                             data=allele_tap_data_plot,
-                            hue='Strain',
+                            hue='dataset',
                             palette=new_palette, # N2 to be blue consistently
                             errorbar='se')
             plt.xlabel("Taps", fontsize='12')
@@ -1596,7 +1596,7 @@ if page ==pages[4]:
             ax = sns.pointplot(x="taps",
                             y="speed",
                             data=allele_tap_data_plot,
-                            hue='Strain',
+                            hue='dataset',
                             palette=new_palette, # N2 to be blue consistently
                             errorbar='se')
             plt.xlabel("Taps", fontsize='12')
