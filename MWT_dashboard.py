@@ -91,6 +91,7 @@ gene_profile_data = aggregate_unique_values(read('gene_profile_data'),['Gene','M
 allele_profile_data = aggregate_unique_values(read('allele_profile_data'),['dataset','Metric']).explode('Screen').reset_index(drop=True)
 gene_MSD = aggregate_unique_values_MSD(read('gene_MSD'),["Gene"]).explode('Screen').reset_index(drop=True)
 allele_MSD = aggregate_unique_values_MSD(read('allele_MSD'),["dataset"]).explode('Screen').reset_index(drop=True)
+id_data=read('Gene_Allele_WormBaseID') ##table in database with wormbase id's for all genes and alleles
 
 conn.close()
 
@@ -356,11 +357,9 @@ if page == pages[1]:
     
     st.session_state.gene_select = gene_option
 
-    gene_id_data= pd.read_csv("WB_id.csv")
-
     if gene_option:
         try:
-            gene_id=gene_id_data.loc[gene_id_data['Gene']==gene_option,'Identifier'].values[0]
+            gene_id=id_data.loc[id_data['Gene']==gene_option,'WBGene'].values[0]
             glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
             st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene_option}</a> (Source: GenomeAlliance)</p>', unsafe_allow_html=True)
         except:
@@ -656,17 +655,14 @@ if page ==pages[2]:
 
     #splititing gene allele to get gene and allele columns
     gene, allele = allele_option.split('_')
-    gene_id_data= pd.read_csv("WB_id.csv")# data for gene id
-    allele_id_data= pd.read_csv("Gene_Allele_WormBaseID.csv",names=['Identifier', 'Gene', 'Allele'])# data for allele id
 
     # check if allele and gene options match the preexisting list
     if allele_option:
-        gene_id = gene_id_data.loc[gene_id_data['Gene'] == gene, 'Identifier'].values[0]
-        allele_id = allele_id_data.loc[(allele_id_data['Gene'] == gene) & (allele_id_data['Allele'] == allele), 'Identifier']
-        if allele_id.any():
-            allele_id=allele_id.values[0]
-        else: # if allele option doesnt match then send to default page
-            allele_id= "default value"
+        gene_id = id_data.loc[id_data['Gene'] == gene, 'WBGene']
+        allele_id = id_data.loc[(id_data['Gene'] == gene) & (id_data['Allele'] == allele), 'WBAllele']
+        allele_id = (allele_id.values[0]) if allele_id.any() else "default value"
+        gene_id=(gene_id.values[0]) if gene_id.any() else "default value"
+
 
         # links to the Alliance Genome and WormBase website 
         glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
@@ -951,12 +947,11 @@ if page ==pages[3]:
         placeholder="make a selection",
         help="select and de-select genes you want to analyze",
         key="geneselection")
-    gene_id_data= pd.read_csv("WB_id.csv")
     na_list=[]
     g_link_list=[]
     for gene in gene_multiple:
         try:
-            gene_id=gene_id_data.loc[gene_id_data['Gene']==gene,'Identifier'].values[0]
+            gene_id=id_data.loc[id_data['Gene']==gene,'WBGene'].values[0]
             glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
             g_link_list.append(f'<a href="{glink}">{gene}</a>')
         except:
@@ -1294,8 +1289,6 @@ if page ==pages[4]:
         help="select and de-select alleles you want to analyze",
         key="alleleselection")
     
-    gene_id_data= pd.read_csv("WB_id.csv")# data for gene id
-    allele_id_data= pd.read_csv("Gene_Allele_WormBaseID.csv",names=['Identifier', 'Gene', 'Allele'])# data for allele id
     na_list=[]
     g_link_list=[] # list for gene links (AllianceGenome)
     w_link_list=[] # list for allele links (WormBase)
@@ -1303,8 +1296,8 @@ if page ==pages[4]:
     for a in allele_multiple:
         gene, allele= a.split('_')
         allele_list.append(a)
-        gene_id = gene_id_data.loc[gene_id_data['Gene'] == gene, 'Identifier']
-        allele_id = allele_id_data.loc[(allele_id_data['Gene'] == gene) & (allele_id_data['Allele'] == allele), 'Identifier']
+        gene_id = id_data.loc[id_data['Gene'] == gene, 'WBGene']
+        allele_id = id_data.loc[(id_data['Gene'] == gene) & (id_data['Allele'] == allele), 'WBAllele']
         
         if allele_id.any():
             allele_id=allele_id.values[0]
