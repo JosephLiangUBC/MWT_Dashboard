@@ -38,6 +38,9 @@ for conn_path in conn_list:
 
 def aggregate_unique_values(df ,by):
     """Aggregate and transform tstat_gene_data, tstat_allele_data , gene_profile_data, and  allele_profile_data table"""
+    if(len(by)>1):    
+        df['Metric'] = pd.Categorical(df['Metric'], categories=df['Metric'].unique(), ordered=True)
+
     grouped = df.groupby(by).agg(
         {col: 'mean' for col in df.columns if col not in by+ ['Screen']}).reset_index()
 
@@ -99,11 +102,12 @@ tap_output['Strain'] = tap_output['Gene'] + " (" + tap_output['Allele'] + ")"
 
 # Defining the color palette for the plots
 metric_palette = ["k", "k", "k",
-                  "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgrey",
+                  "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgrey","darkgray",
                   "lightsteelblue", "lightsteelblue", "lightsteelblue",
                   "powderblue", "powderblue", "powderblue",
                   "cadetblue", "cadetblue", "cadetblue",
-                  "thistle", "thistle", "thistle"]
+                  "thistle", "thistle", "thistle",
+                  "slateblue","slateblue","slateblue"]
 
 # config setting for plotly
 config = {
