@@ -362,14 +362,16 @@ if page == pages[1]:
     st.session_state.gene_select = gene_option
 
     if gene_option:
-        try:
-            gene_id=id_data.loc[id_data['Gene']==gene_option,'WBGene'].values[0]
-            glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
+        gene_id = id_data.loc[id_data['Gene'] == gene_option, 'WBGene'].values
+        if len(gene_id) == 0:
+            gene_id = id_data.loc[id_data['Sequence'] == gene_option, 'WBGene'].values
+
+        if len(gene_id) > 0:
+            glink = f'https://www.alliancegenome.org/gene/WB:{gene_id[0]}'
             st.markdown(f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene_option}</a> (Source: GenomeAlliance)</p>', unsafe_allow_html=True)
-        except:
+        else:
             glink = 'https://www.alliancegenome.org'
             st.markdown(f"information for {gene_option} not available")
-    
 
     tap_output_gene = tap_output[tap_output['Gene'] == gene_option]
     gene_tap_data = tap_output[tap_output['Date'].isin(tap_output_gene['Date'].unique())]
@@ -954,11 +956,13 @@ if page ==pages[3]:
     na_list=[]
     g_link_list=[]
     for gene in gene_multiple:
-        try:
-            gene_id=id_data.loc[id_data['Gene']==gene,'WBGene'].values[0]
-            glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
+        gene_id = id_data.loc[id_data['Gene'] == gene, 'WBGene'].values
+        if len(gene_id) == 0:
+            gene_id = id_data.loc[id_data['Sequence'] == gene, 'WBGene'].values
+        if len(gene_id) > 0:
+            glink = f'https://www.alliancegenome.org/gene/WB:{gene_id[0]}'
             g_link_list.append(f'<a href="{glink}">{gene}</a>')
-        except:
+        else:
             na_list.append(gene)
     st.markdown(f"<p style='font-size:20px'>For more gene information on {', '.join(g_link_list)}(Source: GenomeAlliance)</p>", unsafe_allow_html=True)
     if na_list:
