@@ -945,14 +945,17 @@ if page ==pages[2]:
 if page ==pages[3]:
    # multiple selection option for genes
     st.header('Custom Gene Selection ')
+    st.session_state.setdefault('gene_select', [gene for gene in tap_output['Gene'].unique() if gene != 'N2'][0])
 
     gene_multiple = st.multiselect(
         label="Select Genes",
         options=[gene for gene in tap_output['Gene'].unique() if gene != 'N2'],
-        default=[gene for gene in tap_output['Gene'].unique() if gene != 'N2'][0],
+        default=st.session_state.gene_select,
         placeholder="make a selection",
         help="select and de-select genes you want to analyze",
         key="geneselection")
+    st.session_state.gene_select = gene_multiple
+
     na_list=[]
     g_link_list=[]
     for gene in gene_multiple:
@@ -1284,19 +1287,17 @@ if page ==pages[3]:
 if page ==pages[4]:
    # multiple selection option for alleles
     st.header('Custom Allele Selection')
-    al_options=[]
-    for a in (tap_output['dataset'].unique()):
-        if a not in ['N2','cpr_5_ok2344','lfe-2-sy326']: ### for debugging this is error in backend
-            al_options.append(a)
-            
+    st.session_state.setdefault('allele_select', [allele for allele in tap_output['dataset'].unique() if allele != 'N2'][0])
+
     allele_multiple = st.multiselect(
         label="Select Allele",
-        options=al_options,
-        default=al_options[0],
+        options=[allele for allele in tap_output['dataset'].unique() if allele != 'N2'],
+        default=st.session_state.allele_select,
         placeholder="make a selection",
         help="select and de-select alleles you want to analyze",
         key="alleleselection")
-    
+    st.session_state.allele_select = allele_multiple
+
     na_list=[]
     g_link_list=[] # list for gene links (AllianceGenome)
     w_link_list=[] # list for allele links (WormBase)
