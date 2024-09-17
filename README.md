@@ -1,4 +1,7 @@
 # MWT_Dashboard
  Data Dashboard for MWT
 
-<img src="[/images/output/video1.gif](https://github.com/user-attachments/assets/53cdafcc-b173-446c-b204-9c54d8d4d530)" width="500" height="500"/>
+![Screen Recording 2024-09-16 at 10 11 54 PM](https://github.com/user-attachments/assets/53645f80-54ed-418e-9f17-5bc652ee4732)
+
+
+<img src="https://github.com/user-attachments/assets/53645f80-54ed-418e-9f17-5bc652ee4732)" width="750" height="400">
