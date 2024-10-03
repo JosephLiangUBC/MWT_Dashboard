@@ -169,7 +169,7 @@ if page != pages[6]:
 if page ==pages[0]:
     st.header('Data at a glance')
 
-    col1, col2 = st.columns([2, 3])
+    col1, col2 = st.columns([4, 5])
 
     col1.subheader("For A Single Phenotype")
 
@@ -217,18 +217,23 @@ if page ==pages[0]:
             name=""
             
         ))
-
+    # Add vertical line at 0
+    fig.add_vline(x=0,  line_width=1, line_dash="dash", line_color="red")
     # Update layout with labels and title
     fig.update_layout(
-        title=f"{phenotype_option}",
+        title={
+            'text': f"{phenotype_option}"},
         xaxis_title='Sample Mean Distance',
         yaxis_title='Gene',
         plot_bgcolor='white',
         paper_bgcolor='white',
+        font_color="black",
         width=600,
-        height=1200,
-        yaxis=dict(showticklabels=False),
-        margin=dict(l=100, r=50, t=100, b=50),  # Adjust margins as needed
+        height=800,
+        yaxis=dict(showticklabels=True, 
+                   dtick=1,
+                   tickfont=dict(color='black', size=6)),
+        margin=dict(l=10, r=10, t=40, b=0),  # Adjust margins as needed
         annotations=[
             dict(
                 text=f'Sample mean distance from wildtype for all strains for selected phenotype: {phenotype_option}. Error bars are 95% CI',
@@ -244,7 +249,6 @@ if page ==pages[0]:
             )
         ]
     )
-
     
     phenotype_plot = io.BytesIO()
     fig.write_image(phenotype_plot, format='png',scale=3)
@@ -268,7 +272,7 @@ if page ==pages[0]:
                         key='dnldphenotypeprofile')
     col1_2.download_button(label="Download csv",
                             data=convert_df(data_dat),
-                            file_name=f"Data Glance Sample mean distance {phenotype_option}.csv",
+                            file_name=f"Data Glance Sample Mean Distance {phenotype_option}.csv",
                             mime="text/csv",
                             key='dnldphenotypeprofilecsv')
 
@@ -298,7 +302,9 @@ if page ==pages[0]:
         margin=dict(l=50, r=50, t=50, b=50),
         xaxis_title="",
         yaxis_title="",
-        yaxis=dict(showticklabels=False),
+        yaxis=dict(showticklabels=True, 
+                   dtick=1,
+                   tickfont=dict(color='black', size=6)),
     )
 
     imgheatmap = io.BytesIO()
@@ -306,7 +312,7 @@ if page ==pages[0]:
     imgheatmap.seek(0)
 
     # Display the heatmap in Streamlit
-    col2.subheader("Comprehensive Heatmap of entire dataset")
+    col2.subheader("Comprehensive Heatmap of Entire Dataset")
     col2.plotly_chart(fig, use_container_width=True, **{'config': config})
 
     col2_1,col2_2= col2.columns(2)
