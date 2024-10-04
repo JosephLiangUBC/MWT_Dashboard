@@ -305,6 +305,9 @@ if page ==pages[0]:
         yaxis=dict(showticklabels=True, 
                    dtick=1,
                    tickfont=dict(color='black', size=6)),
+        xaxis=dict(showticklabels=True, 
+                   dtick=1,
+                   tickfont=dict(color='black', size=12))
     )
 
     imgheatmap = io.BytesIO()
@@ -464,7 +467,8 @@ if page == pages[1]:
             name=""
             
         ))
-
+    # Add vertical line at 0
+    fig.add_vline(x=0,  line_width=1, line_dash="dash", line_color="red")
     # Update layout with labels and title
     fig.update_layout(
         title=f"{gene_phenotype_option}",
@@ -474,7 +478,9 @@ if page == pages[1]:
         paper_bgcolor='white',
         width=600,
         height=1200,
-        yaxis=dict(showticklabels=False),
+        yaxis=dict(showticklabels=True, 
+                   dtick=1,
+                   tickfont=dict(color='black', size=6)),
         margin=dict(l=100, r=50, t=100, b=50),  # Adjust margins as needed
         annotations=[
             dict(
@@ -765,7 +771,8 @@ if page ==pages[2]:
             name="",
             showlegend=False  # Hide individual points from legend
         ))
-
+    # Add vertical line at 0
+    fig.add_vline(x=0,  line_width=1, line_dash="dash", line_color="red")
     # Update layout with labels and title
     fig.update_layout(
         title=f"{allele_phenotype_option}",
@@ -775,7 +782,9 @@ if page ==pages[2]:
         paper_bgcolor='white',
         width=600,
         height=1200,
-        yaxis=dict(showticklabels=False),
+        yaxis=dict(showticklabels=True, 
+                   dtick=1,
+                   tickfont=dict(color='black', size=6)),
         margin=dict(l=100, r=50, t=100, b=50),  # Adjust margins as needed
         annotations=[
             dict(
