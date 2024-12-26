@@ -121,7 +121,8 @@ config = {
 }
 
 # creating tabs for dashboard
-pages = ["Data at a Glance", "Gene-specific Data", "Allele-specific Data",  "Custom Gene Selection","Custom Allele Selection","Clustering", "Citations"]
+pages = ["Data at a Glance", "Gene-specific Data", "Allele-specific Data",  "Custom Gene Selection","Custom Allele Selection", "Citations"]
+# to-do: add 'clustering' in the pages list above at 5th position 
 page = st.sidebar.radio("Select a page", pages)
 
 # Streamlit Dashboard title
@@ -1665,7 +1666,7 @@ if page ==pages[4]:
                         mime="text/csv",
                         key='dnldallelemultibaseoutcsv')
     
-if page ==pages[6]:
+if page ==pages[5]:
     st.markdown("""
     ## References
 
