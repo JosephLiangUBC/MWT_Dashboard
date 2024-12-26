@@ -127,7 +127,7 @@ page = st.sidebar.radio("Select a page", pages)
 
 # Streamlit Dashboard title
 st.title('Data Dashboard for MWT Data')
-if page != pages[6]:
+if page != pages[5]:
     # Select dataset option
     datasets = st.multiselect(
         label="Select Datasets",
