@@ -10,11 +10,7 @@ import sqlite3
 import io
 import plotly.graph_objects as go
 import hmac
-
-
-
-
-
+import psycopg
 
 def check_password():
     """Returns `True` if the user had the correct password."""
@@ -55,20 +51,14 @@ def convert_df(df):
     return df.to_csv().encode("utf-8")
 
 # Fail gracefully option
-def read(table):
-    result = pd.read_sql_query(f"SELECT * FROM {table}", conn)
-    return result
+def read(table, connection):
+    with connection.cursor() as cursor:
+        cursor.execute(f'SELECT * from "{table}"')
 
-# list of connections to run the dashboard
-conn_list=['/Users/Joseph/Desktop/NRSC510B/data_updated.db',
-           '/Users/lavanya/Desktop/Lavanya_Test/data_updated.db',
-           '/Users/rankinlab/Desktop/MWT_Data_App/data_updated.db']
-for conn_path in conn_list:
-    try:
-        conn= sqlite3.connect(conn_path) #tries whichever connection is available
-        break
-    except:
-        pass
+        # Fetch all rows from database
+        record = cursor.fetchall()
+        column_names = [desc[0] for desc in cursor.description]
+    return pd.DataFrame(data=record, columns=column_names)
 
 def aggregate_unique_values(df ,by):
     """Aggregate and transform tstat_gene_data, tstat_allele_data , gene_profile_data, and  allele_profile_data table"""
@@ -118,20 +108,23 @@ def aggregate_unique_values_MSD(df, by):
 
     return grouped
 
+@st.cache_data
+def fetch_data():
+    with psycopg.connect(dbname="mwtdata", user=st.secrets["psql_user"], password=st.secrets["psql_passwword"], host="rds-mwt-data.ctie02ksmcqc.ca-central-1.rds.amazonaws.com", port=5432) as connection:
+        # Read data from SQLite database
+        tap_output = read('tap_response_data', connection)
+        tap_tstat_allele = aggregate_unique_values(read('tstat_gene_data', connection),["Gene"]).explode('Screen').reset_index(drop=True)
+        tap_tstat_data = aggregate_unique_values(read('tstat_allele_data', connection),["dataset"]).explode('Screen').reset_index(drop=True)
+        # allele_metric_data = read('allele_phenotype_data')
+        gene_profile_data = aggregate_unique_values(read('gene_profile_data', connection),['Gene','Metric']).explode('Screen').reset_index(drop=True)
+        allele_profile_data = aggregate_unique_values(read('allele_profile_data', connection),['dataset','Metric']).explode('Screen').reset_index(drop=True)
+        gene_MSD = aggregate_unique_values_MSD(read('gene_MSD', connection),["Gene"]).explode('Screen').reset_index(drop=True)
+        allele_MSD = aggregate_unique_values_MSD(read('allele_MSD', connection),["dataset"]).explode('Screen').reset_index(drop=True)
+        id_data=read('Gene_Allele_WormBaseID', connection) ##table in database with wormbase id's for all genes and alleles
         
-# Read data from SQLite database
-tap_output = read('tap_response_data')
-tap_tstat_allele = aggregate_unique_values(read('tstat_gene_data'),["Gene"]).explode('Screen').reset_index(drop=True)
-tap_tstat_data = aggregate_unique_values(read('tstat_allele_data'),["dataset"]).explode('Screen').reset_index(drop=True)
-# allele_metric_data = read('allele_phenotype_data')
-gene_profile_data = aggregate_unique_values(read('gene_profile_data'),['Gene','Metric']).explode('Screen').reset_index(drop=True)
-allele_profile_data = aggregate_unique_values(read('allele_profile_data'),['dataset','Metric']).explode('Screen').reset_index(drop=True)
-gene_MSD = aggregate_unique_values_MSD(read('gene_MSD'),["Gene"]).explode('Screen').reset_index(drop=True)
-allele_MSD = aggregate_unique_values_MSD(read('allele_MSD'),["dataset"]).explode('Screen').reset_index(drop=True)
-id_data=read('Gene_Allele_WormBaseID') ##table in database with wormbase id's for all genes and alleles
+    return tap_output, tap_tstat_allele, tap_tstat_data, gene_profile_data, allele_profile_data, gene_MSD, allele_MSD, id_data
 
-conn.close()
-
+tap_output, tap_tstat_allele, tap_tstat_data, gene_profile_data, allele_profile_data, gene_MSD, allele_MSD, id_data = fetch_data()
 tap_output['Strain'] = tap_output['Gene'] + " (" + tap_output['Allele'] + ")"
 
 # Defining the color palette for the plots
@@ -376,21 +369,15 @@ if page ==pages[0]:
 
     # If the button is pressed, read the data and then show show button to download it
     if read_data_flag:
-        for conn_path in conn_list:
-            try:
-                conn = sqlite3.connect(conn_path) 
-                break
-            except:
-                pass
+        
         baseline_output = read('tap_baseline_data')
         baseline_output = baseline_output[baseline_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
-        conn.close()
+        
         st.download_button(label="Download raw baseline data",
                         data=convert_df(baseline_output),
                         file_name=f"raw_baseline_data.csv",
                         mime="text/csv",
                         key='dnldbaseoutcsv')
-
 
 if page == pages[1]:
     st.header('Gene-specific Data')
