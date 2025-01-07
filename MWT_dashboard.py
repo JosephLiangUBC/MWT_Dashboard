@@ -154,7 +154,7 @@ page = st.sidebar.radio("Select a page", pages)
 
 # Streamlit Dashboard title
 st.title('MWT Data Dashboard - Rankin Lab @ UBC')
-if page != pages[5,6]:
+if page != pages[5:]:
     # Select dataset option
     datasets = st.multiselect(
         label="Select Datasets",
