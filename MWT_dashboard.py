@@ -148,13 +148,13 @@ config = {
 }
 
 # creating tabs for dashboard
-pages = ["Data at a Glance", "Gene-specific Data", "Allele-specific Data",  "Custom Gene Selection","Custom Allele Selection", "Citations"]
+pages = ["Home - Data at a Glance", "Gene-specific Data", "Allele-specific Data",  "Custom Gene Selection","Custom Allele Selection", "Help & Documentation", "Citations"]
 # to-do: add 'clustering' in the pages list above at 5th position 
 page = st.sidebar.radio("Select a page", pages)
 
 # Streamlit Dashboard title
-st.title('Data Dashboard for MWT Data')
-if page != pages[5]:
+st.title('MWT Data Dashboard - Rankin Lab @ UBC')
+if page != pages[5,6]:
     # Select dataset option
     datasets = st.multiselect(
         label="Select Datasets",
@@ -195,7 +195,7 @@ if page != pages[5]:
 
 # Visualisations for data tab
 if page ==pages[0]:
-    st.header('Data at a glance')
+    st.header('Home - Data at a Glance')
 
     col1, col2 = st.columns([4, 5])
 
@@ -1688,6 +1688,27 @@ if page ==pages[4]:
                         key='dnldallelemultibaseoutcsv')
     
 if page ==pages[5]:
+    st.markdown("""
+    ## Help and Documentation
+
+    ### About the Data Dashboard:
+    Since the inception of the [Multi-Worm Tracke (MWT)](https://doi.org/10.1038/nmeth.1625), the Rankin Lab has collected vast amounts of data from a large number of strains in a number of screens that have been conducted by members of the lab. 
+    This dashboard is a tool written by Joseph Liang (PhD Candidate) in an attempt to consolidate the MWT data collected over the years that follow the standard 10-second ISI (30 stimuli at 10-second inter-stimulus intervals) habituation protocols employed by members in the lab.
+    Although the MWT is very powerful in its ability to gather rich multi-phenotype data from large populations of living animals simultaneously, raw data from the MWT tracker is generally not very accessible to users not familiar with the innor workings of the MWT.
+    This tool seeks to solve this problem by consolidating all the appropriate data collected by the lab so far, analyzing them and then making the data (and the visualizations) easily accessible to its users in a simple, click-to-operate user interface.
+
+    The MWT Data Dashboard is 
+
+    ### Get Started
+    This tool is designed to be easy to use - simply use your mouse to navigate to different elements of the dashboard to access the data. All the visualizations generated from the dashboard can be downloaded. 
+    Not a fan of the artistic/design choices that were employed in these visualizations? Simple download the underlaying dataset and make your own graphs in your favourite language and visaulziation library.
+
+    ### Contact Me
+    Please reach me at joseph.liang@psych.ubc.ca for troubleshooting or feedback.
+  
+
+    """)
+if page ==pages[6]:
     st.markdown("""
     ## References
 
