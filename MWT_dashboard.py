@@ -1697,10 +1697,14 @@ if page ==pages[5]:
     Although the MWT is very powerful in its ability to gather rich multi-phenotype data from large populations of living animals simultaneously, raw data from the MWT tracker is generally not very accessible to users not familiar with the innor workings of the MWT.
     This tool seeks to solve this problem by consolidating all the appropriate data collected by the lab so far, analyzing them and then making the data (and the visualizations) easily accessible to its users in a simple, click-to-operate user interface.
 
-    The MWT Data Dashboard is 
+    ### The Data
+    Data from the MWT Data Dashboard consolidated from a number of screens conducted by past students of the Rankin Lab. In these screens, students study straints of Caenorhabditis elegans carrying mutations (predominantly loss-of-function) in genes of interest.
+    All of the experiments employ a 10-second ISI tap-habituation protocol. Statistics for the heatmap and the "phenomic profiles" of individual genes are done by comparing the strain of interest to the wildtype (N2) replicates conducted on the same day(s) of the experiment.
 
     ### Get Started
     This tool is designed to be easy to use - simply use your mouse to navigate to different elements of the dashboard to access the data. All the visualizations generated from the dashboard can be downloaded. 
+    Navigate to appropraite pages to access relevant data. There are gene- and allele-specific pages if you are interested in looking at data for a specific gene (which is a mean of all the alleles analyzed) or allele.
+    If you are interested in making comparisons between genes, navigate to the "Custome Gene/Allele Selection" pages.
     Not a fan of the artistic/design choices that were employed in these visualizations? Simple download the underlaying dataset and make your own graphs in your favourite language and visaulziation library.
 
     ### Contact Me
