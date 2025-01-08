@@ -60,7 +60,7 @@ def read(table, connection):
         column_names = [desc[0] for desc in cursor.description]
     return pd.DataFrame(data=record, columns=column_names)
 
-@st.cache_resource
+@st.cache_data
 def aggregate_unique_values(df ,by):
     """Aggregate and transform tstat_gene_data, tstat_allele_data , gene_profile_data, and  allele_profile_data table"""
     if(len(by)>1):    
@@ -74,7 +74,7 @@ def aggregate_unique_values(df ,by):
 
     return grouped
 
-@st.cache_resource
+@st.cache_data
 def aggregate_unique_values_MSD(df, by):
     """Aggregate and transform gene_MSD and allele_MSD table"""
     # Define the columns to aggregate
@@ -156,7 +156,7 @@ page = st.sidebar.radio("Select a page", pages)
 # Streamlit Dashboard title
 st.title('MWT Data Dashboard - Rankin Lab @ UBC')
 
-@st.cache_resource
+@st.cache_data
 def select_datasets():
     # Select dataset option
     datasets = st.multiselect(
