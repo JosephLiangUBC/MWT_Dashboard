@@ -60,6 +60,7 @@ def read(table, connection):
         column_names = [desc[0] for desc in cursor.description]
     return pd.DataFrame(data=record, columns=column_names)
 
+@st.cache_resource
 def aggregate_unique_values(df ,by):
     """Aggregate and transform tstat_gene_data, tstat_allele_data , gene_profile_data, and  allele_profile_data table"""
     if(len(by)>1):    
@@ -73,7 +74,7 @@ def aggregate_unique_values(df ,by):
 
     return grouped
 
-@st.cache_data
+@st.cache_resource
 def aggregate_unique_values_MSD(df, by):
     """Aggregate and transform gene_MSD and allele_MSD table"""
     # Define the columns to aggregate
@@ -154,7 +155,9 @@ page = st.sidebar.radio("Select a page", pages)
 
 # Streamlit Dashboard title
 st.title('MWT Data Dashboard - Rankin Lab @ UBC')
-if page != pages[5:]:
+
+@st.cache_resource
+def select_datasets():
     # Select dataset option
     datasets = st.multiselect(
         label="Select Datasets",
@@ -196,6 +199,7 @@ if page != pages[5:]:
 # Visualisations for data tab
 if page ==pages[0]:
     st.header('Home - Data at a Glance')
+    select_datasets()
 
     col1, col2 = st.columns([4, 5])
 
@@ -381,6 +385,7 @@ if page ==pages[0]:
 
 if page == pages[1]:
     st.header('Gene-specific Data')
+    select_datasets()
     # Create a session state for the gene selection
     st.session_state.setdefault('gene_select', None)
     gene_option = st.selectbox(
@@ -683,6 +688,7 @@ if page == pages[1]:
 
 if page ==pages[2]:
     st.header('Allele-specific Data')
+    select_datasets()
     # select allele 
     st.session_state.setdefault('allele_select', None)
     allele_option = st.selectbox(
@@ -982,6 +988,7 @@ if page ==pages[2]:
 if page ==pages[3]:
    # multiple selection option for genes
     st.header('Custom Gene Selection ')
+    select_datasets()
     st.session_state.setdefault('gene_select', [gene for gene in tap_output['Gene'].unique() if gene != 'N2'][0])
 
     gene_multiple = st.multiselect(
@@ -1324,6 +1331,7 @@ if page ==pages[3]:
 if page ==pages[4]:
    # multiple selection option for alleles
     st.header('Custom Allele Selection')
+    select_datasets()
     st.session_state.setdefault('allele_select', [allele for allele in tap_output['dataset'].unique() if allele != 'N2'][0])
 
     allele_multiple = st.multiselect(
