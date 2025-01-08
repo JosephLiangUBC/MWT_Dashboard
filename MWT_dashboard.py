@@ -156,7 +156,17 @@ page = st.sidebar.radio("Select a page", pages)
 # Streamlit Dashboard title
 st.title('MWT Data Dashboard - Rankin Lab @ UBC')
 
+
 def select_datasets():
+    global gene_MSD
+    global phenotype_list
+    global tap_output
+    global tap_tstat_allele
+    global tap_tstat_data
+    global gene_profile_data
+    global allele_profile_data
+    global allele_MSD
+
     # Select dataset option
     datasets = st.multiselect(
         label="Select Datasets",
