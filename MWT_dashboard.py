@@ -156,7 +156,6 @@ page = st.sidebar.radio("Select a page", pages)
 # Streamlit Dashboard title
 st.title('MWT Data Dashboard - Rankin Lab @ UBC')
 
-@st.cache_data
 def select_datasets():
     # Select dataset option
     datasets = st.multiselect(
