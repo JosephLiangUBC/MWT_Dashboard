@@ -24,3 +24,20 @@ rankinlab\Scripts\activate.bat    # Windows
 pip install -r requirements.txt
 
 ```
+4. Update `requirements.txt` when new packages are installed 
+```
+pip freeze > requirements.txt`
+```
+
+#### Using conda 
+
+1. Clone the repository
+2. Create and activate conda environment
+```
+conda env create -f environment.yml
+conda activate rankinlab
+```
+3. Update `environment.yml` when new packages are installed
+```
+conda env update --file environment.yml --prune
+```
