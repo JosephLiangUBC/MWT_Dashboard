@@ -1,3 +1,5 @@
 
 .streamlit/secrets.toml
-mehak-notes.md
+.DS_Store
+.ipynb_checkpoints/
+mehak-notes.md 
