@@ -3,6 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - python=3.11
+  - pip
   - ipykernel
   - ipywidgets
   - tqdm
@@ -16,9 +17,8 @@ dependencies:
   - requests
   - sqlalchemy
   - psycopg
-  - psycopg-binary
   - pydantic
-  - pip
   - pip:
-      - ipyfilechooser
       - kaleido
+      - psycopg-binary
+      - ipyfilechooser
