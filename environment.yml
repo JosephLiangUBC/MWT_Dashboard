@@ -1,0 +1,24 @@
+name: rankinlab
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - ipykernel
+  - ipywidgets
+  - tqdm
+  - pandas
+  - matplotlib
+  - seaborn
+  - numpy
+  - scipy
+  - streamlit
+  - plotly
+  - requests
+  - sqlalchemy
+  - psycopg
+  - psycopg-binary
+  - pydantic
+  - kaleido
+  - pip
+  - pip:
+      - ipyfilechooser
