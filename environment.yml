@@ -18,7 +18,7 @@ dependencies:
   - psycopg
   - psycopg-binary
   - pydantic
-  - kaleido
   - pip
   - pip:
       - ipyfilechooser
+      - kaleido
