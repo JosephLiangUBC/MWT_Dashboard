@@ -1133,7 +1133,6 @@ if page ==pages[3]:
     col9, col10, col11= st.columns([1,1,1])
     tap_tstat_allele_selected = tap_tstat_allele[tap_tstat_allele['Gene'].isin(gene_multiple)]
 
-
     # Create a heatmap
     fig = go.Figure(data=go.Heatmap(
         z=tap_tstat_allele_selected.set_index('Gene').values,
@@ -1434,7 +1433,7 @@ if page ==pages[3]:
                         mime="text/csv",
                         key='dnldgenemultibaseoutcsv')
 
-
+# -------------------------------- Page 4 --------------------------------
 if page ==pages[4]:
    # multiple selection option for alleles
     st.header('Custom Allele Selection')
@@ -1487,7 +1486,6 @@ if page ==pages[4]:
         st.markdown(f"<p style='font-size:20px'>Information not available for: {', '.join(na_links)}</p>", unsafe_allow_html=True)
 
     #filter data for particular allele
-
     tap_output_allele = tap_output[tap_output['dataset'].isin(allele_multiple)]
     allele_tap_data = tap_output[tap_output['Date'].isin(tap_output_allele['Date'].unique())]
     allele_tap_data_plot = allele_tap_data[allele_tap_data['dataset'].isin(['N2']+ allele_multiple)].dropna(subset=['taps'])
@@ -1801,7 +1799,8 @@ if page ==pages[4]:
                         file_name=f"raw_baseline_data.csv",
                         mime="text/csv",
                         key='dnldallelemultibaseoutcsv')
-    
+
+# -------------------------------- Page 5 --------------------------------    
 if page ==pages[5]:
     st.markdown("""
     ## Help and Documentation
