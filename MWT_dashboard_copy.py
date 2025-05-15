@@ -1,17 +1,17 @@
 import itertools
-import random
 import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib as mpl
-import sqlite3
+import sqlite3 
 import io
 import plotly.graph_objects as go
 import hmac
 import psycopg
 
+# Password protection
 def check_password():
     """Returns `True` if the user had the correct password."""
 
@@ -46,23 +46,47 @@ if not check_password():
 st.set_page_config(layout="wide")
 
 # convert dataframe to csv for download
-@st.cache_data
+@st.cache_data #caches output of the function
 def convert_df(df):
+    """Converts a DataFrame to a UTF-8 encoded CSV for downloading."""
     return df.to_csv().encode("utf-8")
 
-# Fail gracefully option
+# Fetch data from database
 def read(table, connection):
+    """
+    Fetches all rows from a specified table in a PostgreSQL database.
+    
+    Inputs:
+        table (str): table name in PostgreSQL database
+        connection (psycopg.Connection): Active psycopg database connection
+    
+    Returns:  
+        pd.DataFrame: Table data as a DataFrame
+    """
     with connection.cursor() as cursor:
         cursor.execute(f'SELECT * from "{table}"')
 
         # Fetch all rows from database
         record = cursor.fetchall()
         column_names = [desc[0] for desc in cursor.description]
+
     return pd.DataFrame(data=record, columns=column_names)
 
 @st.cache_data
-def aggregate_unique_values(df ,by):
-    """Aggregate and transform tstat_gene_data, tstat_allele_data , gene_profile_data, and  allele_profile_data table"""
+def aggregate_unique_values(df, by):
+    """
+    Aggregates by specified keys and computes mean of numerical columns. 
+    Transforms tstat_gene_data, tstat_allele_data , gene_profile_data, 
+    and allele_profile_data tables
+    
+    Inputs:
+        df (pd.DataFrame): Input DataFrame containing data to aggregate.
+        by (list of str): Columns to group by
+    
+    Returns:
+        grouped (pd.DataFrame): Aggregated dataframe with mean values and 
+                                grouped 'Screen' list
+    """
     if(len(by)>1):    
         df['Metric'] = pd.Categorical(df['Metric'], categories=df['Metric'].unique(), ordered=True)
 
@@ -76,7 +100,20 @@ def aggregate_unique_values(df ,by):
 
 @st.cache_data
 def aggregate_unique_values_MSD(df, by):
-    """Aggregate and transform gene_MSD and allele_MSD table"""
+    """
+    Aggregates dataframe with weighted means and calculates Confidence Intervals.
+    Transforms transform gene_MSD and allele_MSD tables
+    
+    Inputs:
+        df (pd.DataFrame): Input DataFrame containing containing metrics 
+                           with '-mean', '-sem', and '-count' suffixes
+        by (list of str): Columns to group by
+    
+    Returns:
+        grouped pd.DataFrame: Aggregated DataFrame with weighted means, updated 95% CI columns, 
+        and grouped 'Screen'
+    """
+
     # Define the columns to aggregate
     agg_cols = [col for col in df.columns if col not in by + ['Screen']]
 
@@ -111,24 +148,51 @@ def aggregate_unique_values_MSD(df, by):
 
 @st.cache_data
 def fetch_data():
-    with psycopg.connect(dbname="mwtdata", user=st.secrets["psql_user"], password=st.secrets["psql_passwword"], host="rds-mwt-data.ctie02ksmcqc.ca-central-1.rds.amazonaws.com", port=5432) as connection:
+    """
+    Connects to PostgreSQL database and loads all necessary tables for the dashboard.
+    
+    Returns:
+        pd.DataFrame: Contains:
+                        - tap_output
+                        - tap_tstat_allele
+                        - tap_tstat_data
+                        - gene_profile_data
+                        - allele_profile_data
+                        - gene_MSD
+                        - allele_MSD
+                        - id_data
+    """
+    with psycopg.connect(dbname="mwtdata", 
+                         user=st.secrets["psql_user"], 
+                         password=st.secrets["psql_passwword"], 
+                         host="rds-mwt-data.ctie02ksmcqc.ca-central-1.rds.amazonaws.com", 
+                         port=5432) as connection:
+        
         # Read data from SQLite database
         tap_output = read('tap_response_data', connection)
+        tap_output['Strain'] = tap_output['Gene'] + " (" + tap_output['Allele'] + ")"
+
         tap_tstat_allele = aggregate_unique_values(read('tstat_gene_data', connection),["Gene"]).explode('Screen').reset_index(drop=True)
+        
         tap_tstat_data = aggregate_unique_values(read('tstat_allele_data', connection),["dataset"]).explode('Screen').reset_index(drop=True)
         # allele_metric_data = read('allele_phenotype_data')
+        
         gene_profile_data = aggregate_unique_values(read('gene_profile_data', connection),['Gene','Metric']).explode('Screen').reset_index(drop=True)
+        
         allele_profile_data = aggregate_unique_values(read('allele_profile_data', connection),['dataset','Metric']).explode('Screen').reset_index(drop=True)
+        
         gene_MSD = aggregate_unique_values_MSD(read('gene_MSD', connection),["Gene"]).explode('Screen').reset_index(drop=True)
+        
         allele_MSD = aggregate_unique_values_MSD(read('allele_MSD', connection),["dataset"]).explode('Screen').reset_index(drop=True)
+        
         id_data=read('Gene_Allele_WormBaseID', connection) ##table in database with wormbase id's for all genes and alleles
         
     return tap_output, tap_tstat_allele, tap_tstat_data, gene_profile_data, allele_profile_data, gene_MSD, allele_MSD, id_data
 
+# Assign all necessary dataframes 
 tap_output, tap_tstat_allele, tap_tstat_data, gene_profile_data, allele_profile_data, gene_MSD, allele_MSD, id_data = fetch_data()
-tap_output['Strain'] = tap_output['Gene'] + " (" + tap_output['Allele'] + ")"
 
-# Defining the color palette for the plots
+# Define the color palette for the plots
 metric_palette = ["k", "k", "k",
                   "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgrey","darkgray",
                   "lightsteelblue", "lightsteelblue", "lightsteelblue",
@@ -137,7 +201,7 @@ metric_palette = ["k", "k", "k",
                   "thistle", "thistle", "thistle",
                   "slateblue","slateblue","slateblue"]
 
-# config setting for plotly
+# Config setting for plotly
 config = {
   'toImageButtonOptions': {
     'format': 'png', # one of png, svg, jpeg, webp
@@ -149,8 +213,17 @@ config = {
 }
 
 # creating tabs for dashboard
-pages = ["Home - Data at a Glance", "Gene-specific Data", "Allele-specific Data",  "Custom Gene Selection","Custom Allele Selection", "Help & Documentation", "Citations"]
+pages = [
+    "Home - Data at a Glance", 
+    "Gene-specific Data", 
+    "Allele-specific Data",  
+    "Custom Gene Selection",
+    "Custom Allele Selection", 
+    "Help & Documentation", 
+    "Citations"
+]
 # to-do: add 'clustering' in the pages list above at 5th position 
+
 page = st.sidebar.radio("Select a page", pages)
 
 # Streamlit Dashboard title
