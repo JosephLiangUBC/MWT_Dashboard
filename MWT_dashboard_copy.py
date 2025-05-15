@@ -192,6 +192,71 @@ def fetch_data():
 # Assign all necessary dataframes 
 tap_output, tap_tstat_allele, tap_tstat_data, gene_profile_data, allele_profile_data, gene_MSD, allele_MSD, id_data = fetch_data()
 
+
+def select_datasets():
+    """
+    Allows user to select datasets to filter across multiple global dataframes.
+    Updates global dataframes by filtering on user selection and cleaning data.
+
+    Globals modified:
+        gene_MSD, phenotype_list, tap_output, tap_tstat_allele,
+        tap_tstat_data, gene_profile_data, allele_profile_data, allele_MSD
+    """
+    global gene_MSD
+    global phenotype_list
+    global tap_output
+    global tap_tstat_allele
+    global tap_tstat_data
+    global gene_profile_data
+    global allele_profile_data
+    global allele_MSD
+
+    # Select dataset option
+    datasets = st.multiselect(
+        label="Select Datasets",
+        options=gene_MSD.Screen.unique(),
+        default="PD_Screen",
+        placeholder="make a selection",
+        help="select and de-select datasets you want to analyze",
+        key="datasetselection"
+    )
+
+    phenotype_list = []
+    for col in gene_MSD.columns[1:]:
+        col_split = col.split("-", 1)[0]
+        phenotype_list.append(col_split)
+
+    phenotype_list.remove('Screen')
+
+    dropna_features = list(np.unique(phenotype_list))
+    dropna_features.remove('Spontaneous Recovery of Response Duration')
+    dropna_features.remove('Spontaneous Recovery of Response Probability')
+    dropna_features.remove('Spontaneous Recovery of Response Speed')
+    dropna_features.remove('Memory Retention of Response Duration')
+    dropna_features.remove('Memory Retention of Response Probability')
+    dropna_features.remove('Memory Retention of Response Speed')
+
+    # filter data for selected dataset
+    tap_output = tap_output[tap_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+    
+    tap_tstat_allele = tap_tstat_allele[tap_tstat_allele['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(
+        columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
+    
+    tap_tstat_data = tap_tstat_data[tap_tstat_data['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(
+        columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
+   
+    gene_profile_data = gene_profile_data[gene_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+    
+    allele_profile_data = allele_profile_data[allele_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"],
+                                                                                                    "N2")
+    gene_MSD = gene_MSD[gene_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+    
+    allele_MSD = allele_MSD[allele_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+
+
+
+# ------------------------ Dashboard configurations  ------------------------
+
 # Define the color palette for the plots
 metric_palette = ["k", "k", "k",
                   "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgrey","darkgray",
@@ -229,58 +294,12 @@ page = st.sidebar.radio("Select a page", pages)
 # Streamlit Dashboard title
 st.title('MWT Data Dashboard - Rankin Lab @ UBC')
 
-
-def select_datasets():
-    global gene_MSD
-    global phenotype_list
-    global tap_output
-    global tap_tstat_allele
-    global tap_tstat_data
-    global gene_profile_data
-    global allele_profile_data
-    global allele_MSD
-
-    # Select dataset option
-    datasets = st.multiselect(
-        label="Select Datasets",
-        options=gene_MSD.Screen.unique(),
-        default="PD_Screen",
-        placeholder="make a selection",
-        help="select and de-select datasets you want to analyze",
-        key="datasetselection"
-    )
-
-    phenotype_list = []
-    for a in gene_MSD.columns[1:]:
-        b = a.split("-", 1)[0]
-        phenotype_list.append(b)
-
-    phenotype_list.remove('Screen')
-
-    dropna_features = list(np.unique(phenotype_list))
-    dropna_features.remove('Spontaneous Recovery of Response Duration')
-    dropna_features.remove('Spontaneous Recovery of Response Probability')
-    dropna_features.remove('Spontaneous Recovery of Response Speed')
-    dropna_features.remove('Memory Retention of Response Duration')
-    dropna_features.remove('Memory Retention of Response Probability')
-    dropna_features.remove('Memory Retention of Response Speed')
-    # st.write(dropna_features)
-
-    # filter data for selected dataset
-    tap_output = tap_output[tap_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
-    tap_tstat_allele = tap_tstat_allele[tap_tstat_allele['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(
-        columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
-    tap_tstat_data = tap_tstat_data[tap_tstat_data['Screen'].isin(datasets)].dropna(subset=dropna_features).drop(
-        columns=['Screen']).replace(["N2_N2", "N2_XJ1"], "N2")
-    gene_profile_data = gene_profile_data[gene_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
-    allele_profile_data = allele_profile_data[allele_profile_data['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"],
-                                                                                                    "N2")
-    gene_MSD = gene_MSD[gene_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
-    allele_MSD = allele_MSD[allele_MSD['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
-
+# -------------------------------- Page 0 --------------------------------
 # Visualisations for data tab
-if page ==pages[0]:
+if page == pages[0]:
+
     st.header('Home - Data at a Glance')
+
     select_datasets()
 
     col1, col2 = st.columns([4, 5])
@@ -291,9 +310,8 @@ if page ==pages[0]:
         'Select a phenotype',
         np.unique(phenotype_list), key="phenotypeselect")
 
-
-
     data_sorted = gene_MSD.sort_values(by=[f"{phenotype_option}-mean"]).reset_index(drop=True)
+    
     colors = ["dimgrey"] * len(data_sorted)
 
     fig = go.Figure()
@@ -331,8 +349,10 @@ if page ==pages[0]:
             name=""
             
         ))
+
     # Add vertical line at 0
     fig.add_vline(x=0,  line_width=1, line_dash="dash", line_color="red")
+
     # Update layout with labels and title
     fig.update_layout(
         title={
@@ -369,7 +389,7 @@ if page ==pages[0]:
     phenotype_plot.seek(0)
     col1.plotly_chart(fig, use_container_width=True, **{'config': config})
     
-    #combine data and rename columns :
+    # combine data and rename columns :
     data_dat=pd.concat([gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])["Gene"],
                         gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-mean"],
                         gene_MSD.sort_values(by=[f"{phenotype_option}-mean"])[f"{phenotype_option}-ci95_lo"],
@@ -438,6 +458,7 @@ if page ==pages[0]:
                         file_name="Heatmap.png",
                         mime="image/png",
                         key='dnldheatmap')
+    
     # Add download buttons    
     col2_2.download_button(
         label="Download CSV",
@@ -455,16 +476,16 @@ if page ==pages[0]:
 
     # If the button is pressed, read the data and then show show button to download it
     if read_data_flag:
-        
         baseline_output = read('tap_baseline_data')
         baseline_output = baseline_output[baseline_output['Screen'].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
-        
         st.download_button(label="Download raw baseline data",
                         data=convert_df(baseline_output),
                         file_name=f"raw_baseline_data.csv",
                         mime="text/csv",
                         key='dnldbaseoutcsv')
 
+
+# -------------------------------- Page 1 --------------------------------
 if page == pages[1]:
     st.header('Gene-specific Data')
     select_datasets()
@@ -497,7 +518,7 @@ if page == pages[1]:
     # st.write(gene_tap_data_plot)
     gene_tap_data_plot['taps'] = gene_tap_data_plot['taps'].astype(int)
 
- # added extra column to show habituation curves in landscape 
+    # added extra column to show habituation curves in landscape 
     col3, col4, col7 = st.columns([1, 1, 1])
     col3.subheader('Phenotypic profile')
 
@@ -528,13 +549,11 @@ if page == pages[1]:
                         file_name=f"Phenotypic profile of {gene_option}.csv",
                         mime="text/csv",
                         key='dnldgeneprofilecsv')
-    
     col4.subheader('Rank in phenotype')
     gene_phenotype_option = col4.selectbox(
         'Select a phenotype',
         np.unique(phenotype_list),
         key='gene_phenotype_select')
-
 
     # seaborn graph of phenotypic view (sample mean distance) + st.pyplot
     data_sorted = gene_MSD.sort_values(by=[f"{gene_phenotype_option}-mean"])
@@ -576,8 +595,10 @@ if page == pages[1]:
             name=""
             
         ))
+
     # Add vertical line at 0
     fig.add_vline(x=0,  line_width=1, line_dash="dash", line_color="red")
+
     # Update layout with labels and title
     fig.update_layout(
         title=f"{gene_phenotype_option}",
@@ -768,6 +789,7 @@ if page == pages[1]:
                         mime="text/csv",
                         key='dnldgenebaseoutcsv')
 
+# -------------------------------- Page 2 --------------------------------
 if page ==pages[2]:
     st.header('Allele-specific Data')
     select_datasets()
@@ -790,7 +812,6 @@ if page ==pages[2]:
         allele_id = id_data.loc[(id_data['Gene'] == gene) & (id_data['Allele'] == allele), 'WBAllele']
         allele_id = (allele_id.values[0]) if allele_id.any() else "default value"
         gene_id=(gene_id.values[0]) if gene_id.any() else "default value"
-
 
         # links to the Alliance Genome and WormBase website 
         glink=f'https://www.alliancegenome.org/gene/WB:{gene_id}'
@@ -822,6 +843,7 @@ if page ==pages[2]:
     plt.savefig(allele_profile_plot, format='png', dpi=300, bbox_inches='tight')
     # display image 
     col5.image(allele_profile_plot,width=None,caption=(f'Phenotypic profile of gene-allele {allele_option}'))
+    
     # download button for plots
     col5_1,col5_2=col5.columns(2)
     col5_1.download_button(label="Download Plot",
@@ -881,8 +903,10 @@ if page ==pages[2]:
             name="",
             showlegend=False  # Hide individual points from legend
         ))
+    
     # Add vertical line at 0
     fig.add_vline(x=0,  line_width=1, line_dash="dash", line_color="red")
+    
     # Update layout with labels and title
     fig.update_layout(
         title=f"{allele_phenotype_option}",
@@ -1067,6 +1091,7 @@ if page ==pages[2]:
                         mime="text/csv",
                         key='dnldallelebaseoutcsv')
 
+# -------------------------------- Page 3 --------------------------------
 if page ==pages[3]:
    # multiple selection option for genes
     st.header('Custom Gene Selection ')
