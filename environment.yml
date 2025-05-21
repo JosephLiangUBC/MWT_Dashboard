@@ -13,7 +13,7 @@ dependencies:
   - numpy
   - scipy
   - streamlit
-  - plotly=5.20.0
+  - plotly
   - requests
   - sqlalchemy
   - psycopg
