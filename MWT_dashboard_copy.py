@@ -102,7 +102,7 @@ def aggregate_unique_values(df, by):
 def aggregate_unique_values_MSD(df, by):
     """
     Aggregates dataframe with weighted means and calculates Confidence Intervals.
-    Transforms transform gene_MSD and allele_MSD tables
+    Transforms gene_MSD and allele_MSD tables
     
     Inputs:
         df (pd.DataFrame): Input DataFrame containing containing metrics 
@@ -372,7 +372,7 @@ if page == pages[0]:
             dict(
                 text=f'Sample mean distance from wildtype for all strains for selected phenotype: {phenotype_option}. Error bars are 95% CI',
                 xref="paper",
-                yref="paper",
+                yref="paper", 
                 x=0,
                 y=-0.2,
                 showarrow=False,
