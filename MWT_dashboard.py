@@ -333,7 +333,7 @@ if page ==pages[0]:
             tickvals=[-3, 0, 3],
             ticktext=['-3', '0', '3'],
             title="",
-            titleside="right"
+            # titleside="right"
         )
     ))
 
@@ -1050,7 +1050,7 @@ if page ==pages[3]:
             tickvals=[-3, 0, 3],
             ticktext=['-3', '0', '3'],
             title="",
-            titleside="right"
+            # titleside="right"
         )
     ))
     h = 200*len(gene_multiple)
@@ -1415,7 +1415,7 @@ if page ==pages[4]:
             tickvals=[-3, 0, 3],
             ticktext=['-3', '0', '3'],
             title="",
-            titleside="right"
+            # titleside="right"
         )
     ))
     h = 200*len(allele_multiple)
