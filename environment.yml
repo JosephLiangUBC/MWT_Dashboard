@@ -22,4 +22,4 @@ dependencies:
       - kaleido
       - psycopg-binary
       - ipyfilechooser
-      - protobuf=3.20.3
+      - protobuf==3.20.3
