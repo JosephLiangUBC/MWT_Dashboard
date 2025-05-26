@@ -23,3 +23,4 @@ dependencies:
       - psycopg-binary
       - ipyfilechooser
       - altair==4.0
+      - protobuf==3.20
