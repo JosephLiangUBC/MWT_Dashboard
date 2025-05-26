@@ -6,6 +6,13 @@ Youtube Overview:
 [![MWT Dashboard Introduction Video](http://img.youtube.com/vi/xbQ0CRUCnZs/0.jpg)](https://youtu.be/xbQ0CRUCnZs "MWT Dashboard Introduction Video")
 
 
+### Running the dashboard locally
+
+Enter the repository through your terminal and paste the command below
+```
+streamlit run MWT_dashboard_copy.py
+```
+
 
 ### Installing Dependencies
 
