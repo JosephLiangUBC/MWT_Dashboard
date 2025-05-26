@@ -22,4 +22,4 @@ dependencies:
       - kaleido
       - psycopg-binary
       - ipyfilechooser
-      - altair
+      - altair==4.0
