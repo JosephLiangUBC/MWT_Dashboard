@@ -7,10 +7,6 @@ dependencies:
   - ipykernel
   - ipywidgets
   - tqdm
-  - seaborn
-  - numpy
-  - scipy
-  - plotly
   - requests
   - sqlalchemy
   - psycopg
@@ -24,3 +20,8 @@ dependencies:
       - matplotlib
       - pandas
       - streamlit
+      - seaborn
+      - numpy
+      - scipy
+      - tqdm
+      - plotly
