@@ -18,8 +18,8 @@ dependencies:
   - sqlalchemy
   - psycopg
   - pydantic
-  - altair
   - pip:
       - kaleido
       - psycopg-binary
       - ipyfilechooser
+      - altair
