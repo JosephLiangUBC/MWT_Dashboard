@@ -12,7 +12,7 @@ pages = [
 ]
 
 # Plotly config for all download buttons
-plotly_config = {
+config = {
     'toImageButtonOptions': {
         'format': 'png',
         'filename': 'plot',
@@ -22,7 +22,7 @@ plotly_config = {
     }
 }
 
-# Optional: your color palette used in barplots
+# color palette used in barplots
 metric_palette = [
     "k", "k", "k",
     "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgrey", "darkgray",

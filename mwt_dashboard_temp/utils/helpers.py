@@ -3,16 +3,11 @@
 import pandas as pd
 import sqlite3
 import streamlit as st
+import numpy as np
 
 def convert_df(df):
     """
-    Convert a DataFrame to CSV format for download buttons.
-
-    Parameters:
-    df (pd.DataFrame): DataFrame to convert
-
-    Returns:
-    bytes: CSV-encoded data
+    Converts a DataFrame to a UTF-8 encoded CSV for downloading.
     """
     return df.to_csv(index=False).encode('utf-8')
 
@@ -38,32 +33,77 @@ def read(table, connection):
     return pd.DataFrame(data=record, columns=column_names)
 
 
-def aggregate_unique_values(df, groupby_cols):
+def aggregate_unique_values(df, by):
     """
-    Groups the dataframe by the specified columns and aggregates 'Screen' values as a list of unique items.
+    Aggregates by specified keys and computes mean of numerical columns. 
+    Transforms tstat_gene_data, tstat_allele_data , gene_profile_data, 
+    and allele_profile_data tables
     
-    Args:
-        df (pd.DataFrame): Input dataframe.
-        groupby_cols (list): Columns to group by.
+    Inputs:
+        df (pd.DataFrame): Input DataFrame containing data to aggregate.
+        by (list of str): Columns to group by
     
     Returns:
-        pd.DataFrame: Grouped dataframe with unique 'Screen' values aggregated.
+        grouped (pd.DataFrame): Aggregated dataframe with mean values and 
+                                grouped 'Screen' list
     """
-    return df.groupby(groupby_cols).agg({"Screen": lambda x: list(set(x))}).reset_index()
+    if len(by) > 1 and 'Metric' in df.columns:
+        df['Metric'] = pd.Categorical(df['Metric'], categories=df['Metric'].unique(), ordered=True)
 
-def aggregate_unique_values_MSD(df, groupby_cols):
-    """
-    Groups the MSD dataframe by the specified columns and aggregates all columns except groupby_cols 
-    and 'Screen' as mean, and aggregates 'Screen' as a list of unique items.
-    
-    Args:
-        df (pd.DataFrame): Input MSD dataframe.
-        groupby_cols (list): Columns to group by.
-    
-    Returns:
-        pd.DataFrame: Aggregated MSD dataframe.
-    """
-    value_cols = [col for col in df.columns if col not in groupby_cols + ['Screen']]
-    return df.groupby(groupby_cols).agg(
-        {**{col: 'mean' for col in value_cols}, 'Screen': lambda x: list(set(x))}
+    # Perform groupby aggregation
+    grouped = df.groupby(by).agg(
+        {col: 'mean' for col in df.columns if col not in by + ['Screen']}
     ).reset_index()
+
+    # Aggregate the Screen column into a list
+    grouped['Screen'] = df.groupby(by)['Screen'].apply(lambda x: list(set(x))).reset_index(drop=True)
+
+    return grouped
+
+
+def aggregate_unique_values_MSD(df, by):
+    """
+    Aggregates dataframe with weighted means and calculates Confidence Intervals.
+    Transforms gene_MSD and allele_MSD tables
+
+    Inputs:
+        df (pd.DataFrame): Input DataFrame containing containing metrics 
+                           with '-mean', '-sem', and '-count' suffixes
+        by (list of str): Columns to group by
+
+    Returns:
+        grouped pd.DataFrame: Aggregated DataFrame with weighted means, updated 95% CI columns, 
+        and grouped 'Screen'
+    """
+
+    # Define the columns to aggregate
+    agg_cols = [col for col in df.columns if col not in by + ['Screen']]
+
+    # Aggregate the columns using a weighted average
+    grouped = df.groupby(by).apply(lambda x: pd.Series({
+        col: (x[col] * x[col.replace('-mean', '-count')]).sum() / x[col.replace('-mean', '-count')].sum()
+        if '-mean' in col
+        else np.sqrt((x[col] ** 2 * x[col.replace('-sem', '-count')]).sum() / x[col.replace('-sem', '-count')].sum())
+        if '-sem' in col
+        else x[col].sum()
+        if '-count' in col
+        else np.nan
+        for col in agg_cols
+    })).reset_index()
+
+    # Calculate new confidence intervals
+    for col in grouped.columns:
+        if '-mean' in col:
+            mean_col = col
+            sem_col = col.replace('-mean', '-sem')
+            count_col = col.replace('-mean', '-count')
+            ci95_lo_col = col.replace('-mean', '-ci95_lo')
+            ci95_hi_col = col.replace('-mean', '-ci95_hi')
+
+            grouped[ci95_lo_col] = grouped[mean_col] - 1.96 * grouped[sem_col] / np.sqrt(grouped[count_col])
+            grouped[ci95_hi_col] = grouped[mean_col] + 1.96 * grouped[sem_col] / np.sqrt(grouped[count_col])
+
+    # Aggregate the Screen column into a list
+    grouped['Screen'] = df.groupby(by)['Screen'].apply(lambda x: list(set(x))).reset_index(drop=True)
+
+    return grouped

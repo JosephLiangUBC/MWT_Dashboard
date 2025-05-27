@@ -29,6 +29,7 @@ def fetch_data():
         port=5432
         ) as connection:
         
+        # Read data from SQLite database
         data = {
             "tap_output": read('tap_response_data', connection),
             "tap_tstat_allele": aggregate_unique_values(read('tstat_gene_data', connection),["Gene"]).explode('Screen').reset_index(drop=True),
@@ -110,4 +111,3 @@ def fetch_data():
 #     data["allele_MSD"] = data["allele_MSD"][data["allele_MSD"]["Screen"].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 
 #     return data
-

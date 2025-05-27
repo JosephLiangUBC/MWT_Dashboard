@@ -1,5 +1,5 @@
 import streamlit as st
-from config import pages
+from config import pages, metric_palette, config
 from utils.data_loader import fetch_data
 from utils.preprocess import select_datasets
 from pages import home, gene, allele  # import other pages as needed
@@ -17,6 +17,8 @@ page = st.sidebar.radio("Select a page", pages)
 # Load and filter data
 data = fetch_data()
 select_datasets(data)
+data["metric_palette"] = metric_palette 
+data["plotly_config"] = config
 
 # Route pages
 if page == pages[0]:
