@@ -1,4 +1,3 @@
-# placeholder - gene
 # pages/gene.py
 import streamlit as st
 import io
@@ -7,6 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 from utils.helpers import convert_df, read
+from config import config
 
 def render(data):
     st.header('Gene-specific Data')
@@ -140,7 +140,7 @@ def render(data):
     gene_phenotype_plot = io.BytesIO()
     fig.write_image(gene_phenotype_plot, format='png', scale=3)
     gene_phenotype_plot.seek(0)
-    col4.plotly_chart(fig, use_container_width=True, **{'config': data["config"]})
+    col4.plotly_chart(fig, use_container_width=True, **{'config': config})
 
     # UPDATED: using combined data
     gene_dat = data_sorted[["Gene", f"{gene_phenotype_option}-mean", f"{gene_phenotype_option}-ci95_lo", f"{gene_phenotype_option}-ci95_hi"]]

@@ -6,6 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 from utils.helpers import convert_df, read
+from config import config
 
 def render(data):
     st.header("Allele-specific Data")
@@ -95,7 +96,7 @@ def render(data):
     # seaborn graph of phenotypic view (sample mean distance) + st.pyplot
 
 
-    data_sorted = allele_MSD.sort_values(by=[f"{allele_phenotype_option}-mean"])
+    data_sorted = data["allele_MSD"].sort_values(by=[f"{allele_phenotype_option}-mean"])
     allele_colors = ["dimgray"] * len(data_sorted["dataset"])
     fig = go.Figure()
 
@@ -159,7 +160,7 @@ def render(data):
     allele_phenotype_plot = io.BytesIO()
     fig.write_image(allele_phenotype_plot, format='png', scale=3)
     allele_phenotype_plot.seek(0)
-    col4.plotly_chart(fig, use_container_width=True, **{'config': data["config"]})
+    col4.plotly_chart(fig, use_container_width=True, **{'config': config})
 
     allele_dat = data_sorted[["dataset", f"{allele_phenotype_option}-mean", f"{allele_phenotype_option}-ci95_lo", f"{allele_phenotype_option}-ci95_hi"]]
     allele_dat.columns = ["gene-allele", f"{allele_phenotype_option}", f"{allele_phenotype_option}-lower", f"{allele_phenotype_option}-upper"]
@@ -277,7 +278,6 @@ def render(data):
 
     # If the button is pressed, read the data and then show show button to download it
     if read_data_flag:
-        # for conn_path in conn_list:
         #     try:
         #         conn = sqlite3.connect(conn_path) 
         #         break
