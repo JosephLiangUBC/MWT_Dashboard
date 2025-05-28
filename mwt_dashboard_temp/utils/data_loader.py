@@ -2,8 +2,8 @@
 import psycopg
 import streamlit as st
 import numpy as np
-from utils.helpers import read
-from utils.preprocess import aggregate_unique_values, aggregate_unique_values_MSD
+from utils.helpers import read, aggregate_unique_values, aggregate_unique_values_MSD
+
 
 
 def fetch_data():
@@ -29,6 +29,7 @@ def fetch_data():
         port=5432
         ) as connection:
         
+        # Read data from SQLite database
         data = {
             "tap_output": read('tap_response_data', connection),
             "tap_tstat_allele": aggregate_unique_values(read('tstat_gene_data', connection),["Gene"]).explode('Screen').reset_index(drop=True),
@@ -46,68 +47,67 @@ def fetch_data():
 
 
 
-def select_datasets(data):
-    """
-    Allows user to select datasets to filter across multiple global dataframes.
-    Updates global dataframes by filtering on user selection and cleaning data.
+# def select_datasets(data):
+#     """
+#     Allows user to select datasets to filter across multiple global dataframes.
+#     Updates global dataframes by filtering on user selection and cleaning data.
 
-    Globals modified:
-        gene_MSD, phenotype_list, tap_output, tap_tstat_allele,
-        tap_tstat_data, gene_profile_data, allele_profile_data, allele_MSD
-    """
+#     Globals modified:
+#         gene_MSD, phenotype_list, tap_output, tap_tstat_allele,
+#         tap_tstat_data, gene_profile_data, allele_profile_data, allele_MSD
+#     """
 
-    datasets = st.multiselect(
-        label="Select Datasets",
-        options=data["gene_MSD"].Screen.unique(),
-        default="PD_Screen",
-        placeholder="make a selection",
-        help="select and de-select datasets you want to analyze",
-        key="datasetselection"
-    )
+#     datasets = st.multiselect(
+#         label="Select Datasets",
+#         options=data["gene_MSD"].Screen.unique(),
+#         default="PD_Screen",
+#         placeholder="make a selection",
+#         help="select and de-select datasets you want to analyze",
+#         key="datasetselection"
+#     )
 
-    data["datasets"] = datasets
+#     data["datasets"] = datasets
 
-    # Construct phenotype list
-    phenotype_list = []
-    for col in data["gene_MSD"].columns[1:]:
-        col_split = col.split("-", 1)[0]
-        phenotype_list.append(col_split)
-    phenotype_list.remove('Screen')
+#     # Construct phenotype list
+#     phenotype_list = []
+#     for col in data["gene_MSD"].columns[1:]:
+#         col_split = col.split("-", 1)[0]
+#         phenotype_list.append(col_split)
+#     phenotype_list.remove('Screen')
 
-    dropna_features = list(np.unique(phenotype_list))
-    dropna_features.remove('Spontaneous Recovery of Response Duration')
-    dropna_features.remove('Spontaneous Recovery of Response Probability')
-    dropna_features.remove('Spontaneous Recovery of Response Speed')
-    dropna_features.remove('Memory Retention of Response Duration')
-    dropna_features.remove('Memory Retention of Response Probability')
-    dropna_features.remove('Memory Retention of Response Speed')
+#     dropna_features = list(np.unique(phenotype_list))
+#     dropna_features.remove('Spontaneous Recovery of Response Duration')
+#     dropna_features.remove('Spontaneous Recovery of Response Probability')
+#     dropna_features.remove('Spontaneous Recovery of Response Speed')
+#     dropna_features.remove('Memory Retention of Response Duration')
+#     dropna_features.remove('Memory Retention of Response Probability')
+#     dropna_features.remove('Memory Retention of Response Speed')
 
-    data["phenotype_list"] = phenotype_list
+#     data["phenotype_list"] = phenotype_list
 
-    # Apply filtering and cleaning
-    data["tap_output"] = data["tap_output"][data["tap_output"]["Screen"].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+#     # Apply filtering and cleaning
+#     data["tap_output"] = data["tap_output"][data["tap_output"]["Screen"].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 
-    data["tap_tstat_allele"] = (
-        data["tap_tstat_allele"][data["tap_tstat_allele"]["Screen"].isin(datasets)]
-        .dropna(subset=dropna_features)
-        .drop(columns=["Screen"])
-        .replace(["N2_N2", "N2_XJ1"], "N2")
-    )
+#     data["tap_tstat_allele"] = (
+#         data["tap_tstat_allele"][data["tap_tstat_allele"]["Screen"].isin(datasets)]
+#         .dropna(subset=dropna_features)
+#         .drop(columns=["Screen"])
+#         .replace(["N2_N2", "N2_XJ1"], "N2")
+#     )
 
-    data["tap_tstat_data"] = (
-        data["tap_tstat_data"][data["tap_tstat_data"]["Screen"].isin(datasets)]
-        .dropna(subset=dropna_features)
-        .drop(columns=["Screen"])
-        .replace(["N2_N2", "N2_XJ1"], "N2")
-    )
+#     data["tap_tstat_data"] = (
+#         data["tap_tstat_data"][data["tap_tstat_data"]["Screen"].isin(datasets)]
+#         .dropna(subset=dropna_features)
+#         .drop(columns=["Screen"])
+#         .replace(["N2_N2", "N2_XJ1"], "N2")
+#     )
 
-    data["gene_profile_data"] = data["gene_profile_data"][data["gene_profile_data"]["Screen"].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+#     data["gene_profile_data"] = data["gene_profile_data"][data["gene_profile_data"]["Screen"].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
     
-    data["allele_profile_data"] = data["allele_profile_data"][data["allele_profile_data"]["Screen"].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+#     data["allele_profile_data"] = data["allele_profile_data"][data["allele_profile_data"]["Screen"].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
     
-    data["gene_MSD"] = data["gene_MSD"][data["gene_MSD"]["Screen"].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+#     data["gene_MSD"] = data["gene_MSD"][data["gene_MSD"]["Screen"].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
     
-    data["allele_MSD"] = data["allele_MSD"][data["allele_MSD"]["Screen"].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
+#     data["allele_MSD"] = data["allele_MSD"][data["allele_MSD"]["Screen"].isin(datasets)].replace(["N2_N2", "N2_XJ1"], "N2")
 
-    return data
-
+#     return data
