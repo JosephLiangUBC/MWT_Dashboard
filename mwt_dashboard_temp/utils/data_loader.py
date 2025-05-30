@@ -4,8 +4,7 @@ import streamlit as st
 import numpy as np
 from utils.helpers import read, aggregate_unique_values, aggregate_unique_values_MSD
 
-
-
+@st.cache_data
 def fetch_data():
     """
     Connects to PostgreSQL database and loads all necessary tables for the dashboard.

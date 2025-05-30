@@ -5,6 +5,7 @@ import sqlite3
 import streamlit as st
 import numpy as np
 
+@st.cache_data
 def convert_df(df):
     """
     Converts a DataFrame to a UTF-8 encoded CSV for downloading.
@@ -33,6 +34,7 @@ def read(table, connection):
     return pd.DataFrame(data=record, columns=column_names)
 
 
+@st.cache_data
 def aggregate_unique_values(df, by):
     """
     Aggregates by specified keys and computes mean of numerical columns. 
@@ -61,6 +63,7 @@ def aggregate_unique_values(df, by):
     return grouped
 
 
+@st.cache_data
 def aggregate_unique_values_MSD(df, by):
     """
     Aggregates dataframe with weighted means and calculates Confidence Intervals.
