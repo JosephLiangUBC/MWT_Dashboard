@@ -2,7 +2,7 @@ import streamlit as st
 from config import pages, metric_palette, config
 from utils.data_loader import fetch_data
 from utils.preprocess import select_datasets
-from pages import home, gene, allele, help, citations, custom_gene, custom_allele
+from app_pages import home, gene, allele, help, citations, custom_gene, custom_allele
 from utils.auth import check_password
 
 if not check_password():
