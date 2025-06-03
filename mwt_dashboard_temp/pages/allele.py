@@ -39,14 +39,13 @@ def render(data):
         glink = f'https://www.alliancegenome.org/gene/WB:{gene_id}'
         wlink = f'https://wormbase.org/species/c_elegans/variation/{allele_id}'
 
-    # display links outside the `if` block
+    # display links 
     st.markdown(
         f'<p style="font-size:20px">For more gene information on <a href="{glink}">{gene}</a> (Source: GenomeAlliance) and allele information on <a href="{wlink}">{allele_option}</a> (Source: WormBase)</p>',
         unsafe_allow_html=True
         )
 
     allele_profile_data = data["allele_profile_data"]
-    gene_MSD = data["gene_MSD"]
     phenotype_list = data["phenotype_list"]
 
     tap_output_allele = data["tap_output"][data["tap_output"]['dataset'] == allele_option]
@@ -88,13 +87,13 @@ def render(data):
                             key='dnldalleleprofilecsv')
 
     col4.subheader('Rank in phenotype')
+
     allele_phenotype_option = col4.selectbox(
         'Select a phenotype',
         np.unique(phenotype_list),
         key='allele_phenotype_select'
     )
     # seaborn graph of phenotypic view (sample mean distance) + st.pyplot
-
 
     data_sorted = data["allele_MSD"].sort_values(by=[f"{allele_phenotype_option}-mean"])
     allele_colors = ["dimgray"] * len(data_sorted["dataset"])
@@ -178,7 +177,7 @@ def render(data):
                             mime="text/csv",
                             key='dnldallelephenotypeprofilecsv')
 
-    # --- Habituation Curves ---
+    # Habituation Curves 
     col7.subheader('Habituation Curves of Response')
     with col7:
         tab1, tab2, tab3 = st.tabs(["Probability", "Duration", "Speed"])
@@ -201,6 +200,7 @@ def render(data):
             img1 = io.BytesIO()
             plt.savefig(img1, format='png', dpi=300, bbox_inches='tight')
             tab1.image(img1, width=None, caption=f'Habituation of Response Probability: {allele_option}')
+            # Insert download plot and download csv button
             tab1_1, tab1_2 = tab1.columns(2)
             tab1_1.download_button(label="Download Plot",
                                     data=img1,
@@ -214,7 +214,9 @@ def render(data):
                                     key='dnldbtn7')
 
         with tab2:
+            #  Habituation of Response Duration Plot
             fig, ax = plt.subplots(figsize=(12, 10))
+            # seaborn plot
             ax = sns.pointplot(x="taps",
                                 y="dura",
                                 data=allele_tap_data_plot,
@@ -230,6 +232,7 @@ def render(data):
             img2 = io.BytesIO()
             plt.savefig(img2, format='png', dpi=300, bbox_inches='tight')
             tab2.image(img2, width=None, caption=f'Habituation of Response Duration: {allele_option}')
+            # Insert download plot and download csv button
             tab2_1, tab2_2 = tab2.columns(2)
             tab2_1.download_button(label="Download Plot",
                                     data=img2,
@@ -243,7 +246,9 @@ def render(data):
                                     key='dnldbtn11')
 
         with tab3:
+            #  Habituation of Response Speed Plot
             fig, ax = plt.subplots(figsize=(12, 10))
+            # seaborn plot
             ax = sns.pointplot(x="taps",
                                 y="speed",
                                 data=allele_tap_data_plot,
@@ -278,11 +283,6 @@ def render(data):
 
     # If the button is pressed, read the data and then show show button to download it
     if read_data_flag:
-        #     try:
-        #         conn = sqlite3.connect(conn_path) 
-        #         break
-        #     except:
-        #         pass
         baseline_output = read('tap_baseline_data')
         baseline_output = baseline_output[baseline_output['Screen'].isin(data["datasets"])].replace(["N2_N2", "N2_XJ1"], "N2")
         conn.close()
