@@ -19,6 +19,7 @@ def fetch_data():
                         - allele_profile_data
                         - gene_MSD
                         - allele_MSD
+                        - psa_output
                         - id_data
     """
     with psycopg.connect(
@@ -37,44 +38,42 @@ def fetch_data():
         
 
         # (2) Tstat: Baseline + Tap + PSA tstat data by Allele
-        tap_tstat_allele = aggregate_unique_values(read('tstat_allele_data', connection),["Gene"]).explode('Screen').reset_index(drop=True)
+        tap_tstat_allele = aggregate_unique_values(read('tstat_gene_data', connection),["Gene"]).explode('Screen').reset_index(drop=True)
         # normalise the data
-        tap_tstat_allele = (tap_tstat_allele-tap_tstat_allele.mean())/tap_tstat_allele.std()
-        if "Neuron_Genes_Screen" in tap_tstat_allele["Screen"].values:
-            control_row = tap_tstat_allele.loc["N2_XJ1"]
-        else:
-            control_row = tap_tstat_allele.loc["N2"]
-            tap_tstat_allele = tap_tstat_allele.subtract(control_row, axis=1)
+        numeric_col = tap_tstat_allele.select_dtypes(include=np.number).columns
+        tap_tstat_allele[numeric_col] = (tap_tstat_allele[numeric_col] - tap_tstat_allele[numeric_col].mean()) / tap_tstat_allele[numeric_col].std()
+        # if "Neuron_Genes_Screen" in tap_tstat_allele["Screen"].values:
+        #     control_row = tap_tstat_allele.loc["N2_XJ1"]
+        # else:
+        #     control_row = tap_tstat_allele.loc["N2"]
+        #     tap_tstat_allele = tap_tstat_allele.subtract(control_row, axis=1)
         
 
         # (3) Tstat: Baseline + Tap + PSA tstat data by Gene
-        tap_tstat_data = aggregate_unique_values(read('tstat_gene_data', connection),["dataset"]).explode('Screen').reset_index(drop=True),
+        tap_tstat_data = aggregate_unique_values(read('tstat_allele_data', connection),["dataset"]).explode('Screen').reset_index(drop=True)
         # normalise the data
-        tap_tstat_data = (tap_tstat_data-tap_tstat_data.mean())/tap_tstat_data.std()
-        if "Neuron_Genes_Screen" in tap_tstat_data["Screen"].values:
-            control_row = tap_tstat_data.loc["N2_XJ1"]
-        else:
-            control_row = tap_tstat_data.loc["N2"]
-            tap_tstat_data = tap_tstat_data.subtract(control_row, axis=1)
+        numeric_cols = tap_tstat_data.select_dtypes(include=np.number).columns
+        tap_tstat_data[numeric_cols] = (tap_tstat_data[numeric_cols] - tap_tstat_data[numeric_cols].mean()) / tap_tstat_data[numeric_cols].std()
+        # tap_tstat_data = tap_tstat_data.subtract(tap_tstat_data.loc["N2"], axis=1)
 
 
         # (4) MSD: Baseline + Tap + PSA by Gene
-        gene_MSD = aggregate_unique_values_MSD(read('gene_MSD', connection),["Gene"]).explode('Screen').reset_index(drop=True),
+        gene_MSD = aggregate_unique_values_MSD(read('gene_MSD', connection),["Gene"]).explode('Screen').reset_index(drop=True)
         
         # (5) MSD: Baseline + Tap + PSA by Allele
-        allele_MSD = aggregate_unique_values_MSD(read('allele_MSD', connection),["dataset"]).explode('Screen').reset_index(drop=True),
+        allele_MSD = aggregate_unique_values_MSD(read('allele_MSD', connection),["dataset"]).explode('Screen').reset_index(drop=True)
         
         
         # (6) Allele Profile (tstat melted) 
         gene_profile_data=tap_tstat_data.reset_index()
-        gene_profile_data=pd.melt(gene_profile_data, id_vars=["dataset"],
+        gene_profile_data=pd.melt(gene_profile_data, id_vars=["dataset", "Screen"],
                                     var_name='Metric',
                                     value_name='T_score')
         
         
         # (7) Gene Profile (tstat melted) 
-        allele_profile_data=tap_tstat_data.reset_index()
-        allele_profile_data=pd.melt(allele_profile_data, id_vars=["Gene"],
+        allele_profile_data=tap_tstat_allele.reset_index()
+        allele_profile_data=pd.melt(allele_profile_data, id_vars=["Gene", "Screen"],
                                     var_name='Metric',
                                     value_name='T_score')
         
