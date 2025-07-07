@@ -16,7 +16,7 @@ page = st.sidebar.radio("Select a page", pages)
 
 # Load and filter data
 data = fetch_data()
-if page not in [pages[5], pages[6]]: # If page is not "Help" or "Citations"
+if page not in [pages[6], pages[7]]: # IMP: If page is not "Help" or "Citations"
     select_datasets(data)
 data["metric_palette"] = metric_palette 
 data["plotly_config"] = config
@@ -33,8 +33,10 @@ elif page == pages[3]:
 elif page == pages[4]:
     custom_allele.render(data)
 elif page == pages[5]:
-    help.render()
+    psa.render(data)
 elif page == pages[6]:
+    help.render()
+elif page == pages[7]:
     citations.render()
 
 
