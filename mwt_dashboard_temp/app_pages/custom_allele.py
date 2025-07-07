@@ -63,12 +63,12 @@ def render(data):
     #add columns for msd, habituation plots and heatmap plots
     col12, col13, col14 = st.columns([1, 1, 1])
     # Filter the dataframe for the selected genes
-    tap_tstat_data_selected = data["tap_tstat_data"][data["tap_tstat_data"]['dataset'].isin(allele_list)]
+    tap_tstat_allele_selected = data["tap_tstat_allele"][data["tap_tstat_allele"]['dataset'].isin(allele_list)]
 
     fig = go.Figure(data=go.Heatmap(
-        z=tap_tstat_data_selected.set_index('dataset').values,
-        x=tap_tstat_data_selected.set_index('dataset').columns,
-        y=tap_tstat_data_selected.set_index('dataset').index,
+        z=tap_tstat_allele_selected.set_index('dataset').values,
+        x=tap_tstat_allele_selected.set_index('dataset').columns,
+        y=tap_tstat_allele_selected.set_index('dataset').index,
         colorscale='RdBu',
         zmin=-3,
         zmax=3,
@@ -106,7 +106,7 @@ def render(data):
                             mime="image/png",
                             key='dnldheatmapcustomallele')
     col12_2.download_button(label="Download CSV",
-                            data=convert_df(tap_tstat_data_selected.set_index('dataset')),
+                            data=convert_df(tap_tstat_allele_selected.set_index('dataset')),
                             file_name="Data_Glance_Heatmap.csv",
                             mime="text/csv",
                             key='dnldheatmapcsvcustomallele')

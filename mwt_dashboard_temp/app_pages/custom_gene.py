@@ -47,13 +47,14 @@ def render(data):
     gene_tap_data_plot['taps'] = gene_tap_data_plot['taps'].astype(int)
 
     col9, col10, col11 = st.columns([1, 1, 1])
-    tap_tstat_allele_selected = data["tap_tstat_allele"][data["tap_tstat_allele"]['Gene'].isin(gene_multiple)]
+    #current
+    tap_tstat_selected = data["tap_tstat_data"][data["tap_tstat_data"]['Gene'].isin(gene_multiple)]
 
     # Create a heatmap
     fig = go.Figure(data=go.Heatmap(
-        z=tap_tstat_allele_selected.set_index('Gene').values,
-        x=tap_tstat_allele_selected.set_index('Gene').columns,
-        y=tap_tstat_allele_selected.set_index('Gene').index,
+        z=tap_tstat_selected.set_index('Gene').values,
+        x=tap_tstat_selected.set_index('Gene').columns,
+        y=tap_tstat_selected.set_index('Gene').index,
         colorscale='RdBu',
         zmin=-3,
         zmax=3,
@@ -91,7 +92,7 @@ def render(data):
                             mime="image/png",
                             key='dnldheatmapcustom')
     col9_2.download_button(label="Download CSV",
-                            data=convert_df(tap_tstat_allele_selected.set_index('Gene')),
+                            data=convert_df(tap_tstat_selected.set_index('Gene')),
                             file_name="Data_Glance_Heatmap.csv",
                             mime="text/csv",
                             key='dnldheatmapcsvcustom')
