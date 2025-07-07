@@ -13,11 +13,19 @@ def render(data):
 
     # Create a session state for the gene selection
     st.session_state.setdefault('gene_select', None)
+
+    gene_list = [gene for gene in data["tap_output"]['Gene'].unique() if gene != 'N2']
+
+    if st.session_state.gene_select in gene_list:
+        default_index = gene_list.index(st.session_state.gene_select)
+    else:
+        default_index = 0 
+        
     gene_option = st.selectbox(
         'Select a gene',
-        [gene for gene in data["tap_output"]['Gene'].unique() if gene != 'N2'],
+        gene_list,
         key="geneselect",
-        index=[gene for gene in data["tap_output"]['Gene'].unique() if gene != 'N2'].index(st.session_state.gene_select) if st.session_state.gene_select else 0
+        index=default_index
     )
     st.session_state.gene_select = gene_option
 

@@ -11,16 +11,25 @@ from config import config
 def render(data):
     st.header("Allele-specific Data")
 
+    # Create a session state for the allele selection
     st.session_state.setdefault('allele_select', None)
+
+    allele_list = [allele for allele in data["tap_output"]['dataset'].unique() if allele != 'N2']
+
+    if st.session_state.allele_select in allele_list:
+        default_index = allele_list.index(st.session_state.allele_select)
+    else:
+        default_index = 0 
+
     allele_option = st.selectbox(
         'Select an allele',
-        [allele for allele in data["tap_output"]['dataset'].unique() if allele != 'N2'],
+        allele_list, 
         key="alleleselect",
-        index=[allele for allele in data["tap_output"]['dataset'].unique() if allele != 'N2'].index(st.session_state.allele_select) if st.session_state.allele_select else 0
+        index=default_index
     )
     st.session_state.allele_select = allele_option
 
-    #splititing gene allele to get gene and allele columns
+    # splititing gene allele to get gene and allele columns
     gene, allele = allele_option.split('_')
 
     # check if allele and gene options match the preexisting list
