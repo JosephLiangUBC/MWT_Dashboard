@@ -2,7 +2,7 @@ import streamlit as st
 from config import pages, metric_palette, config
 from utils.data_loader import fetch_data
 from utils.preprocess import select_datasets
-from app_pages import home, gene, allele, help, citations, custom_gene, custom_allele
+from app_pages import home, gene, allele, help, citations, custom_gene, custom_allele, psa
 from utils.auth import check_password
 
 # if not check_password():
@@ -16,7 +16,7 @@ page = st.sidebar.radio("Select a page", pages)
 
 # Load and filter data
 data = fetch_data()
-if page not in [pages[6], pages[7]]: # IMP: If page is not "Help" or "Citations"
+if page not in [pages[6], pages[7]]: # IMP: If page is not "Help" or "Citations" from config.py
     select_datasets(data)
 data["metric_palette"] = metric_palette 
 data["plotly_config"] = config
@@ -38,5 +38,3 @@ elif page == pages[6]:
     help.render()
 elif page == pages[7]:
     citations.render()
-
-

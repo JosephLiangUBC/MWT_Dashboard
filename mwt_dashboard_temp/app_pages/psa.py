@@ -12,11 +12,17 @@ from config import config
 def render(data):
     st.header("Post Stimulus Arousal Data")
 
-    st.session_state.setdefault('allele_select', None)
-    allele_option = st.selectbox(
-        'Select an allele',
-        [allele for allele in data["tap_output"]['dataset'].unique() if allele != 'N2'],
-        key="alleleselect",
-        index=[allele for allele in data["tap_output"]['dataset'].unique() if allele != 'N2'].index(st.session_state.allele_select) if st.session_state.allele_select else 0
+    psa_data = data["psa_output"]
+
+    st.subheader("Raw Data Preview")
+    st.dataframe(psa_data)
+
+    with st.expander("Show column names and data types"):
+        st.write(psa_data.dtypes)
+
+    st.download_button(
+        label="Download CSV",
+        data=convert_df(psa_data),
+        file_name="psa_data.csv",
+        mime="text/csv"
     )
-    st.session_state.allele_select = allele_option

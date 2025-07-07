@@ -7,6 +7,7 @@ pages = [
     "Allele-specific Data",
     "Custom Gene Selection",
     "Custom Allele Selection",
+    "Post Stimulus Data", 
     "Help & Documentation",
     "Citations"
 ]
