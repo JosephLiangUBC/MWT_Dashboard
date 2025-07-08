@@ -3,7 +3,5 @@
 .DS_Store
 .ipynb_checkpoints/
 mehak-notes.md 
+*.ini
 database.ini
-*.ini
-*.ini
-*.ini
