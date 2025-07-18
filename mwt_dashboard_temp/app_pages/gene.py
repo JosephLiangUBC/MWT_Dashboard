@@ -170,91 +170,130 @@ def render(data):
     # Move tabs inside col 7 for better viewing
     col7.subheader('Habituation Curves of Response')
     with col7:
-        tab1, tab2, tab3 = st.tabs(["Probability", "Duration", "Speed"])
+
+        metrics = [ "Probability", "Duration", "Speed",
+                   "PSA Instantaneous Speed", "PSA Interval Speed",
+                    "PSA Bias", "PSA Kink", "PSA Crab",
+                    "PSA Aspect Ratio", "PSA Curve"]
         
-        with tab1:
-            #  Habituation of Response Probability Plot
-            fig, ax = plt.subplots(figsize=(12, 10))
-            plt.gca().xaxis.grid(False) # gets rid of x-axis markers to make data look clean
-            sns.pointplot(
-                x="taps", # Here we use seaborn as our graphing package.
-                y="prob",
-                data=gene_tap_data_plot,
-                hue='Gene', # Here we use the extra column from step 6 to separate by group
-                palette=["black" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
-                errorbar='se' # Confidence interval. 95 = standard error
-            )
-            plt.xlabel("Taps", fontsize='12') # x-axis title
-            plt.ylabel("Probability", fontsize='12') # y-axis title
-            plt.title("Habituation of Response Probability", fontsize='16') # figure title
-            plt.ylim(0, 1)
-            ax.legend(loc='upper right', fontsize='12') # legend location
+        tabs = st.tabs(metrics)
 
-            # download graph button
-            img1 = io.BytesIO()
-            plt.savefig(img1, format='png', dpi=300, bbox_inches='tight')
-            # display image
-            tab1.image(img1, width=None, caption=f'Habituation of Response Probability: {gene_option}')
-            # Insert download plot and download csv button
-            tab1_1, tab1_2 = tab1.columns(2)
-            tab1_1.download_button("Download Plot", data=img1, file_name=f"Probability of Tap Habituation {gene_option}.png", mime="image/png", key='dnldbtn1')
-            tab1_2.download_button("Download csv", data=convert_df(gene_tap_data_plot), file_name=f"Gene-specific Data {gene_option}.csv", mime="text/csv", key='dnldbtn7')
+        for i, metric in enumerate(metrics):
+            with tabs[i]:
+                #  Habituation Plot
+                fig, ax = plt.subplots(figsize=(12, 10))
+                plt.gca().xaxis.grid(False) # gets rid of x-axis markers to make data look clean
+                sns.pointplot(
+                    x="taps", # Here we use seaborn as our graphing package.
+                    y=metric,
+                    data=gene_tap_data_plot,
+                    hue='Gene', # Here we use the extra column from step 6 to separate by group
+                    palette=["black" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
+                    errorbar='se' # Confidence interval. 95 = standard error
+                )
+                plt.xlabel("Taps", fontsize='12') # x-axis title
+                plt.ylabel(metric, fontsize='12') # y-axis title
+                plt.title(f"Habituation of Response {metric}", fontsize='16') # figure title
+                plt.ylim(0, 1 if metric == "Probability" else None)
+                ax.legend(loc='upper right', fontsize='12') # legend location
 
-        with tab2:
-            #  Habituation of Response Duration Plot
-            fig, ax = plt.subplots(figsize=(12, 10))
-            # seaborn plot
-            sns.pointplot(
-                x="taps",
-                y="dura",
-                data=gene_tap_data_plot,
-                hue='Gene',
-                palette=["black" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
-                errorbar='se'
-            )
-            plt.xlabel("Taps", fontsize='12')
-            plt.ylabel("Duration", fontsize='12')
-            plt.title("Habituation of Response Duration", fontsize='16')
-            plt.ylim(0, None)
-            ax.legend(loc='upper right', fontsize='12')
+                # download graph button
+                img1 = io.BytesIO()
+                plt.savefig(img1, format='png', dpi=300, bbox_inches='tight')
+                img1.seek(0)
+                # display image
+                tabs[i].image(img1, width=None, caption=f'Habituation of Response {metric}: {gene_option}')
+                # Insert download plot and download csv button
+                col1, col2 = tabs[i].columns(2)
+                col1.download_button("Download Plot", data=img1, file_name=f"{metric} of Tap Habituation {gene_option}.png", mime="image/png", key=f'dnldbtngene_{i}')
+                col2.download_button("Download csv", data=convert_df(gene_tap_data_plot), file_name=f"Gene-specific Data {gene_option}.csv", mime="text/csv", key=f'dnldbtngene2_{i}')
 
-            # download graph button
-            img2 = io.BytesIO()
-            plt.savefig(img2, format='png', dpi=300, bbox_inches='tight')
-            # display image
-            tab2.image(img2, width=None, caption=f'Habituation of Response Duration: {gene_option}')
-            # Insert download plot and download csv button
-            tab2_1, tab2_2 = tab2.columns(2)
-            tab2_1.download_button("Download Plot", data=img2, file_name=f"Duration of Tap Habituation {gene_option}.png", mime="image/png", key='dnldbtn2')
-            tab2_2.download_button("Download csv", data=convert_df(gene_tap_data_plot), file_name=f"Gene-specific Data {gene_option}.csv", mime="text/csv", key='dnldbtn8')
-        # Seaborn Graph of Duration Habituation curve
+        
 
-        with tab3:
-            #  Habituation of Response Speed Plot
-            fig, ax = plt.subplots(figsize=(12, 10))
-            # seaborn plot
-            sns.pointplot(
-                x="taps",
-                y="speed",
-                data=gene_tap_data_plot,
-                hue='Gene',
-                palette=["black" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
-                errorbar='se'
-            )
-            plt.xlabel("Taps", fontsize='12')
-            plt.ylabel("Speed", fontsize='12')
-            plt.title("Habituation of Response Speed", fontsize='16')
-            plt.ylim(0, None)
-            ax.legend(loc='upper right', fontsize='12')
+        
+        # with tab1:
+        #     #  Habituation of Response Probability Plot
+        #     fig, ax = plt.subplots(figsize=(12, 10))
+        #     plt.gca().xaxis.grid(False) # gets rid of x-axis markers to make data look clean
+        #     sns.pointplot(
+        #         x="taps", # Here we use seaborn as our graphing package.
+        #         y="prob",
+        #         data=gene_tap_data_plot,
+        #         hue='Gene', # Here we use the extra column from step 6 to separate by group
+        #         palette=["black" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
+        #         errorbar='se' # Confidence interval. 95 = standard error
+        #     )
+        #     plt.xlabel("Taps", fontsize='12') # x-axis title
+        #     plt.ylabel("Probability", fontsize='12') # y-axis title
+        #     plt.title("Habituation of Response Probability", fontsize='16') # figure title
+        #     plt.ylim(0, 1)
+        #     ax.legend(loc='upper right', fontsize='12') # legend location
 
-            img3 = io.BytesIO()
-            plt.savefig(img3, format='png', dpi=300, bbox_inches='tight')
-            # display image
-            tab3.image(img3, width=None, caption=f'Habituation of Response Speed: {gene_option}')
-            # Insert download plot and download csv button
-            tab3_1, tab3_2 = tab3.columns(2)
-            tab3_1.download_button("Download Plot", data=img3, file_name=f"Speed of Tap Habituation {gene_option}.png", mime="image/png", key='dnldbtn3')
-            tab3_2.download_button("Download csv", data=convert_df(gene_tap_data_plot), file_name=f"Gene-specific Data {gene_option}.csv", mime="text/csv", key='dnldbtn9')
+        #     # download graph button
+        #     img1 = io.BytesIO()
+        #     plt.savefig(img1, format='png', dpi=300, bbox_inches='tight')
+        #     # display image
+        #     tab1.image(img1, width=None, caption=f'Habituation of Response Probability: {gene_option}')
+        #     # Insert download plot and download csv button
+        #     tab1_1, tab1_2 = tab1.columns(2)
+        #     tab1_1.download_button("Download Plot", data=img1, file_name=f"Probability of Tap Habituation {gene_option}.png", mime="image/png", key='dnldbtn1')
+        #     tab1_2.download_button("Download csv", data=convert_df(gene_tap_data_plot), file_name=f"Gene-specific Data {gene_option}.csv", mime="text/csv", key='dnldbtn7')
+
+        # with tab2:
+        #     #  Habituation of Response Duration Plot
+        #     fig, ax = plt.subplots(figsize=(12, 10))
+        #     # seaborn plot
+        #     sns.pointplot(
+        #         x="taps",
+        #         y="dura",
+        #         data=gene_tap_data_plot,
+        #         hue='Gene',
+        #         palette=["black" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
+        #         errorbar='se'
+        #     )
+        #     plt.xlabel("Taps", fontsize='12')
+        #     plt.ylabel("Duration", fontsize='12')
+        #     plt.title("Habituation of Response Duration", fontsize='16')
+        #     plt.ylim(0, None)
+        #     ax.legend(loc='upper right', fontsize='12')
+
+        #     # download graph button
+        #     img2 = io.BytesIO()
+        #     plt.savefig(img2, format='png', dpi=300, bbox_inches='tight')
+        #     # display image
+        #     tab2.image(img2, width=None, caption=f'Habituation of Response Duration: {gene_option}')
+        #     # Insert download plot and download csv button
+        #     tab2_1, tab2_2 = tab2.columns(2)
+        #     tab2_1.download_button("Download Plot", data=img2, file_name=f"Duration of Tap Habituation {gene_option}.png", mime="image/png", key='dnldbtn2')
+        #     tab2_2.download_button("Download csv", data=convert_df(gene_tap_data_plot), file_name=f"Gene-specific Data {gene_option}.csv", mime="text/csv", key='dnldbtn8')
+        # # Seaborn Graph of Duration Habituation curve
+
+        # with tab3:
+        #     #  Habituation of Response Speed Plot
+        #     fig, ax = plt.subplots(figsize=(12, 10))
+        #     # seaborn plot
+        #     sns.pointplot(
+        #         x="taps",
+        #         y="speed",
+        #         data=gene_tap_data_plot,
+        #         hue='Gene',
+        #         palette=["black" if gene == "N2" else "darkorange" for gene in gene_tap_data_plot['Gene'].unique()],
+        #         errorbar='se'
+        #     )
+        #     plt.xlabel("Taps", fontsize='12')
+        #     plt.ylabel("Speed", fontsize='12')
+        #     plt.title("Habituation of Response Speed", fontsize='16')
+        #     plt.ylim(0, None)
+        #     ax.legend(loc='upper right', fontsize='12')
+
+        #     img3 = io.BytesIO()
+        #     plt.savefig(img3, format='png', dpi=300, bbox_inches='tight')
+        #     # display image
+        #     tab3.image(img3, width=None, caption=f'Habituation of Response Speed: {gene_option}')
+        #     # Insert download plot and download csv button
+        #     tab3_1, tab3_2 = tab3.columns(2)
+        #     tab3_1.download_button("Download Plot", data=img3, file_name=f"Speed of Tap Habituation {gene_option}.png", mime="image/png", key='dnldbtn3')
+        #     tab3_2.download_button("Download csv", data=convert_df(gene_tap_data_plot), file_name=f"Gene-specific Data {gene_option}.csv", mime="text/csv", key='dnldbtn9')
 
 
     # Create a flag variable
