@@ -225,8 +225,8 @@ def render(data):
                 tabs[i].image(img1, width=None, caption=f'Habituation of Response {metric}: {allele_option}')
                 # Insert download plot and download csv button
                 col1, col2 = tabs[i].columns(2)
-                col1.download_button("Download Plot", data=img1, file_name=f"{metric} of Tap Habituation {allele_option}.png", mime="image/png", key=f'dnldbtngene_{i}')
-                col2.download_button("Download csv", data=convert_df(allele_tap_data_plot), file_name=f"Gene-specific Data {allele_option}.csv", mime="text/csv", key=f'dnldbtngene2_{i}')
+                col1.download_button("Download Plot", data=img1, file_name=f"{metric} of Tap Habituation {allele_option}.png", mime="image/png", key=f'dnldbtnallele_{i}')
+                col2.download_button("Download csv", data=convert_df(allele_tap_data_plot), file_name=f"Allele-specific Data {allele_option}.csv", mime="text/csv", key=f'dnldbtnallele2_{i}')
 
         
 
