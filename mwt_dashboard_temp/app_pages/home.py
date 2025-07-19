@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import numpy as np
 from utils.helpers import convert_df, read
 from config import config
+import matplotlib.pyplot as plt
 
 def render(data):
     st.header('Home - Data at a Glance')
@@ -88,9 +89,42 @@ def render(data):
         ]
     )
 
+    # recreate in matplotlib to save static image of the plot
+    fig_mpl, ax = plt.subplots(figsize=(6, 10))
+    for i, row in data_sorted.iterrows():
+        if row['Gene'] == "N2":
+            colors = "red"
+        else:
+            colors = "dimgray"
+        mean = row[f"{phenotype_option}-mean"]
+        low = row[f"{phenotype_option}-ci95_lo"]
+        high = row[f"{phenotype_option}-ci95_hi"]
+        y_pos = i
+
+        ax.errorbar(
+            x=mean,
+            y=y_pos,
+            xerr=[[mean - low], [high - mean]],
+            fmt='o',
+            color=colors,
+            ecolor=colors,
+            elinewidth=2,
+            capsize=3
+        )
+        ax.text(mean + 0.02, y_pos, row["Gene"], va='center', fontsize=6)
+
+    ax.axvline(0, color='red', linestyle='--', linewidth=1)
+    ax.set_xlabel("Sample Mean Distance")
+    ax.set_ylabel("Gene")
+    ax.set_title(f"{phenotype_option}", fontsize=12)
+    ax.set_yticks([])  # Hide y-axis ticks
+    fig_mpl.tight_layout()
+
+    # Save to BytesIO for download
     phenotype_plot = io.BytesIO()
-    fig.write_image(phenotype_plot, format='png',scale=3)
+    plt.savefig(phenotype_plot, format='png', dpi=300, bbox_inches='tight')
     phenotype_plot.seek(0)
+
     col1.plotly_chart(fig, use_container_width=True, **{'config': config})
 
     #combine data and rename columns :
@@ -110,11 +144,9 @@ def render(data):
                             mime="text/csv",
                             key='dnldphenotypeprofilecsv')
 
-    # Insert download graph button
 
 
     # Create a heatmap
-
     fig = go.Figure(data=go.Heatmap(
         z=data["tap_tstat_data"].set_index('Gene').values,
         x=data["tap_tstat_data"].set_index('Gene').columns,
