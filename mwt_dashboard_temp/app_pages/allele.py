@@ -228,7 +228,6 @@ def render(data):
                 col1.download_button("Download Plot", data=img1, file_name=f"{metric} of Tap Habituation {allele_option}.png", mime="image/png", key=f'dnldbtnallele_{i}')
                 col2.download_button("Download csv", data=convert_df(allele_tap_data_plot), file_name=f"Allele-specific Data {allele_option}.csv", mime="text/csv", key=f'dnldbtnallele2_{i}')
 
-    
 
     # Create a flag variable
     read_data_flag = False

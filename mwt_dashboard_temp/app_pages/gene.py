@@ -145,9 +145,56 @@ def render(data):
         ]
     )
 
+
+    # recreate matplotlib chart for download button 
+    fig_mpl, ax = plt.subplots(figsize=(6, 12))
+
+    # Loop over each row to plot individual points with error bars
+    for i, row in data_sorted.iterrows():
+        if row['Gene'] == "N2":
+            color = "red"
+        elif row['Gene'] == gene_option:
+            color = "magenta"
+        else:
+            color = "dimgray"
+
+        ax.errorbar(
+            x=row[f"{gene_phenotype_option}-mean"],
+            y=row["Gene"],
+            xerr=[[row[f"{gene_phenotype_option}-mean"] - row[f"{gene_phenotype_option}-ci95_lo"]],
+                [row[f"{gene_phenotype_option}-ci95_hi"] - row[f"{gene_phenotype_option}-mean"]]],
+            fmt='o',
+            color=color,
+            ecolor=color,
+            elinewidth=1,
+            capsize=3,
+            markersize=6
+        )
+
+    # Vertical reference line and styling
+    ax.axvline(x=0, color='red', linestyle='--')
+    ax.set_xlabel("Sample Mean Distance")
+    ax.set_ylabel("Gene")
+    ax.set_title(f"{gene_phenotype_option}", fontsize=14)
+    ax.set_yticks(range(len(data_sorted["Gene"])))
+    ax.set_yticklabels(data_sorted["Gene"], fontsize=6)
+    ax.invert_yaxis()
+    plt.tight_layout()
+
+    # Add annotation below chart
+    plt.figtext(
+        0.5, -0.05,
+        f'Sample mean distance from wildtype for all strains for selected phenotype: {gene_phenotype_option}. Error bars are 95% CI',
+        wrap=True, ha='center', fontsize=10
+    )
+
+    # Save to buffer for download
     gene_phenotype_plot = io.BytesIO()
-    fig.write_image(gene_phenotype_plot, format='png', scale=3)
+    plt.savefig(gene_phenotype_plot, format='png', dpi=300, bbox_inches='tight')
     gene_phenotype_plot.seek(0)
+    plt.close()
+
+
     col4.plotly_chart(fig, use_container_width=True, **{'config': config})
 
     # UPDATED: using combined data

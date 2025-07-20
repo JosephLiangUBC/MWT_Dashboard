@@ -172,16 +172,15 @@ def render(data):
         yaxis_title="",
         yaxis=dict(showticklabels=True, 
                    dtick=1,
-                   tickfont=dict(color='black', size=6)),
+                   tickfont=dict(color='white', size=6)),
         xaxis=dict(showticklabels=True, 
                    dtick=1,
                    tickfont=dict(color='white', size=12))
     )
 
-
+    # recreate in matplotlib to save static image of the plot
     fig2, ax = plt.subplots(figsize=(12, 16))
     heatmap_data = data["tap_tstat_data"].set_index("Gene")
-
     cax = ax.imshow(
         heatmap_data.values,
         cmap='RdBu',
@@ -189,13 +188,11 @@ def render(data):
         vmax=3,
         aspect='auto'
     )
-
     # Set ticks and labels
     ax.set_xticks(range(len(heatmap_data.columns)))
     ax.set_xticklabels(heatmap_data.columns, rotation=90, fontsize=10)
     ax.set_yticks(range(len(heatmap_data.index)))
     ax.set_yticklabels(heatmap_data.index, fontsize=6)
-
     # Add colorbar
     cbar = fig2.colorbar(cax, ax=ax)
     cbar.set_ticks([-3, 0, 3])
@@ -206,7 +203,6 @@ def render(data):
     plt.tight_layout()
     plt.savefig(imgheatmap, format="png", dpi=300, bbox_inches='tight')
     imgheatmap.seek(0)
-
 
     # Display the heatmap in Streamlit
     col2.subheader("Comprehensive Heatmap of Entire Dataset")
