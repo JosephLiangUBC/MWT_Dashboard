@@ -24,7 +24,7 @@ def render(data):
 
     # sort by gene
     gene_order = (
-    psa_df.groupby("Gene")[f"PSA {summary_option} {metric_option}"]
+    psa_df.groupby("Gene")[f"{summary_option} PSA {metric_option}"]
     .mean()
     .sort_values()
     .index
