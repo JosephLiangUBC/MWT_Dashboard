@@ -37,7 +37,7 @@ def render(data):
     sns.set_context("poster")
     sns.barplot(
         x="Gene",
-        y=f"PSA {summary_option} {metric_option}",
+        y=f"{summary_option} PSA {metric_option}",
         data=psa_df,
         hue = "Gene",
         order = gene_order,
