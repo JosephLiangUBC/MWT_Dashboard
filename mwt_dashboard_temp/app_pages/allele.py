@@ -165,9 +165,55 @@ def render(data):
         ]
     )
 
+    
+    # recreate matplotlib chart for download button 
+    fig_mpl, ax = plt.subplots(figsize=(6, 12))
+
+    # Loop over each row to plot individual points with error bars
+    for i, row in data_sorted.iterrows():
+        if row['dataset'] == "N2":
+            allele_colors = "red"
+        elif row['dataset'] == allele_option:
+            allele_colors = "magenta"
+        else:
+            allele_colors = "dimgray"
+
+        ax.errorbar(
+            x=row[f"{allele_phenotype_option}-mean"],
+            y=row["dataset"],
+            xerr=[[row[f"{allele_phenotype_option}-mean"] - row[f"{allele_phenotype_option}-ci95_lo"]],
+                [row[f"{allele_phenotype_option}-ci95_hi"] - row[f"{allele_phenotype_option}-mean"]]],
+            fmt='o',
+            color=allele_colors,
+            ecolor=allele_colors,
+            elinewidth=1,
+            capsize=3,
+            markersize=6
+        )
+
+    # Vertical reference line and styling
+    ax.axvline(x=0, color='red', linestyle='--')
+    ax.set_xlabel("Sample Mean Distance")
+    ax.set_ylabel("Gene")
+    ax.set_title(f"{allele_phenotype_option}", fontsize=14)
+    ax.set_yticks(range(len(data_sorted["dataset"])))
+    ax.set_yticklabels(data_sorted["dataset"], fontsize=6)
+    ax.invert_yaxis()
+    plt.tight_layout()
+
+    # Add annotation below chart
+    plt.figtext(
+        0.5, -0.05,
+        f'Sample mean distance from wildtype for all strains for selected phenotype: {allele_phenotype_option}. Error bars are 95% CI',
+        wrap=True, ha='center', fontsize=10
+    )
+
+    # Save to buffer for download
     allele_phenotype_plot = io.BytesIO()
-    fig.write_image(allele_phenotype_plot, format='png', scale=3)
+    plt.savefig(allele_phenotype_plot, format='png', dpi=300, bbox_inches='tight')
     allele_phenotype_plot.seek(0)
+    plt.close()
+
     col4.plotly_chart(fig, use_container_width=True, **{'config': config})
 
     allele_dat = data_sorted[["dataset", f"{allele_phenotype_option}-mean", f"{allele_phenotype_option}-ci95_lo", f"{allele_phenotype_option}-ci95_hi"]]

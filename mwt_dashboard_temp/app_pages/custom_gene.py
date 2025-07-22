@@ -78,8 +78,27 @@ def render(data):
         xaxis=dict(showticklabels=True, tickfont=dict(size=8))
     )
 
+    fig_mpl, ax = plt.subplots(figsize=(9, 0.2 * len(gene_multiple)))
+
+    heatmap_data = tap_tstat_selected.set_index('Gene')
+    cax = ax.imshow(heatmap_data.values, cmap='RdBu', aspect='auto', vmin=-3, vmax=3)
+
+    # Tick labels
+    ax.set_xticks(range(len(heatmap_data.columns)))
+    ax.set_xticklabels(heatmap_data.columns, rotation=90, fontsize=8)
+    ax.set_yticks(range(len(heatmap_data.index)))
+    ax.set_yticklabels(heatmap_data.index, fontsize=8)
+
+    # Colorbar
+    cbar = fig_mpl.colorbar(cax, ax=ax, orientation='vertical', fraction=0.025, pad=0.02)
+    cbar.set_ticks([-3, 0, 3])
+    cbar.set_ticklabels(['-3', '0', '3'])
+
+    plt.tight_layout()
+
+    # Save to BytesIO
     imgheatmap = io.BytesIO()
-    fig.write_image(imgheatmap, format='png', scale=3)
+    plt.savefig(imgheatmap, format='png', dpi=300, bbox_inches='tight')
     imgheatmap.seek(0)
 
     col9.subheader('Comprehensive heatmap of the dataset with selected genes')
@@ -177,9 +196,55 @@ def render(data):
             )
         ]
     )
+    
+    # recreate matplotlib chart for download button
+    fig_mpl, ax = plt.subplots(figsize=(6, 12))
+    ticktext = []
+    tickvals = []
+    for i, row in data_sorted.iterrows():
+        if row['Gene'] == "N2":
+            gene_colors = "red"
+            ticktext.append(row['Gene'])
+            tickvals.append(row['Gene'])
+        elif row['Gene'] in gene_multiple:
+            gene_colors = "magenta"
+            ticktext.append(row['Gene'])
+            tickvals.append(row['Gene'])
+        else:
+            gene_colors = "dimgray"
+
+        ax.errorbar(
+            x=row[f"{multigene_phenotype_option}-mean"],
+            y=row["Gene"],
+            xerr=[[row[f"{multigene_phenotype_option}-mean"] - row[f"{multigene_phenotype_option}-ci95_lo"]],
+                [row[f"{multigene_phenotype_option}-ci95_hi"] - row[f"{multigene_phenotype_option}-mean"]]],
+            fmt='o',
+            color=gene_colors,
+            ecolor=gene_colors,
+            elinewidth=1,
+            capsize=3
+        )
+
+    ax.axvline(x=0, color='red', linestyle='--')
+    ax.set_title(f"{multigene_phenotype_option}", fontsize=14)
+    ax.set_xlabel("Sample Mean Distance")
+    ax.set_ylabel("Gene")
+    ax.set_yticks(tickvals)
+    ax.set_yticklabels(ticktext)
+    ax.invert_yaxis()
+    plt.tight_layout()
+
+    plt.figtext(
+        0.5, -0.05,
+        f'Sample mean distance from wildtype for all strains for selected phenotypes: {multigene_phenotype_option}. Error bars are 95% CI',
+        wrap=True, ha='center', fontsize=10
+    )
+
     multigene_phenotype_plot = io.BytesIO()
-    fig.write_image(multigene_phenotype_plot, format='png', scale=3)
+    plt.savefig(multigene_phenotype_plot, format='png', dpi=300, bbox_inches='tight')
     multigene_phenotype_plot.seek(0)
+    plt.close()
+
     col10.plotly_chart(fig, use_container_width=True, config=data["plotly_config"])
 
     #combine data and rename columns :
