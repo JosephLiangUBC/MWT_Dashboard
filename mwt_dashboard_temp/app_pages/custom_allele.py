@@ -92,8 +92,27 @@ def render(data):
         xaxis=dict(showticklabels=True, tickfont=dict(size=8))
     )
 
+    fig_mpl, ax = plt.subplots(figsize=(9, 0.2 * len(allele_list)))
+
+    heatmap_data = tap_tstat_allele_selected.set_index('dataset')
+    cax = ax.imshow(heatmap_data.values, cmap='RdBu', aspect='auto', vmin=-3, vmax=3)
+
+    # Tick labels
+    ax.set_xticks(range(len(heatmap_data.columns)))
+    ax.set_xticklabels(heatmap_data.columns, rotation=90, fontsize=8)
+    ax.set_yticks(range(len(heatmap_data.index)))
+    ax.set_yticklabels(heatmap_data.index, fontsize=8)
+
+    # Colorbar
+    cbar = fig_mpl.colorbar(cax, ax=ax, orientation='vertical', fraction=0.025, pad=0.02)
+    cbar.set_ticks([-3, 0, 3])
+    cbar.set_ticklabels(['-3', '0', '3'])
+
+    plt.tight_layout()
+
+    # Save to BytesIO
     imgheatmap = io.BytesIO()
-    fig.write_image(imgheatmap, format='png', scale=3)
+    plt.savefig(imgheatmap, format='png', dpi=300, bbox_inches='tight')
     imgheatmap.seek(0)
 
     col12.subheader(f'Comprehensive heatmap of the dataset with selected alleles')
