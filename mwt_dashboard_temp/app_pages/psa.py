@@ -14,13 +14,13 @@ def render(data):
 
     psa_df = data["psa_output"]
 
-    # Filter boxes fro metric and summary
+    # Filter boxes for metric and summary
     metric_option = st.selectbox("Select metric", ['Instantaneous Speed', 'Bias', 'Angular Speed', 'Kink', 'Crab', 'Aspect Ratio', 'Curve'])
-    summary_option = st.selectbox("Select summary", ['Initial', 'Recovery', 'Peak', 'Initial_to_peak', 'Peak_to_recovery', 'Average'])
+    summary_option = st.selectbox("Select summary", ['Initial', 'Recovery', 'Peak', 'Peak Tap Number', 'Initial_to_peak', 'Peak_to_recovery', 'Average'])
 
-    # Filter box for gene
+    # # Filter box for gene
     # gene_option = st.selectbox("Select a gene", psa_df["Gene"].unique())
-    # df_filtered = psa_df[psa_df["Gene"] == gene_option]
+    # psa_df = psa_df[psa_df["Gene"] == gene_option]
 
     # sort by gene
     gene_order = (
