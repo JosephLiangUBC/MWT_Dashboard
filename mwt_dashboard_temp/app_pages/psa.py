@@ -16,11 +16,12 @@ def render(data):
 
     # Filter boxes for metric and summary
     metric_option = st.selectbox("Select metric", ['Instantaneous Speed', 'Bias', 'Angular Speed', 'Kink', 'Crab', 'Aspect Ratio', 'Curve'])
-    summary_option = st.selectbox("Select summary", ['Initial', 'Recovery', 'Peak', 'Peak Tap Number', 'Initial_to_peak', 'Peak_to_recovery', 'Average'])
+    summary_option = st.selectbox("Select summary", ['Initial', 'Final', 'Recovery', 'Peak', 'Peak Tap Number', 'Average', 'Sensitization', 'Habituation', 'Spontaneous Recovery', 'Memory Retention'])
 
-    # # Filter box for gene
-    # gene_option = st.selectbox("Select a gene", psa_df["Gene"].unique())
-    # psa_df = psa_df[psa_df["Gene"] == gene_option]
+    # Filter box for gene
+    gene_options = sorted(psa_df["Gene"].unique())
+    selected_genes = st.multiselect("Select Genes", gene_options, default=gene_options)
+    filtered_df = psa_df[psa_df["Gene"].isin(selected_genes)]
 
     # sort by gene
     gene_order = (
@@ -38,7 +39,7 @@ def render(data):
     sns.barplot(
         x="Gene",
         y=f"{summary_option} PSA {metric_option}",
-        data=psa_df,
+        data=filtered_df,
         hue = "Gene",
         order = gene_order,
         estimator='mean',
