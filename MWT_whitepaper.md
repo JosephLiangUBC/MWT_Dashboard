@@ -4,7 +4,6 @@
 
 The objective of Step 1 is to extract and organize worm movement sequences from Multi Worm Tracker (MWT) data in preparation for tap response modeling. This code runs a Java-based processing tool (`Chore.jar`) on raw MWT experiment files to extract behavioral data and generate standard output files in .dat, .trv and .txt formats for downstream analysis.
 
-
 ## Data Sources/Inputs
 
 MWT data organized by screens. Folders must follow the naming convention below for the code to process them accurately:
@@ -19,7 +18,6 @@ MWT data organized by screens. Folders must follow the naming convention below f
         - date-2
         - ...
     - ...
-
 
 ## Outputs
 
@@ -103,7 +101,6 @@ The objective of Step 3 is to extract and summarize both **baseline behavior** (
 - Input is the **screen folder processed in Step 1**, which contains `.dat` files.
 - Users must select a screen (e.g., `PD_Screen`, `Neuron_Genes_Screen`, etc.).
 
-
 ## Output
 
 Two `.csv` files are generated:
@@ -133,7 +130,6 @@ Two `.csv` files are generated:
     - Tap 2, tolerance: (617.0, 619.5)
     - Tap 3, tolerance: (627.0, 629.5)
     ...
-
 
 ### 3. Process Data by strain (.dat files)
  
@@ -165,7 +161,6 @@ For each Strain:
 
 
 # Step 4: Tstat analysis and Database Export
-
 
 ## Objective
 
@@ -247,7 +242,7 @@ The objective of Step 4 is to prepare and integrate behavioral features into a c
 - Combine t-test results across baseline + tap + PSA.
 - Clean, rename, reorder and format final outputs
 
-7. Database Export
+### 8. Database Export
 
 - Write structured datasets to PostgreSQL.
 - Requires local `database.ini` for credentials.
