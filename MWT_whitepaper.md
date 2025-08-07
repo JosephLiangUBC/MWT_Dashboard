@@ -12,7 +12,7 @@ This part of the project is accomplished by going through the 4 jupyter notebook
 
 ### Objective
 
-The objective of Step 1 is to extract and organize worm movement sequences from Multi Worm Tracker (MWT) data in preparation for tap response modeling. This code runs a Java-based processing tool (`Chore.jar`, which is included in this Github repository) on raw MWT experiment files to extract behavioral data and generate standard output files in .dat, .trv and .txt formats for downstream analysis. In order for this to work, you'll need to have Java SDK 8u331 (@Gurmehak add link here).
+The objective of Step 1 is to extract and organize worm movement sequences from Multi Worm Tracker (MWT) data in preparation for tap response modeling. This code runs a Java-based processing tool (`Chore.jar`, which is included in this Github repository) on raw MWT experiment files to extract behavioral data and generate standard output files in .dat, .trv and .txt formats for downstream analysis. In order for this to work, you'll need to have [Java SDK 8u331](https://www.oracle.com/java/technologies/javase/8u331-relnotes.html).
 
 ### Data Sources/Inputs
 
@@ -29,7 +29,7 @@ MWT data organized by screens. Folders must follow the naming convention below f
         - ...
     - ...
 
-@Gurmehak add screenshot as an example to the above format here.
+<img src="img/input_folder_tree.png" alt="Example Folder Structure" width="50%">
 
 ### Outputs
 
@@ -39,7 +39,15 @@ This process generates the following files in the same folder (strain > gene_all
 - `.txt` files
 
 ### Processing Workflow
-@Gurmehak elaborate on this (can be short but shouldn't be missing since you have the same section for the other steps)
+
+#### 1. Read folder
+
+- Use the widget to select the folder
+
+#### 2. Run `Chore.jar`
+
+- Run the Choreography script that extracts data to make the .dat, .trv and .txt files
+
 
 ## Step 2: Tap Response Data Extraction 
 
@@ -64,7 +72,8 @@ The objective of Step 2 is to extract tap-induced behavioral responses from worm
 #### 1. Read folder
 
 - Use the widget to select the folder and corresponding screen name. If an appropriate screen label does not exist, then generate a new label by adding a new string to the list.
-@Gurmehak insert screenshot or recording .gif of the widget under operation 
+
+<img src="img/file_chooser.gif" alt="File Chooser Widget in Step 3" width="60%">
 
 #### 2. Determine Tap Numbers and Tolerances (user input required)
 
@@ -117,9 +126,6 @@ The objective of Step 3 is to extract and summarize both **baseline behavior** (
 - Input is the **screen folder processed in Step 1**, which contains `.dat` files.
 - Users must select a screen (e.g., `PD_Screen`, `Neuron_Genes_Screen`, etc.).
 
-@Gurmehak insert screenshot or recording .gif of the widget under operation 
-
-
 ### Output
 
 Two `.csv` files are generated:
@@ -136,7 +142,9 @@ Two `.csv` files are generated:
 #### 1. Read folder 
 
 - Select the screen folder and corresponding screen name.
-@Gurmehak insert screenshot or recording .gif of the widget under operation 
+
+<img src="img/file_chooser_step3.png" alt="File Chooser Wodget in Step 3" width="60%">
+
 
 #### 2. Define `bin`, Tap numbers and Tolerances (user input required)
 
@@ -209,7 +217,8 @@ The objective of Step 4 is to prepare and integrate behavioral features into a c
 
 - Select the screen folder and corresponding screen name.
 - Read baseline, tap, and PSA files.
-@Gurmehak insert screenshot or recording .gif of the widget under operation 
+
+<img src="img/file_chooser_step4.png" alt="File Chooser Wodget in Step 4" width="60%">
 
 ### 2. Feature Engineering on Tap Data
 
