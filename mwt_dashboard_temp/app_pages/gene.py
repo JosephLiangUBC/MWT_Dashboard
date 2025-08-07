@@ -50,14 +50,16 @@ def render(data):
 
     # seaborn plot
     sns.set_context('notebook', font_scale=1)
-    fig, ax = plt.subplots(figsize=(5, 5))
-    ax = sns.barplot(x="Metric",
-                     y="T_score", orient='v',
+    fig, ax = plt.subplots(figsize=(5, 10))
+    ax = sns.barplot(x="T_score",
+                     y="Metric", orient='h',
                      data=data["gene_profile_data"][data["gene_profile_data"].Gene == f"{gene_option}"],
                      palette=data["metric_palette"]).set_title(f"{gene_option}")
-    plt.xticks(rotation=90)
-    plt.ylabel("Normalized T-Score")
-    plt.ylim(-3, 3)
+    # plt.xticks(rotation=90)
+    plt.xlabel("Normalized T-Score")
+    plt.xlim(-3, 3)
+    plt.ylabel('')
+    plt.yticks(fontsize=5)
 
     # download graph button
     gene_profile_plot = io.BytesIO()

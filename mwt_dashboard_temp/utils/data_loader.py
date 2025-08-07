@@ -60,6 +60,81 @@ def fetch_data():
         ) as connection:
         
         # ------- Read data from PostgreSQL database -----------
+        listofgenecolumns = ['Gene', 'Screen', 'Morphwidth', 'Midline', 'Area', 'Speed',
+                            'Angular Speed', 'Bias', 'Aspect Ratio', 'Kink', 'Curve', 'Crab',
+                            'Pathlength', 'Initial Response Duration',
+                            'Initial Response Probability', 'Initial Response Speed',
+                            'Initial PSA Speed', 'Initial PSA Bias', 'Initial PSA Angular Speed',
+                            'Initial PSA Aspect Ratio', 'Initial PSA Kink', 'Initial PSA Curve',
+                            'Initial PSA Crab', 
+                            'Final Response Duration', 'Final Response Probability',
+                            'Final Response Speed', 'Final PSA Speed', 'Final PSA Bias',
+                            'Final PSA Angular Speed', 'Final PSA Aspect Ratio', 'Final PSA Kink',
+                            'Final PSA Curve', 'Final PSA Crab',
+                            'Peak PSA Speed', 'Peak PSA Bias', 'Peak PSA Angular Speed',
+                            'Peak PSA Aspect Ratio', 'Peak PSA Kink', 'Peak PSA Curve', 'Peak PSA Crab',
+                            'Peak Tap Number PSA Speed', 'Peak Tap Number PSA Bias', 
+                            'Peak Tap Number PSA Angular Speed', 'Peak Tap Number PSA Aspect Ratio',
+                            'Peak Tap Number PSA Kink', 'Peak Tap Number PSA Curve', 'Peak Tap Number PSA Crab',
+                            'Average PSA Speed', 'Average PSA Bias', 'Average PSA Angular Speed',
+                            'Average PSA Aspect Ratio', 'Average PSA Kink', 'Average PSA Curve', 
+                            'Average PSA Crab', 
+                            'Habituation of Response Duration',
+                            'Habituation of Response Probability', 'Habituation of Response Speed',
+                            'Habituation PSA Speed', 'Habituation PSA Bias', 
+                            'Habituation PSA Angular Speed', 'Habituation PSA Aspect Ratio',
+                            'Habituation PSA Kink', 'Habituation PSA Curve', 'Habituation PSA Crab',
+                            'Spontaneous Recovery of Response Duration',
+                            'Spontaneous Recovery of Response Probability',
+                            'Spontaneous Recovery of Response Speed',    'Spontaneous Recovery PSA Speed', 'Spontaneous Recovery PSA Bias',
+                            'Spontaneous Recovery PSA Angular Speed', 'Spontaneous Recovery PSA Aspect Ratio',
+                            'Spontaneous Recovery PSA Kink', 'Spontaneous Recovery PSA Curve', 'Spontaneous Recovery PSA Crab',
+                            'Memory Retention of Response Duration',
+                            'Memory Retention of Response Probability',
+                            'Memory Retention of Response Speed', 'Memory Retention PSA Speed', 'Memory Retention PSA Bias',
+                            'Memory Retention PSA Angular Speed', 'Memory Retention PSA Aspect Ratio',
+                            'Memory Retention PSA Kink', 'Memory Retention PSA Curve', 'Memory Retention PSA Crab',
+                            'Sensitization PSA Speed', 'Sensitization PSA Bias',
+                            'Sensitization PSA Angular Speed', 'Sensitization PSA Aspect Ratio',
+                            'Sensitization PSA Kink', 'Sensitization PSA Curve', 'Sensitization PSA Crab']
+        
+        listofallelecolumns = ['dataset', 'Screen', 'Morphwidth', 'Midline', 'Area', 'Speed',
+                            'Angular Speed', 'Bias', 'Aspect Ratio', 'Kink', 'Curve', 'Crab',
+                            'Pathlength', 'Initial Response Duration',
+                            'Initial Response Probability', 'Initial Response Speed',
+                            'Initial PSA Speed', 'Initial PSA Bias', 'Initial PSA Angular Speed',
+                            'Initial PSA Aspect Ratio', 'Initial PSA Kink', 'Initial PSA Curve',
+                            'Initial PSA Crab', 
+                            'Final Response Duration', 'Final Response Probability',
+                            'Final Response Speed', 'Final PSA Speed', 'Final PSA Bias',
+                            'Final PSA Angular Speed', 'Final PSA Aspect Ratio', 'Final PSA Kink',
+                            'Final PSA Curve', 'Final PSA Crab',
+                            'Peak PSA Speed', 'Peak PSA Bias', 'Peak PSA Angular Speed',
+                            'Peak PSA Aspect Ratio', 'Peak PSA Kink', 'Peak PSA Curve', 'Peak PSA Crab',
+                            'Peak Tap Number PSA Speed', 'Peak Tap Number PSA Bias', 
+                            'Peak Tap Number PSA Angular Speed', 'Peak Tap Number PSA Aspect Ratio',
+                            'Peak Tap Number PSA Kink', 'Peak Tap Number PSA Curve', 'Peak Tap Number PSA Crab',
+                            'Average PSA Speed', 'Average PSA Bias', 'Average PSA Angular Speed',
+                            'Average PSA Aspect Ratio', 'Average PSA Kink', 'Average PSA Curve', 
+                            'Average PSA Crab', 
+                            'Habituation of Response Duration',
+                            'Habituation of Response Probability', 'Habituation of Response Speed',
+                            'Habituation PSA Speed', 'Habituation PSA Bias', 
+                            'Habituation PSA Angular Speed', 'Habituation PSA Aspect Ratio',
+                            'Habituation PSA Kink', 'Habituation PSA Curve', 'Habituation PSA Crab',
+                            'Spontaneous Recovery of Response Duration',
+                            'Spontaneous Recovery of Response Probability',
+                            'Spontaneous Recovery of Response Speed',    'Spontaneous Recovery PSA Speed', 'Spontaneous Recovery PSA Bias',
+                            'Spontaneous Recovery PSA Angular Speed', 'Spontaneous Recovery PSA Aspect Ratio',
+                            'Spontaneous Recovery PSA Kink', 'Spontaneous Recovery PSA Curve', 'Spontaneous Recovery PSA Crab',
+                            'Memory Retention of Response Duration',
+                            'Memory Retention of Response Probability',
+                            'Memory Retention of Response Speed', 'Memory Retention PSA Speed', 'Memory Retention PSA Bias',
+                            'Memory Retention PSA Angular Speed', 'Memory Retention PSA Aspect Ratio',
+                            'Memory Retention PSA Kink', 'Memory Retention PSA Curve', 'Memory Retention PSA Crab',
+                            'Sensitization PSA Speed', 'Sensitization PSA Bias',
+                            'Sensitization PSA Angular Speed', 'Sensitization PSA Aspect Ratio',
+                            'Sensitization PSA Kink', 'Sensitization PSA Curve', 'Sensitization PSA Crab']
 
         # (1) Tap Response
         tap_output =  read('tap_response_data', connection)
@@ -96,6 +171,7 @@ def fetch_data():
         
         # (6) Allele Profile (tstat melted) 
         gene_profile_data=tap_tstat_data.reset_index()
+        gene_profile_data=gene_profile_data[listofgenecolumns]
         gene_profile_data=pd.melt(gene_profile_data, id_vars=["Gene", "Screen"],
                                     var_name='Metric',
                                     value_name='T_score')
@@ -103,6 +179,7 @@ def fetch_data():
         
         # (7) Gene Profile (tstat melted) 
         allele_profile_data=tap_tstat_allele.reset_index()
+        allele_profile_data=allele_profile_data[listofallelecolumns]
         allele_profile_data=pd.melt(allele_profile_data, id_vars=["dataset", "Screen"],
                                     var_name='Metric',
                                     value_name='T_score')

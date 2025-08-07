@@ -24,12 +24,25 @@ config = {
 }
 
 # color palette used in barplots
-metric_palette = [
-    "k", "k", "k",
-    "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgrey", "darkgray",
-    "lightsteelblue", "lightsteelblue", "lightsteelblue",
-    "powderblue", "powderblue", "powderblue",
-    "cadetblue", "cadetblue", "cadetblue",
-    "thistle", "thistle", "thistle",
-    "slateblue", "slateblue", "slateblue"
-]
+# metric_palette = [
+#     "k", "k", "k",
+#     "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgray", "darkgrey", "darkgray",
+#     "lightsteelblue", "lightsteelblue", "lightsteelblue",
+#     "powderblue", "powderblue", "powderblue",
+#     "cadetblue", "cadetblue", "cadetblue",
+#     "thistle", "thistle", "thistle",
+#     "slateblue", "slateblue", "slateblue"
+# ]
+
+metric_palette=["k","k","k",
+                "darkgray","darkgray","darkgray","darkgray","darkgray","darkgray","darkgray","darkgray",
+                "lightsteelblue","lightsteelblue","lightsteelblue","lightsteelblue","lightsteelblue","lightsteelblue","lightsteelblue","lightsteelblue","lightsteelblue","lightsteelblue",
+                "powderblue","powderblue","powderblue","powderblue","powderblue","powderblue","powderblue","powderblue","powderblue","powderblue",
+                "orange","orange","orange","orange","orange","orange","orange",
+                "darkorange","darkorange","darkorange","darkorange","darkorange","darkorange","darkorange",
+                "goldenrod","goldenrod","goldenrod","goldenrod","goldenrod","goldenrod","goldenrod",
+                "cadetblue","cadetblue","cadetblue","cadetblue","cadetblue","cadetblue","cadetblue","cadetblue","cadetblue","cadetblue",
+                "thistle","thistle","thistle","thistle","thistle","thistle","thistle","thistle","thistle","thistle",
+                "slateblue","slateblue","slateblue","slateblue","slateblue","slateblue","slateblue","slateblue","slateblue","slateblue",
+                "lightcoral","lightcoral","lightcoral","lightcoral","lightcoral","lightcoral","lightcoral",
+                ]

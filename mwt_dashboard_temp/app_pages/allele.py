@@ -67,14 +67,16 @@ def render(data):
 
     # seaborn plot
     sns.set_context('notebook', font_scale=1)
-    fig, ax = plt.subplots(figsize=(5, 5))
-    ax = sns.barplot(x="Metric", # <- Here we use seaborn as our graphing package.
-                        y="T_score", orient='v',
-                        data=allele_profile_data[allele_profile_data.dataset == f"{allele_option}"],
-                        palette=data["metric_palette"]).set_title(f"{allele_option}")
-    plt.xticks(rotation=90)
-    plt.ylabel("Normalized T-Score") # <- X-axis title
-    plt.ylim(-3, 3)
+    fig, ax = plt.subplots(figsize=(5, 10))
+    ax = sns.barplot(x="T_score", # <- Here we use seaborn as our graphing package.
+                    y="Metric", orient='h',
+                    data=allele_profile_data[allele_profile_data.dataset == f"{allele_option}"],
+                    palette=data["metric_palette"]).set_title(f"{allele_option}")
+    # plt.xticks(rotation=90)
+    plt.ylabel("") # <- Y-axis title
+    plt.yticks(fontsize=5)
+    plt.xlabel("Normalized T-Score") # <- X-axis title
+    plt.xlim(-3, 3)
 
     # download graph button
     allele_profile_plot = io.BytesIO()
