@@ -220,7 +220,7 @@ The objective of Step 4 is to prepare and integrate behavioral features into a c
 
 <img src="img/file_chooser_step4.png" alt="File Chooser Wodget in Step 4" width="60%">
 
-### 2. Feature Engineering on Tap Data
+#### 2. Feature Engineering on Tap Data
 
 - Add new features for `dura`, `prob` and `speed` like:
     - `init`: 1st tap
@@ -230,7 +230,7 @@ The objective of Step 4 is to prepare and integrate behavioral features into a c
     - `recovery`: 100 * (`recov`- `init`) / `init`
     - `memory_retention_dura`: `recov`- `final`
     
-### 3. Summarize PSA Data
+#### 3. Summarize PSA Data
 - Reduce 31-tap PSA data per experiment to one row using aggregation.
 - Group by metadata (['Experiment', 'Plate_id', 'Date', 'Screen', 'dataset', 'Gene', 'Allele'])
 - Add new features for [`PSA Instantaneous Speed`, `PSA Bias`, `PSA Angular Speed`, `PSA Aspect Ratio`, `PSA Kink`, `PSA Curve`, `PSA Crab`]:
@@ -254,14 +254,14 @@ The objective of Step 4 is to prepare and integrate behavioral features into a c
 - Create grouped DataFrames by `gene` and `allele`, conditioned on "baseline", "tap", or "psa".
 - Group by metadata ['Plate_id','Date','Screen','dataset','Gene','Allele']
 
-### 5. Mean Sample Distance (MSD) Calculation
+#### 5. Mean Sample Distance (MSD) Calculation
 
 - Each phenotype is grouped by Gene or allele (`dataset` column).
 - Compute mean, SEM, and 95% CI for each metric by gene/allele.
 - Normalize against N2 control.
 - Merge across baseline, tap, and PSA.
 
-### 6. T-Test Analysis
+#### 6. T-Test Analysis
 
 - Two-sample t-tests between each strain and N2.
 - Run for all metrics in baseline, tap, and PSA datasets.
@@ -278,3 +278,102 @@ The objective of Step 4 is to prepare and integrate behavioral features into a c
 - Requires local `database.ini` for credentials.
 
 # Part 2: Data Dashboard
+
+Link: [RankinLab - MWT dashboard](https://rankinlab-mwtdashboard.streamlit.app/)
+
+## Objective
+
+ The MWT Dashboard is an interactive Streamlit application designed to let users explore processed Multi-Worm Tracker data through visualizations of behavioral metrics across genes, alleles and experimental conditions. All visualizations can be filtered, explored interactively, and downloaded for offline use.
+
+## Data Sources / Inputs
+
+- Preprocessed datasets from Part 1 Step 4 that were uploaded to the database are accessed here. The following specific datasets are used in the dashboard:
+    - `tap_output`: Merged tap + PSA data
+    - `tap_tstat_data`: T-stat by gene 
+    - `tap_tstat_allele`: T-stat by allele
+    - `gene_MSD`: MSD by gene
+    - `allele_MSD`: MSD by allele
+    - `gene_profile_data`: `tap_tstat_data` pivoted by `Gene` and `Screen` 
+    - `allele_profile_data`: `tap_tstat_allele` pivoted by `dataset` and `Screen`
+    - `psa_output`: Summarized PSA metrics
+
+## Outputs
+
+- Interactive plots.
+- Downloadable graphs.
+
+## Functionality
+
+### Home Page – Data at a Glance
+
+Provides a quick overview of the dataset.
+
+- **Single Phenotype Plot**
+Shows the sample mean distance of each gene from N2 for a chosen phenotype. Vertical dashed line at 0 marks the N2 reference.
+
+- **Comprehensive Heatmap**
+Displays a matrix of MSD dataset values for all genes across all phenotypes.
+
+
+### Gene-specific Data
+
+Focuses on a single gene at a time, allowing users to examine its phenotype profile, ranking and habituation patterns compared to N2.
+
+- **Phenotypic Profile**  
+  Bar chart of normalized T-scores for all metrics for the selected gene. 
+
+- **Rank in Phenotype**:
+  Plot of sample mean distance for all genes for a chosen phenotype. N2 is shown in red, the selected gene in magenta, and others in gray. Vertical dashed line at 0 marks the N2 reference.
+
+- **Habituation Curves of Response (tabs)**:
+  Point plots showing changes in response over 31 taps for multiple metrics (e.g., Probability, Duration, Speed, PSA metrics). Compares the selected gene to N2.
+
+
+### Allele-specific Data
+
+Focuses on a single gene–allele (“dataset”) and compares it to N2.
+
+- **Phenotypic Profile**:
+  Bar chart of normalized T-scores for all metrics for the selected allele. 
+
+- **Rank in Phenotype**:
+  Plot of Sample Mean Distance (MSD) for all alleles for a chosen phenotype. N2 is shown in red, the selected allele in magenta, and others in gray. Vertical dashed line at 0 marks the N2 reference.
+
+- **Habituation Curves of Response (tabs)**:
+  Point plots showing changes in response over 31 taps for multiple metrics (e.g., Probability, Duration, Speed, PSA metrics). Compares the selected allele to N2.
+
+
+### Custom Gene Page
+
+Compare multiple genes at once. Pick any subset of genes (vs. N2) and view heatmaps, rankings, and habituation curves.
+
+- **Comprehensive Heatmap with selected genes**:
+  Heatmap of normalized t-scores across all phenotypes for the chosen genes.
+
+- **Rank in Phenotype**:
+  Plot of Sample Mean Distance (MSD) for all genes, with 95% CI. N2 is shown in red, the selected allele in magenta, and others in gray. Vertical dashed line at 0 marks the N2 reference.
+
+- **Habituation Curves of Response (tabs)**:
+  Point plots showing changes in response over 31 taps for multiple metrics (e.g., Probability, Duration, Speed, PSA metrics). Compares the selected genes to N2.
+
+### Custom Allele Page
+
+Compare multiple alleles at once. Pick any subset of alleles (vs. N2) and view heatmaps, rankings, and habituation curves.
+
+- **Comprehensive Heatmap with selected genes**:
+  Heatmap of normalized t-scores across all phenotypes for the chosen alleles.
+
+- **Rank in Phenotype**:
+  Plot of Sample Mean Distance (MSD) for all alleles, with 95% CI. N2 is shown in red, the selected allele in magenta, and others in gray. Vertical dashed line at 0 marks the N2 reference.
+
+- **Habituation Curves of Response (tabs)**:
+  Point plots showing changes in response over 31 taps for multiple metrics (e.g., Probability, Duration, Speed, PSA metrics). Compares the selected alleles to N2.
+
+
+### Post Stimulus Data Page
+
+- **Full Post-Stimulus Arousal Response**:
+  Bar chart with all PSA summary metrics (e.g., Bias, Angular Speed, `Kink`, etc) by Genes.
+
+
+----
