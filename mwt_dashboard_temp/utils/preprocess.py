@@ -6,7 +6,7 @@ def select_datasets(data):
     datasets = st.multiselect(
         label="Select Datasets",
         options=data["gene_MSD"].Screen.unique(),
-        default=data["gene_MSD"].Screen.unique()[0],
+        default=data["gene_MSD"].Screen.unique()[2],
         placeholder="make a selection",
         help="select and de-select datasets you want to analyze",
         key="datasetselection"
@@ -39,15 +39,15 @@ def select_datasets(data):
 
     data["tap_tstat_allele"] = (
         data["tap_tstat_allele"][data["tap_tstat_allele"]["Screen"].isin(datasets)]
-        .dropna(subset=[col for col in dropna_features if col in data["tap_tstat_allele"].columns])
+        # .dropna(subset=[col for col in dropna_features if col in data["tap_tstat_allele"].columns])
         .drop(columns=["Screen"])
         .replace(["N2_N2", "N2_XJ1"], "N2")
     )
 
     data["tap_tstat_data"] = (
         data["tap_tstat_data"][data["tap_tstat_data"]["Screen"].isin(datasets)]
-        .dropna(subset=[col for col in dropna_features if col in data["tap_tstat_data"].columns])
-        .drop(columns=["Screen"])
+        # .dropna(subset=[col for col in dropna_features if col in data["tap_tstat_data"].columns])
+        .drop(columns=["Screen", "Peak Tap Number of PSA Angular Speed"])
         .replace(["N2_N2", "N2_XJ1"], "N2")
     )
 
