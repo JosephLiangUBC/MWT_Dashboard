@@ -55,8 +55,6 @@ This process generates the following files in the same folder (strain > gene_all
 
 The objective of Step 2 is to extract tap-induced behavioral responses from worm trajectories and normalize them across experiments. This step enables consistent comparison of movement and posture metrics across strains, screens, and alleles.
 
-The objective of Step 2 is to extract tap-induced behavioral responses from worm trajectories and normalize them across experiments. This step enables consistent comparison of movement and posture metrics across strains, screens, and alleles.
-
 ### Data Sources / Inputs
 
 - After running the relevant cells, a widget will be displayed requiring user input
@@ -78,9 +76,10 @@ The objective of Step 2 is to extract tap-induced behavioral responses from worm
 #### 2. Determine Tap Numbers and Tolerances (user input required)
 
 - User-defined inputs:
-  - `number_of_taps`: Usually 30.
-  - `ISI`: Interstimulus interval (typically 10 seconds).
-  - `first_tap`: Frame at which the first tap occurs (commonly 600). This must be verified in `.trv` files.
+You'll need to check the `.trv` files (where each row is a tap, and the first column is the time) to find out this information:
+  - `number_of_taps`: Number of rows in your `.trv` files. Usually 30. In more recent experiments, a 31st tap for spontaneous recovery may be delivered.
+  - `ISI`: Interstimulus interval The difference in time between each row. (typically 10 seconds).
+  - `first_tap`: The number in the first column of the first row. Frame at which the first tap occurs (commonly 600). This must be verified in `.trv` files.
 
 - The script dynamically computes frame indices for each tap and assigns a frame tolerance around each tap to allow for timing jitter.  
   For example, if the first tap is at frame 600:
@@ -146,7 +145,7 @@ Two `.csv` files are generated:
 <img src="img/file_chooser_step3.png" alt="File Chooser Wodget in Step 3" width="60%">
 
 
-#### 2. Define `bin`, Tap numbers and Tolerances (user input required)
+#### 2. Define `bin`, Tap numbers and Tolerances for post-stimuluse arousal (user input required)
 
 - Define time bins (typically 1s intervals from 0–1200s). Important for x-axis and y-axis view range for graphing.
 - User-defined inputs:
@@ -233,7 +232,7 @@ The objective of Step 4 is to prepare and integrate behavioral features into a c
 #### 3. Summarize PSA Data
 - Reduce 31-tap PSA data per experiment to one row using aggregation.
 - Group by metadata (['Experiment', 'Plate_id', 'Date', 'Screen', 'dataset', 'Gene', 'Allele'])
-- Add new features for [`PSA Instantaneous Speed`, `PSA Bias`, `PSA Angular Speed`, `PSA Aspect Ratio`, `PSA Kink`, `PSA Curve`, `PSA Crab`]:
+- Add new features for [`PSA Speed`, `PSA Bias`, `PSA Angular Speed`, `PSA Aspect Ratio`, `PSA Kink`, `PSA Curve`, `PSA Crab`]:
     - `initial`: 1st tap
     - `recovery`: 31st tap
     - `final`: mean of taps 28–30
@@ -243,10 +242,10 @@ The objective of Step 4 is to prepare and integrate behavioral features into a c
     - `sensitization`: `peak` - `initial`
     - `habituation`: `peak` - `final` 
     - `spontaneous_recovery`:
-        - 100 * (`initial` - `recovery`)/`initial` if metric is `PSA Instantaneous Speed`, `PSA Bias`, `PSA Angular Speed`
+        - 100 * (`initial` - `recovery`)/`initial` if metric is `PSA Speed`, `PSA Bias`, `PSA Angular Speed`
         - 100 * (`recovery` - `initial`)/`initial` if metric is `PSA Aspect Ratio`, `PSA Kink`, `PSA Curve`, `PSA Crab`
     - `memory_retention`:
-        - `final` - `recovery` if metric is `PSA Instantaneous Speed`, `PSA Bias`, `PSA Angular Speed`
+        - `final` - `recovery` if metric is `PSA Speed`, `PSA Bias`, `PSA Angular Speed`
         - `recovery` - `final` if metric is `PSA Aspect Ratio`, `PSA Kink`, `PSA Curve`, `PSA Crab`
    
 #### 4. Aggregate by Metadata
