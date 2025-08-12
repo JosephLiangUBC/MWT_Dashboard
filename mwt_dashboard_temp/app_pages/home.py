@@ -217,7 +217,7 @@ def render(data):
     # Add download buttons    
     col2_2.download_button(
         label="Download CSV",
-        data=convert_df(data["tap_tstat_data"].set_index('Gene')),
+        data=convert_df(data["tap_tstat_data"]),
         file_name="Data_Glance_Heatmap.csv",
         mime="text/csv",
         key='dnldheatmapcsv'
