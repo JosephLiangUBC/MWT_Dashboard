@@ -71,7 +71,7 @@ def render(data):
         height=800,
         yaxis=dict(showticklabels=True, 
                    dtick=1,
-                   tickfont=dict(color='black', size=6)),
+                   tickfont=dict(color='black', size=6), range=[-1,len(data_sorted)]),
         margin=dict(l=10, r=10, t=40, b=0),
         annotations=[
             dict(
@@ -118,6 +118,14 @@ def render(data):
     ax.set_ylabel("Gene")
     ax.set_title(f"{phenotype_option}", fontsize=12)
     ax.set_yticks([])  # Hide y-axis ticks
+    # Get the first two and last y-tick positions.
+
+    minx, nextx, *_, maxx = ax.get_xticks()
+    # Compute half the y-tick interval (for example).
+    eps = (nextx - minx) / 1.5  # <-- Your choice.
+    # Adjust the limits.
+    ax.set_xlim(minx-eps, maxx+eps)
+
     fig_mpl.tight_layout()
 
     # Save to BytesIO for download

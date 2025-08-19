@@ -154,7 +154,7 @@ def render(data):
         paper_bgcolor='white',
         width=600,
         height=1200,
-        yaxis=dict(showticklabels=True, dtick=1, tickfont=dict(color='black', size=6)),
+        yaxis=dict(showticklabels=True, dtick=1, tickfont=dict(color='black', size=6), range=[-1,len(data_sorted)]),
         margin=dict(l=100, r=50, t=100, b=50), # Adjust margins
         annotations=[
             dict(
@@ -240,7 +240,8 @@ def render(data):
     with col7:
 
         metrics = [ "Probability", "Duration", "Speed",
-                   "PSA Instantaneous Speed", "PSA Interval Speed",
+                   "PSA Speed", 
+                #    "PSA Interval Speed",
                     "PSA Bias", "PSA Kink", "PSA Crab",
                     "PSA Aspect Ratio", "PSA Curve"]
         
