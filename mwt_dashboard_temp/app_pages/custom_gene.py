@@ -284,7 +284,8 @@ def render(data):
     with col11:
 
         metrics = [ "Probability", "Duration", "Speed",
-                   "PSA Instantaneous Speed", "PSA Interval Speed",
+                   "PSA Speed", 
+                #    "PSA Interval Speed",
                     "PSA Bias", "PSA Kink", "PSA Crab",
                     "PSA Aspect Ratio", "PSA Curve"]
         
