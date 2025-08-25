@@ -212,3 +212,33 @@ def fetch_data():
 
 
     return data
+
+@st.cache_data
+def fetch_baseline_data():
+    """
+    Connects to PostgreSQL database and loads all necessary tables for the dashboard.
+    
+    Returns:
+        pd.DataFrame: Contains:
+                        - baseline_output
+    """
+    with psycopg.connect(
+        dbname="mwtdata", 
+        user=st.secrets["psql_user"], 
+        password=st.secrets["psql_passwword"], 
+        host="rds-mwt-data.ctie02ksmcqc.ca-central-1.rds.amazonaws.com", 
+        port=5432
+        ) as connection:
+        
+        
+        # (1) baseline output
+        baseline_output = read('tap_baseline_data', connection)
+        
+
+        # ------------- Package the datasets --------------
+
+        data = {
+            "baseline_output": baseline_output,
+        }
+
+    return data

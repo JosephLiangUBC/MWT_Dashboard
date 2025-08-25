@@ -6,7 +6,7 @@ def select_datasets(data):
     datasets = st.multiselect(
         label="Select Datasets",
         options=data["gene_MSD"].Screen.unique(),
-        default=data["gene_MSD"].Screen.unique()[2],
+        default=data["gene_MSD"].Screen.unique()[0],
         placeholder="make a selection",
         help="select and de-select datasets you want to analyze",
         key="datasetselection"

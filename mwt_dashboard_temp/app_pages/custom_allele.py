@@ -9,6 +9,7 @@ import plotly.graph_objects as go
 import itertools
 import sqlite3
 from utils.helpers import convert_df, read
+from utils.data_loader import fetch_baseline_data
 
 def render(data):
     st.header('Custom Allele Selection')
@@ -338,15 +339,8 @@ def render(data):
 
     # If the button is pressed, read the data and then show show button to download it
     if read_data_flag:
-        for conn_path in data["conn_list"]:
-            try:
-                conn = sqlite3.connect(conn_path)
-                break
-            except:
-                pass
-        baseline_output = read('tap_baseline_data', conn)
-        baseline_output = baseline_output[baseline_output['Screen'].isin(data["datasets"])].replace(["N2_N2", "N2_XJ1"], "N2")
-        conn.close()
+        baseline_output = fetch_baseline_data()
+        baseline_output = baseline_output[baseline_output['dataset'].isin(allele_multiple)].replace(["N2_N2", "N2_XJ1"], "N2")
         st.download_button(label="Download raw baseline data",
                            data=convert_df(baseline_output[baseline_output['dataset'].isin(allele_multiple)]),
                            file_name=f"raw_baseline_data.csv",
