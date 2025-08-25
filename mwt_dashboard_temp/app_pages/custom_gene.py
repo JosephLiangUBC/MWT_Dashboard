@@ -67,7 +67,7 @@ def render(data):
             # titleside="right"
         )
     ))
-    h = 200 * len(gene_multiple)
+    h = 70 * len(gene_multiple)
     fig.update_layout(
         width=900,
         height=h,

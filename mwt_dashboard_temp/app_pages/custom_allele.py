@@ -81,7 +81,7 @@ def render(data):
             # titleside="right"
         )
     ))
-    h = 200 * len(allele_multiple)
+    h = 70 * len(allele_multiple)
     fig.update_layout(
         width=900,
         height=h,
