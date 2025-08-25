@@ -17,7 +17,7 @@ def render(data):
 
     gene_multiple = st.multiselect(
         label="Select Genes",
-        options=[gene for gene in data["tap_output"]['Gene'].unique() if gene != 'N2'],
+        options=sorted([gene for gene in data["tap_output"]['Gene'].unique() if gene != 'N2']),
         default=st.session_state.gene_select,
         placeholder="make a selection",
         help="select and de-select genes you want to analyze",

@@ -214,7 +214,7 @@ def fetch_data():
     return data
 
 @st.cache_data
-def fetch_baseline_data():
+def fetch_baseline_data(list):
     """
     Connects to PostgreSQL database and loads all necessary tables for the dashboard.
     
@@ -232,8 +232,14 @@ def fetch_baseline_data():
         
         
         # (1) baseline output
-        baseline_output = read('tap_baseline_data', connection)
-        
+        with connection.cursor() as cursor:
+            tuple = tuple(list)
+            cursor.execute(f'SELECT * FROM "baseline_output" WHERE "dataset" IN {tuple}')
+
+            # Fetch all rows from database
+            record = cursor.fetchall()
+            column_names = [desc[0] for desc in cursor.description]
+            baseline_output = pd.DataFrame(record, columns=column_names)
 
         # ------------- Package the datasets --------------
 

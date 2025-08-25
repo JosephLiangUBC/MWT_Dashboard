@@ -17,7 +17,7 @@ def render(data):
 
     allele_multiple = st.multiselect(
         label="Select Allele",
-        options=[allele for allele in data["tap_output"]['dataset'].unique() if allele != 'N2'],
+        options=sorted([allele for allele in data["tap_output"]['dataset'].unique() if allele != 'N2']),
         default=st.session_state.allele_select,
         placeholder="make a selection",
         help="select and de-select alleles you want to analyze",
@@ -36,7 +36,7 @@ def render(data):
 
         if allele_id.any():
             allele_id = allele_id.values[0]
-            wlink = f'https://wormbase.org/species/c_elegans/variation/{allele_id}'
+            wlink = f'https://www.alliancegenome.org/allele/WB:{allele_id}'
             w_link_list.append(f'<a href="{wlink}">{allele}</a>')
         else: # if allele option doesnt match then send to default page
             na_list.append(allele)
@@ -49,8 +49,8 @@ def render(data):
             gene_id= "default value"
             na_list.append(gene)
 
-    st.markdown(f"<p style='font-size:20px'>For more gene information on {', '.join(g_link_list)} (Source: GenomeAlliance) </p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:20px'>For more allele information on {', '.join(w_link_list)} (Source: WormBase) </p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:20px'>For more gene information on {', '.join(list(set(g_link_list)))} (Source: GenomeAlliance) </p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:20px'>For more allele information on {', '.join(w_link_list)} (Source: GenomeAlliance) </p>", unsafe_allow_html=True)
     if na_list:
         na_links = [f'<a href="https://wormbase.org/species/c_elegans/variation/">{allele}</a>' for allele in na_list]
         st.markdown(f"<p style='font-size:20px'>Information not available for: {', '.join(na_links)}</p>", unsafe_allow_html=True)
@@ -339,10 +339,11 @@ def render(data):
 
     # If the button is pressed, read the data and then show show button to download it
     if read_data_flag:
-        baseline_output = fetch_baseline_data()
-        baseline_output = baseline_output[baseline_output['dataset'].isin(allele_multiple)].replace(["N2_N2", "N2_XJ1"], "N2")
+        baseline_output = fetch_baseline_data(allele_multiple)
+        # baseline_output = baseline_output[baseline_output['dataset'].isin(allele_multiple)].replace(["N2_N2", "N2_XJ1"], "N2")
         st.download_button(label="Download raw baseline data",
-                           data=convert_df(baseline_output[baseline_output['dataset'].isin(allele_multiple)]),
+                           data=convert_df(baseline_output),
+                        #    data=convert_df(baseline_output[baseline_output['dataset'].isin(allele_multiple)]),
                            file_name=f"raw_baseline_data.csv",
                            mime="text/csv",
                            key='dnldallelemultibaseoutcsv')
