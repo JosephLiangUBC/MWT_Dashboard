@@ -15,7 +15,7 @@ def render(data):
     psa_df = data["psa_output"]
 
     # Filter boxes for metric and summary
-    metric_option = st.selectbox("Select metric", ['Instantaneous Speed', 'Bias', 'Angular Speed', 'Kink', 'Crab', 'Aspect Ratio', 'Curve'])
+    metric_option = st.selectbox("Select metric", ['Speed', 'Bias', 'Angular Speed', 'Kink', 'Crab', 'Aspect Ratio', 'Curve'])
     summary_option = st.selectbox("Select summary", ['Initial', 'Final', 'Recovery', 'Peak', 'Peak Tap Number', 'Average', 'Sensitization', 'Habituation', 'Spontaneous Recovery', 'Memory Retention'])
 
     # Filter box for gene
@@ -44,6 +44,7 @@ def render(data):
         order = gene_order,
         estimator='mean',
         errorbar=("ci", 95),
+        err_kws={'linewidth': 1},
         ax=ax,
         orient="v",
         legend=False
@@ -56,6 +57,7 @@ def render(data):
     #     color="k",
     #     ax=ax
     # )
+    ax.tick_params(axis='x', length=5, width=1, direction='out') 
     ax.set_title(f"Post Stimulus Arousal {summary_option} {metric_option} - all genes", fontsize=14)
     ax.set_ylabel(f"{summary_option} {metric_option}", fontsize=12)
     ax.set_xlabel("Gene", fontsize=12)
