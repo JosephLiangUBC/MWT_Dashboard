@@ -15,7 +15,9 @@ def render(data=None):
     #### All experiments use the 10s-ISI tap-habituation protocol. Heatmaps and phenomic profiles are calculated by comparing mutant strains to N2 wild-type controls run on the same days. Habituation curves are plotted with comparison to N2 replicates run in the same experiment(s).
 
     ### Getting Started
-    #### Navigate between pages using the sidebar. Gene- and allele-specific pages display summarized data for each gene or allele.
+    #### Navigate between pages using the sidebar. Select datasets for which you want to visualize data for. This selected dataset also populates the gene/allele drop-down menu for the gene/allele pages.
+    #### - Gene- and allele-specific pages display summarized data for each selected gene or allele.
+    #### - Custom gene/allele selection allows for you to make multiple comparisons across experiments by selecting multiple alleles.
     #### To make cross-gene comparisons, use the “Custom Gene/Allele Selection” pages.
 
     #### You can download all plots and datasets directly from the interface. Don’t like our visualizations? Export the data and create your own using your favorite tools.
