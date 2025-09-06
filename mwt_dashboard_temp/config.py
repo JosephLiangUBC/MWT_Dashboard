@@ -2,13 +2,13 @@
 
 # This controls the page names shown in the sidebar
 pages = [
-    "Home - Data at a Glance",
+    "Home - Getting Started",
+    "Data at a Glance",
     "Gene-specific Data",
     "Allele-specific Data",
     "Custom Gene Selection",
     "Custom Allele Selection",
     "Post Stimulus Data", 
-    "Help & Documentation",
     "Citations"
 ]
 

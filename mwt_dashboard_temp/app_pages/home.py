@@ -8,7 +8,7 @@ from config import config
 import matplotlib.pyplot as plt
 
 def render(data):
-    st.header('Home - Data at a Glance')
+    st.header('Data at a Glance')
 
     # Visualisations for data tab
     col1, col2 = st.columns([4, 5])

@@ -2,7 +2,7 @@ import streamlit as st
 
 def render(data=None):
     st.markdown("""
-    ## Help and Documentation
+    ## Home - Getting Started
 
     ### About the Data Dashboard:
     Since the inception of the [Multi-Worm Tracker (MWT)](https://doi.org/10.1038/nmeth.1625), the Rankin Lab has collected vast amounts of data from a large number of strains across several experimental screens. 
