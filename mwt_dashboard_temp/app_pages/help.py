@@ -16,10 +16,9 @@ def render(data=None):
 
     ### Getting Started
     #### Navigate between pages using the sidebar. Select datasets for which you want to visualize data for. This selected dataset also populates the gene/allele drop-down menu for the gene/allele pages.
-    #### - Gene- and allele-specific pages display summarized data for each selected gene or allele.
-    #### - Custom gene/allele selection allows for you to make multiple comparisons across experiments by selecting multiple alleles.
-    #### To make cross-gene comparisons, use the “Custom Gene/Allele Selection” pages.
-
+     * #### Gene- and allele-specific pages display summarized data for each selected gene or allele.
+     * #### To make cross-gene comparisons, use the “Custom Gene/Allele Selection” pages. Custom gene/allele selection allows for you to make multiple comparisons across experiments by selecting multiple alleles.
+          
     #### You can download all plots and datasets directly from the interface. Don’t like our visualizations? Export the data and create your own using your favorite tools.
 
     ### Contact
