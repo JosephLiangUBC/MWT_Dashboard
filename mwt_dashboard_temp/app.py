@@ -11,6 +11,17 @@ from utils.auth import check_password
 st.set_page_config(page_title="MWT Dashboard", layout="wide")
 st.title("MWT Data Dashboard - Rankin Lab @ UBC")
 
+pages = [
+    "Home - Getting Started",
+    "Data at a Glance",
+    "Gene-specific Data",
+    "Allele-specific Data",
+    "Custom Gene Selection",
+    "Custom Allele Selection",
+    "Post Stimulus Data", 
+    "Citations"
+]
+
 # Select a page
 page = st.sidebar.radio("Select a page", pages)
 
