@@ -20,7 +20,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 
 def render(data):
-    st.header("Post Stimulus Arousal Data")
+    st.header("Clustering data by genes")
 
     df = data['tap_tstat_data']
 
@@ -43,31 +43,41 @@ def render(data):
         remainder="passthrough" 
     )
 
-    X = preprocessor.fit_transform(df)
+    # X = preprocessor.fit_transform(df)
 
-    # pca = PCA()
-    # pca.fit(X)
+    # # pca = PCA()
+    # # pca.fit(X)
 
-    # PCA + KMeans
-    pca = PCA(n_components=100)
-    pca_df = pca.fit_transform(X)
-    kmeans = KMeans(n_clusters=6, n_init='auto', random_state=100)
-    labels = kmeans.fit_predict(pca_df)
+    # # PCA + KMeans
+    # pca = PCA(n_components=100)
+    # pca_df = pca.fit_transform(X)
+    # kmeans = KMeans(n_clusters=6, n_init='auto', random_state=100)
+    # labels = kmeans.fit_predict(pca_df)
     
-    df['Cluster'] = labels
+    # df['Cluster'] = labels
 
 
-    # Plot
-    pca_df_vis = PCA(n_components=2, random_state=100) # n_components=2 for 2D plot
-    labels_vis = pca_df_vis.fit_transform(pca_df)                     
-    centers_vis = pca_df_vis.transform(kmeans.cluster_centers_)
-    method = "PCA(2)"
+    # # Plot
+    # pca_df_vis = PCA(n_components=2, random_state=100) # n_components=2 for 2D plot
+    # labels_vis = pca_df_vis.fit_transform(pca_df)                     
+    # centers_vis = pca_df_vis.transform(kmeans.cluster_centers_)
+    # method = "PCA(2)"
 
-    plt.figure(figsize=(8,6))
-    plt.scatter(labels_vis[:, 0], labels_vis[:, 1], c=labels, cmap="tab10", alpha=0.7, s=15, linewidths=0)
-    plt.scatter(centers_vis[:, 0], centers_vis[:, 1], marker="X", s=10, c="black", label="Centroid")
-    plt.title(f"Clusters (assigned in 100D)")
-    # plt.xlabel("PCA 1"); plt.ylabel("PCA 2")
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
+    # plt.figure(figsize=(8,6))
+    # plt.scatter(labels_vis[:, 0], labels_vis[:, 1], c=labels, cmap="tab10", alpha=0.7, s=15, linewidths=0)
+    # plt.scatter(centers_vis[:, 0], centers_vis[:, 1], marker="X", s=10, c="black", label="Centroid")
+    # plt.title(f"Clusters (assigned in 100D)")
+    # # plt.xlabel("PCA 1"); plt.ylabel("PCA 2")
+    # plt.legend()
+    # plt.tight_layout()
+    # plt.show()
+
+
+
+
+
+
+    # ------ fix
+    st.write("Columns in df:", df.columns.tolist())
+    st.write("Numeric cols:", numeric_cols)
+    st.write("Categorical cols:", categorical_cols)
