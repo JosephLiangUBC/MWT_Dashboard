@@ -19,7 +19,7 @@ pages = [
     "Custom Gene Selection",
     "Custom Allele Selection",
     "Post Stimulus Data", 
-    "Gene Clustering"
+    "Gene Clustering",
     "Citations"
 ]
 
@@ -48,7 +48,7 @@ elif page == pages[5]:
     custom_allele.render(data)
 elif page == pages[6]:
     psa.render(data)
-elif page == pages[8]:
+elif page == pages[7]:
     clustering.render(data)
 elif page == pages[8]:
     citations.render()
