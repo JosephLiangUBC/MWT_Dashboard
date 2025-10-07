@@ -22,7 +22,7 @@ from sklearn.metrics import silhouette_score
 def render(data):
     st.header("Post Stimulus Arousal Data")
 
-    df = data['tstat_gene_data']
+    df = data['tap_tstat_data']
 
     df = df[~df.isin([np.inf, -np.inf]).any(axis=1)]
 
