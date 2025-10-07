@@ -49,6 +49,6 @@ elif page == pages[5]:
 elif page == pages[6]:
     psa.render(data)
 elif page == pages[8]:
-    clustering.render()
+    clustering.render(data)
 elif page == pages[8]:
     citations.render()
