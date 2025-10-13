@@ -6,19 +6,14 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
-from utils.helpers import convert_df, read
-from config import config
-import psycopg
 
 # clustering specific imports
-from sqlalchemy import create_engine
 from sklearn.compose import make_column_transformer
 from sklearn.pipeline import make_pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
 from sklearn.manifold import TSNE
 import plotly.express as px
 
@@ -28,30 +23,30 @@ def render(data):
 
     st.header("Clustering Genes")
 
-    # n_clusters = st.selectbox(
-    #     "Select number of clusters",
-    #     (np.nu)
-    # )
+    n_clusters = st.selectbox(
+        "Select number of clusters",
+        (np.arange(3,8))
+    )
+
+    # Load data
     df = data['tap_tstat_data']
 
     gene_names = df['Gene'].values
 
     df = df[~df.isin([np.inf, -np.inf]).any(axis=1)]
 
-    # Numerical Columns 
+    # Preprocess numerical columns 
     numeric_cols = df.select_dtypes(include='number').columns
     si = SimpleImputer(strategy="constant", fill_value=-9999)
     scaler = StandardScaler()
     numerical_transformer = make_pipeline(si, scaler)
 
-    # Categorical Columns
+    # Preprocess categorical columns
     categorical_cols = ['Gene']
     ohe = OneHotEncoder(handle_unknown="ignore", sparse_output=False, dtype = int)
     categorical_transformer = make_pipeline(ohe)
 
-
-
-    # Apply transformations
+    # Apply column transformations
     preprocessor = make_column_transformer(
         (numerical_transformer, numeric_cols),
         (categorical_transformer, categorical_cols),
@@ -63,13 +58,13 @@ def render(data):
     # PCA + KMeans
     pca = PCA(n_components=99)
     pca_df = pd.DataFrame(pca.fit_transform(X))
-    kmeans = KMeans(n_clusters=6, n_init='auto', random_state=100)
+    kmeans = KMeans(n_clusters=n_clusters, n_init='auto', random_state=100)
     labels = kmeans.fit_predict(pca_df)
 
     # tSNE to visualise multidimensional data in 2D
     tsne = TSNE(n_components=2, random_state=100, perplexity=30)
     tsne_df = pd.DataFrame(tsne.fit_transform(pca_df), columns=['tSNE1', 'tSNE2'])
-    tsne_df['Cluster'] = labels
+    tsne_df['Cluster'] = labels.astype(str)
     tsne_df['Gene'] = gene_names
 
     # internal tests 
@@ -86,7 +81,7 @@ def render(data):
         color="Cluster",
         hover_data={"Gene": True, "Cluster": True, "tSNE1":False, "tSNE2":False},
         title="t-SNE Visualization of Gene Clusters (KMeans labels)",
-        color_continuous_scale="Viridis"
+        color_discrete_sequence=px.colors.qualitative.Plotly
     )
     fig.update_traces(marker=dict(size=6, opacity=0.8, line=dict(width=0)))
     st.plotly_chart(fig, use_container_width=True)
