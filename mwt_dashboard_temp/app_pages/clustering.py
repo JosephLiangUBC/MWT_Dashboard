@@ -23,11 +23,14 @@ def render(data):
 
     st.header("Clustering Genes")
 
-    n_clusters = st.selectbox(
+    n_clusters = st.slider(
         "Select number of clusters",
-        (np.arange(3,8))
-    )
-
+        min_value=2,
+        max_value=8,
+        value=6,  # default
+        step=1
+        )
+    
     # Load data
     df = data['tap_tstat_data']
 
@@ -83,5 +86,16 @@ def render(data):
         title="t-SNE Visualization of Gene Clusters (KMeans labels)",
         color_discrete_sequence=px.colors.qualitative.Plotly
     )
-    fig.update_traces(marker=dict(size=6, opacity=0.8, line=dict(width=0)))
-    st.plotly_chart(fig, use_container_width=True)
+
+    fig.update_traces(
+        marker=dict(size=6, opacity=0.8, line=dict(width=0))
+        )
+    
+    fig.update_layout(
+        plot_bgcolor='white',      
+        xaxis=dict(showticklabels=False, showgrid=False, gridcolor='#eeeeee', gridwidth=0.5),
+        yaxis=dict(showticklabels=False, showgrid=True, gridcolor='#eeeeee', gridwidth=0.5),
+        height=600
+    )
+
+    st.plotly_chart(fig, use_container_width=True, config=data["plotly_config"])
