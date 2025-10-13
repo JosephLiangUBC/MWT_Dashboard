@@ -26,7 +26,7 @@ def subtract_by_control(df, id_col, control_id="N2", screen_col="Screen", numeri
     def subtract_control(group):
         control = group[group[id_col] == control_id]
         if control.empty:
-            return group  # No control row found
+            return group  
         control_row = control.iloc[0][numeric_cols]
         group[numeric_cols] = group[numeric_cols] - control_row
         return group
