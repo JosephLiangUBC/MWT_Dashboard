@@ -59,7 +59,7 @@ def render(data):
     X = preprocessor.fit_transform(df)
 
     # PCA + KMeans
-    pca = PCA(n_components=99)
+    pca = PCA(n_components=99) # optimise 
     pca_df = pd.DataFrame(pca.fit_transform(X))
     kmeans = KMeans(n_clusters=n_clusters, n_init='auto', random_state=100)
     labels = kmeans.fit_predict(pca_df)
@@ -84,7 +84,8 @@ def render(data):
         color="Cluster",
         hover_data={"Gene": True, "Cluster": True, "tSNE1":False, "tSNE2":False},
         title="t-SNE Visualization of Gene Clusters (KMeans labels)",
-        color_discrete_sequence=px.colors.qualitative.Plotly
+        color_discrete_sequence=px.colors.qualitative.Plotly,
+        category_orders={"Cluster": sorted(tsne_df['Cluster'].unique(), key=lambda x: int(x))}
     )
 
     fig.update_traces(
