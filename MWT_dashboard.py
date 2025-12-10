@@ -5,8 +5,8 @@ from utils.preprocess import select_datasets
 from app_pages import home, gene, allele, help, citations, custom_gene, custom_allele, psa, clustering
 from utils.auth import check_password
 
-# if not check_password():
-#     st.stop()
+if not check_password():
+    st.stop()
 
 st.set_page_config(page_title="MWT Dashboard", layout="wide")
 st.title("MWT Data Dashboard - Rankin Lab @ UBC")
