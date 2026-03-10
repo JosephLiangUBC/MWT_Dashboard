@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import itertools
 import sqlite3
-from utils.helpers import convert_df, read
+from utils.helpers import convert_df, read, transform_tap_tstat_heatmap
 
 def render(data):
     # multiple selection option for genes
@@ -48,7 +48,9 @@ def render(data):
 
     col9, col10, col11 = st.columns([1, 1, 1])
     #current
-    tap_tstat_selected = data["tap_tstat_data"][data["tap_tstat_data"]['Gene'].isin(gene_multiple)]
+    tap_tstat_selected = transform_tap_tstat_heatmap(
+        data["tap_tstat_data"][data["tap_tstat_data"]['Gene'].isin(gene_multiple)]
+    )
 
     # Create a heatmap
     fig = go.Figure(data=go.Heatmap(

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import itertools
 import sqlite3
-from utils.helpers import convert_df, read
+from utils.helpers import convert_df, read, transform_tap_tstat_heatmap
 from utils.data_loader import fetch_baseline_data
 
 def render(data):
@@ -64,7 +64,10 @@ def render(data):
     #add columns for msd, habituation plots and heatmap plots
     col12, col13, col14 = st.columns([1, 1, 1])
     # Filter the dataframe for the selected genes
-    tap_tstat_allele_selected = data["tap_tstat_allele"][data["tap_tstat_allele"]['dataset'].isin(allele_list)]
+    tap_tstat_allele_selected = transform_tap_tstat_heatmap(
+        data["tap_tstat_allele"][data["tap_tstat_allele"]['dataset'].isin(allele_list)],
+        id_column='dataset'
+    )
 
     fig = go.Figure(data=go.Heatmap(
         z=tap_tstat_allele_selected.set_index('dataset').values,

@@ -13,6 +13,34 @@ def convert_df(df):
     return df.to_csv(index=False).encode('utf-8')
 
 
+def transform_tap_tstat_heatmap(df, pvalue_threshold=0.05, id_column='Gene'):
+    """
+    Convert tuple-valued tap_tstat cells into plottable numeric values.
+
+    Each non-Gene cell is expected to contain `(effect_size, p_value)`.
+    Values with p-values greater than or equal to the threshold are replaced
+    with zero for plotting.
+    """
+    transformed_df = df.copy()
+    value_columns = [col for col in transformed_df.columns if col != id_column]
+
+    def _extract_value(cell):
+        if isinstance(cell, (tuple, list, np.ndarray)):
+            if len(cell) >= 2:
+                value, p_value = cell[0], cell[1]
+                if pd.notna(p_value) and p_value >= pvalue_threshold:
+                    return 0.0
+                return value
+            if len(cell) == 1:
+                return cell[0]
+        return cell
+
+    for column in value_columns:
+        transformed_df[column] = transformed_df[column].apply(_extract_value)
+
+    return transformed_df
+
+
 def read(table, connection):
     """
     Fetches all rows from a specified table in a PostgreSQL database.

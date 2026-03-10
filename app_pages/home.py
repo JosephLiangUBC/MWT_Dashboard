@@ -3,7 +3,7 @@ import streamlit as st
 import io
 import plotly.graph_objects as go
 import numpy as np
-from utils.helpers import convert_df, read
+from utils.helpers import convert_df, read, transform_tap_tstat_heatmap
 from config import config
 import matplotlib.pyplot as plt
 
@@ -155,10 +155,12 @@ def render(data):
 
 
     # Create a heatmap
+    heatmap_data = transform_tap_tstat_heatmap(data["tap_tstat_data"]).set_index("Gene")
+
     fig = go.Figure(data=go.Heatmap(
-        z=data["tap_tstat_data"].set_index('Gene').values,
-        x=data["tap_tstat_data"].set_index('Gene').columns,
-        y=data["tap_tstat_data"].set_index('Gene').index,
+        z=heatmap_data.values,
+        x=heatmap_data.columns,
+        y=heatmap_data.index,
         colorscale='RdBu',
         zmin=-3,
         zmax=3,
@@ -188,7 +190,6 @@ def render(data):
 
     # recreate in matplotlib to save static image of the plot
     fig2, ax = plt.subplots(figsize=(12, 16))
-    heatmap_data = data["tap_tstat_data"].set_index("Gene")
     cax = ax.imshow(
         heatmap_data.values,
         cmap='RdBu',
