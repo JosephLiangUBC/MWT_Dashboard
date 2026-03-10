@@ -93,6 +93,9 @@ def render(data):
         xaxis=dict(showticklabels=True, tickfont=dict(size=8))
     )
 
+    fig.update_xaxes(automargin=True)
+    fig.update_yaxes(automargin=True)
+
     fig_mpl, ax = plt.subplots(figsize=(9, 0.2 * len(allele_list)))
 
     heatmap_data = tap_tstat_allele_selected.set_index('dataset')

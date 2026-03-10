@@ -69,7 +69,7 @@ def render(data):
     sns.set_context('notebook', font_scale=1)
     fig, ax = plt.subplots(figsize=(5, 10))
     ax = sns.barplot(x="T_score", # <- Here we use seaborn as our graphing package.
-                    y="Metric", orient='h',
+                    y="Metric", orient='h', hue="Metric", legend=False,
                     data=allele_profile_data[allele_profile_data.dataset == f"{allele_option}"],
                     palette=data["metric_palette"]).set_title(f"{allele_option}")
     # plt.xticks(rotation=90)

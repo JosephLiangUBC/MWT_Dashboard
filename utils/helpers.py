@@ -83,28 +83,30 @@ def aggregate_unique_values_MSD(df, by):
     agg_cols = [col for col in df.columns if col not in by + ['Screen']]
 
     # Aggregate the columns using a weighted average
-    grouped = df.groupby(by).apply(lambda x: pd.Series({
-        col: (x[col] * x[col.replace('-mean', '-count')]).sum() / x[col.replace('-mean', '-count')].sum()
-        if '-mean' in col
-        else np.sqrt((x[col] ** 2 * x[col.replace('-sem', '-count')]).sum() / x[col.replace('-sem', '-count')].sum())
-        if '-sem' in col
-        else x[col].sum()
-        if '-count' in col
-        else np.nan
-        for col in agg_cols
-    })).reset_index()
+    with np.errstate(divide='ignore', invalid='ignore'):
+        grouped = df.groupby(by).apply(lambda x: pd.Series({
+            col: (x[col] * x[col.replace('-mean', '-count').infer_objects(copy=False)]).sum() / x[col.replace('-mean', '-count').infer_objects(copy=False)].sum()
+            if '-mean' in col
+            else np.sqrt((x[col] ** 2 * x[col.replace('-sem', '-count').infer_objects(copy=False)]).sum() / x[col.replace('-sem', '-count').infer_objects(copy=False)].sum())
+            if '-sem' in col
+            else x[col].sum()
+            if '-count' in col
+            else np.nan
+            for col in agg_cols
+        })).reset_index()
 
     # Calculate new confidence intervals
-    for col in grouped.columns:
-        if '-mean' in col:
-            mean_col = col
-            sem_col = col.replace('-mean', '-sem')
-            count_col = col.replace('-mean', '-count')
-            ci95_lo_col = col.replace('-mean', '-ci95_lo')
-            ci95_hi_col = col.replace('-mean', '-ci95_hi')
+    with np.errstate(divide='ignore', invalid='ignore'):
+        for col in grouped.columns:
+            if '-mean' in col:
+                mean_col = col
+                sem_col = col.replace('-mean', '-sem').infer_objects(copy=False)
+                count_col = col.replace('-mean', '-count').infer_objects(copy=False)
+                ci95_lo_col = col.replace('-mean', '-ci95_lo').infer_objects(copy=False)
+                ci95_hi_col = col.replace('-mean', '-ci95_hi').infer_objects(copy=False)
 
-            grouped[ci95_lo_col] = grouped[mean_col] - 1.96 * grouped[sem_col] / np.sqrt(grouped[count_col])
-            grouped[ci95_hi_col] = grouped[mean_col] + 1.96 * grouped[sem_col] / np.sqrt(grouped[count_col])
+                grouped[ci95_lo_col] = grouped[mean_col] - 1.96 * grouped[sem_col] / np.sqrt(grouped[count_col])
+                grouped[ci95_hi_col] = grouped[mean_col] + 1.96 * grouped[sem_col] / np.sqrt(grouped[count_col])
 
     # Aggregate the Screen column into a list
     grouped['Screen'] = df.groupby(by)['Screen'].apply(lambda x: list(set(x))).reset_index(drop=True)

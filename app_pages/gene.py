@@ -52,7 +52,7 @@ def render(data):
     sns.set_context('notebook', font_scale=1)
     fig, ax = plt.subplots(figsize=(5, 10))
     ax = sns.barplot(x="T_score",
-                     y="Metric", orient='h',
+                     y="Metric", orient='h', hue="Metric", legend=False,
                      data=data["gene_profile_data"][data["gene_profile_data"].Gene == f"{gene_option}"],
                      palette=data["metric_palette"]).set_title(f"{gene_option}")
     # plt.xticks(rotation=90)

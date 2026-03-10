@@ -77,6 +77,8 @@ def render(data):
         yaxis=dict(tickangle=0),
         xaxis=dict(showticklabels=True, tickfont=dict(size=8))
     )
+    fig.update_xaxes(automargin=True)
+    fig.update_yaxes(automargin=True)
 
     fig_mpl, ax = plt.subplots(figsize=(9, 0.2 * len(gene_multiple)))
 
