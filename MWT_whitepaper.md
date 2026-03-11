@@ -1,378 +1,514 @@
 # Project Description
 
 ## Project Objective
-This 2-part project aims to accomplish two main goals: 
-1. streamline the processing and storage of MWT data (currently only experiments on 10s ISI paradigm).
-2. create an easy-to-use and accessible data dashboard for MWT data.
 
-# Part 1: Data processing and uploading to server
-This part of the project is accomplished by going through the 4 jupyter notebook files names steps 1 through 4. For the most part, required user input is minimal (but easy to perform where it is required), and the notebooks are designed to be intuitive for the non-initiated to follow. For the most part, going through the steps by running each cell one after the other should achieve success. This step is designed to run on local machines that have been set up with Python and Java SDK 8u331. 
+This repository supports two connected goals:
 
-## Step 1: Choreography Extraction through 
+1. standardize the processing, summarization, and storage of Multi-Worm Tracker (MWT) data, currently focused on the 10 s inter-stimulus interval (ISI) habituation paradigm
+2. provide an accessible Streamlit dashboard for exploring genotype-phenotype relationships across the processed dataset
+
+As of **March 11, 2026**, this repository is both a data-processing workspace and the source for the current MWT dashboard.
+
+# Part 1: Data Processing and Uploading to Server
+
+The processing workflow is organized around four Jupyter notebooks:
+
+- `Step1_Choreography_script.ipynb`
+- `Step2_Tap_Screen_Response_Data_Analysis.ipynb`
+- `Step3_Tap_Baseline_Data_Analyses.ipynb`
+- `Step4_data_processing_for_db.ipynb`
+
+These notebooks are intended to be run locally in sequence. User input is limited to file selection, screen naming, and a small number of experiment-specific parameters.
+
+## Environment Requirements
+
+- Python 3.11 environment from `requirements.txt` or `environment.yml`
+- Java SDK 8u331 for `Chore.jar`
+- access to the target PostgreSQL database for the final upload step
+
+## Step 1: Choreography Extraction
 
 ### Objective
 
-The objective of Step 1 is to extract and organize worm movement sequences from Multi Worm Tracker (MWT) data in preparation for tap response modeling. This code runs a Java-based processing tool (`Chore.jar`, which is included in this Github repository) on raw MWT experiment files to extract behavioral data and generate standard output files in .dat, .trv and .txt formats for downstream analysis. In order for this to work, you'll need to have [Java SDK 8u331](https://www.oracle.com/java/technologies/javase/8u331-relnotes.html).
+Step 1 extracts and organizes worm movement sequences from raw MWT experiments. It runs the Java-based `Chore.jar` tool included in this repository and produces the files needed for downstream tap and baseline analysis.
 
-### Data Sources/Inputs
+### Data Sources / Inputs
 
-MWT data organized by screens. Folders must follow the naming convention below for the code to process them accurately:
+Raw MWT data should be arranged by screen using a consistent directory structure:
 
-- screen_name
-    - gene_allele-1
-        - [plate-1].zip
-        - [plate-2].zip
-        - ...
-    - gene_allele-2
-        - [plate-1].zip
-        - [plate-2].zip
-        - ...
-    - ...
+- `screen_name/`
+  - `gene_allele-1/`
+    - `[plate-1].zip`
+    - `[plate-2].zip`
+  - `gene_allele-2/`
+    - `[plate-1].zip`
+    - `[plate-2].zip`
 
 <img src="img/input_folder_tree.png" alt="Example Folder Structure" width="50%">
 
 ### Outputs
 
-This process generates the following files in the same folder (strain > gene_allele > date):
-- `.dat` files
-- `.trv` files
-- `.txt` files
+For each processed experiment, Step 1 generates:
+
+- `.dat`
+- `.trv`
+- `.txt`
 
 ### Processing Workflow
 
 #### 1. Read folder
 
-- Use the widget to select the folder
+- use the file chooser widget to select the raw input folder
 
 #### 2. Run `Chore.jar`
 
-- Run the Choreography script that extracts data to make the .dat, .trv and .txt files
+- execute the Java-based choreography extraction step
+- generate per-experiment movement output files for later notebooks
 
-
-## Step 2: Tap Response Data Extraction 
+## Step 2: Tap Response Data Extraction
 
 ### Objective
 
-The objective of Step 2 is to extract tap-induced behavioral responses from worm trajectories and normalize them across experiments. This step enables consistent comparison of movement and posture metrics across strains, screens, and alleles.
+Step 2 extracts tap-induced response measures from `.trv` files and standardizes them across strains and screens so they can be compared downstream.
 
 ### Data Sources / Inputs
 
-- After running the relevant cells, a widget will be displayed requiring user input
-- Input is the **screen folder processed in Step 1**, which contains `.trv` files.
-- Users must select a screen (e.g., `PD_Screen`, `Neuron_Genes_Screen`, etc.). 
+- the screen folder processed in Step 1
+- `.trv` files for each experiment
+- a selected screen label such as `PD_Screen`, `Neuron_Genes_Screen`, or another configured screen category
 
-### Outputs
+### Output
 
-- `tap_output`: Processed CSV files of DataFrames containing extracted tap data.
+- `tap_output`: processed CSV output containing tap-aligned response data
 
 ### Processing Workflow
 
 #### 1. Read folder
 
-- Use the widget to select the folder and corresponding screen name. If an appropriate screen label does not exist, then generate a new label by adding a new string to the list.
+- select the processed screen folder
+- assign or confirm the screen label used for downstream grouping
 
-<img src="img/file_chooser.gif" alt="File Chooser Widget in Step 3" width="60%">
+<img src="img/file_chooser.gif" alt="File Chooser Widget in Step 2" width="60%">
 
-#### 2. Determine Tap Numbers and Tolerances (user input required)
+#### 2. Determine tap numbers and tolerances
 
-- User-defined inputs:
-You'll need to check the `.trv` files (where each row is a tap, and the first column is the time) to find out this information:
-  - `number_of_taps`: Number of rows in your `.trv` files. Usually 30. In more recent experiments, a 31st tap for spontaneous recovery may be delivered.
-  - `ISI`: Interstimulus interval The difference in time between each row. (typically 10 seconds).
-  - `first_tap`: The number in the first column of the first row. Frame at which the first tap occurs (commonly 600). This must be verified in `.trv` files.
+User-defined inputs are derived from the `.trv` files:
 
-- The script dynamically computes frame indices for each tap and assigns a frame tolerance around each tap to allow for timing jitter.  
-  For example, if the first tap is at frame 600:
-  - Tap 1, tolerance: (598, 602)  
-  - Tap 2, tolerance: (608, 612)  
-  - Tap 3, tolerance: (618, 622)  
-  ...
-  - Tap 31 is manually adjusted and added where necessary.
+- `number_of_taps`: usually 30; some experiments include a 31st tap for spontaneous recovery
+- `ISI`: usually 10 seconds
+- `first_tap`: commonly frame 600, but should be verified from the data
 
+The notebook then computes tolerance windows around each expected tap time. If the first tap is at frame 600, examples are:
 
-#### 3. Process `.trv` Files by Strain
+- tap 1: `(598, 602)`
+- tap 2: `(608, 612)`
+- tap 3: `(618, 622)`
 
-For each strain:
-- Extract metadata such as `Date` and `Screen` from file paths.
-- Rename fixed-index columns to meaningful names like `time`, `stim_rev`, `no_rev`, `dist`, `dura`, etc.
-- Create new columns:
-  - `prob` = `stim_rev` / (`stim_rev` + `no_rev`)
-  - `speed` = `dist` / `dura`
-- Assigns taps based on tolerance windows.
+Later experiments may include explicit handling for tap 31.
 
-#### 4. Merge All DataFrames
+#### 3. Process `.trv` files by strain
 
-- Concatenate all strain DataFrames.
-- Split genotype into `Gene` and `Allele`. If allele is missing (e.g., N2), default to 'N2'.
-- Drop missing/NA values.
+For each strain, the notebook:
+
+- extracts metadata such as `Date` and `Screen`
+- renames fixed-position columns to readable fields
+- creates derived measures such as response probability and response speed
+- assigns rows to taps using the computed timing tolerances
+
+#### 4. Merge all dataframes
+
+- concatenate strain-level outputs
+- split genotype labels into `Gene` and `Allele`
+- default missing allele labels such as wild type to `N2`
+- remove invalid or empty rows
 
 #### 5. Save as CSV
 
-- Export the merged tap response DataFrame as a CSV file.
+- export the merged tap-response table
 
-
-## Step 3: Baseline and PSA Data Extraction 
-
-### Objective 
-
-The objective of Step 3 is to extract and summarize both **baseline behavior** (before any stimulus) and **post-stimulus tap responses** for each worm across strains and experiments. The extracted features are used to detect deviations in behavior across genotypes and support downstream modeling and visualization.
-
-### Data Sources / Inputs
-
-- This step takes as input the **screen folder processed in Step 1**, which contains `.dat` files for each experiment.
-- Screen selection (e.g., PD_Screen, Neuron_Genes_Screen, etc.).
-
-- Input is the **screen folder processed in Step 1**, which contains `.dat` files.
-- Users must select a screen (e.g., `PD_Screen`, `Neuron_Genes_Screen`, etc.).
-
-### Output
-
-Two `.csv` files are generated:
-
-1. `{Screen}_baseline_output.csv`  
-   Contains worm behavior between 490s and 590s (pre-stimulus baseline).
-
-2. `{Screen}_post_stimulus.csv`  
-   Aggregates metrics aligned to each tap, summarizing behavior in post-stimulus windows.
-
-
-### Processing Workflow
-
-#### 1. Read folder 
-
-- Select the screen folder and corresponding screen name.
-
-<img src="img/file_chooser_step3.png" alt="File Chooser Wodget in Step 3" width="60%">
-
-
-#### 2. Define `bin`, Tap numbers and Tolerances for post-stimuluse arousal (user input required)
-
-- Define time bins (typically 1s intervals from 0–1200s). Important for x-axis and y-axis view range for graphing.
-- User-defined inputs:
-  - `number_of_taps`: Usually 30.
-  - `ISI`: Interstimulus interval (typically 10 seconds).
-  - `first_tap`: Frame at which the first tap occurs (commonly 600). This must be verified in `.trv` files.
-- The script dynamically computes PSA window which is 7–9.5s after each tap. E.g., if first tap is at 600s:
-    - Tap 1, tolerance: (607.0, 609.5)
-    - Tap 2, tolerance: (617.0, 619.5)
-    - Tap 3, tolerance: (627.0, 629.5)
-    ...
-
-#### 3. Process Data by strain (.dat files)
- 
-For each Strain:
-- Extract metadata such as `Plate_id`, `Date`, and `Screen` from file paths.
-- Rename columns to standard names.
-
-#### 4. Merge All Strains
-
-- Concatenate all cleaned DataFrames.
-- Extract `Gene` and `Allele` from `dataset`.
-
-#### 5. Create Baseline Dataset
-
-- Filter rows where `490.0 <= Time <= 590.0`.
-- Drop irrelevant columns.
-
-#### 6. Create Post-Stimulus Dataset
-
-- Filter rows corresponding to post-stimulus time windows i.e., time frames 7s - 9.5s after a tap.
-- Group by metadata and tap number (['Experiment', 'Screen', 'Date', 'Plate_id', 'Gene', 'Allele', 'dataset', 'taps'])
-- Aggregate metrics using mean:
-  - Speed, Bias, Angular Speed, Aspect Ratio, Kink, Curve, Crab
-  - Time column is aggregated using "min" instead of "mean"
-
-#### 7. Save as CSV
-
-- Export both baseline and post-stimulus CSVs.
-
-
-## Step 4: Tstat analysis and Database Export
+## Step 3: Baseline and PSA Data Extraction
 
 ### Objective
 
-The objective of Step 4 is to prepare and integrate behavioral features into a centralized PostgreSQL database. This includes merging baseline, tap, and PSA data; performing feature engineering; running statistical analyses (t-tests, MSD); and exporting final datasets.
+Step 3 extracts both:
+
+- pre-stimulus baseline behavior
+- post-stimulus arousal (PSA) measurements aligned to taps
+
+These outputs support both statistical summaries and dashboard visualizations.
 
 ### Data Sources / Inputs
 
-- Baseline CSV
-- Tap CSV
-- PSA CSV
-- Screen selection (e.g., `PD_Screen`, `Neuron_Genes_Screen`, etc.).
+- the Step 1 screen folder containing `.dat` files
+- selected screen label
 
 ### Outputs
 
-- Merged tap + PSA data
-- Baseline data (unchanged from Step3)
-- T-stat by gene 
-- T-stat by allele
-- MSD by gene
-- MSD by allele
-- Summarized PSA metrics
+Two CSV files are generated:
+
+1. `{Screen}_baseline_output.csv`
+2. `{Screen}_post_stimulus.csv`
 
 ### Processing Workflow
 
-#### 1. Read folder 
+#### 1. Read folder
 
-- Select the screen folder and corresponding screen name.
-- Read baseline, tap, and PSA files.
+- select the screen folder and corresponding screen name
 
-<img src="img/file_chooser_step4.png" alt="File Chooser Wodget in Step 4" width="60%">
+<img src="img/file_chooser_step3.png" alt="File Chooser Widget in Step 3" width="60%">
 
-#### 2. Feature Engineering on Tap Data
+#### 2. Define bins, tap numbers, and PSA windows
 
-- Add new features for `dura`, `prob` and `speed` like:
-    - `init`: 1st tap
-    - `recov`: 31st tap
-    - `final`: mean of taps 28–30
-    - `habit`: `init` - `final`
-    - `recovery`: 100 * (`recov`- `init`) / `init`
-    - `memory_retention_dura`: `recov`- `final`
-    
-#### 3. Summarize PSA Data
-- Reduce 31-tap PSA data per experiment to one row using aggregation.
-- Group by metadata (['Experiment', 'Plate_id', 'Date', 'Screen', 'dataset', 'Gene', 'Allele'])
-- Add new features for [`PSA Speed`, `PSA Bias`, `PSA Angular Speed`, `PSA Aspect Ratio`, `PSA Kink`, `PSA Curve`, `PSA Crab`]:
-    - `initial`: 1st tap
-    - `recovery`: 31st tap
-    - `final`: mean of taps 28–30
-    - `peak`: maximum value of the specified metric
-    - `peak_tap`: tap number where the max value is observed
-    - `mean`: average of the values across all 31 taps 
-    - `sensitization`: `peak` - `initial`
-    - `habituation`: `peak` - `final` 
-    - `spontaneous_recovery`:
-        - 100 * (`initial` - `recovery`)/`initial` if metric is `PSA Speed`, `PSA Bias`, `PSA Angular Speed`
-        - 100 * (`recovery` - `initial`)/`initial` if metric is `PSA Aspect Ratio`, `PSA Kink`, `PSA Curve`, `PSA Crab`
-    - `memory_retention`:
-        - `final` - `recovery` if metric is `PSA Speed`, `PSA Bias`, `PSA Angular Speed`
-        - `recovery` - `final` if metric is `PSA Aspect Ratio`, `PSA Kink`, `PSA Curve`, `PSA Crab`
-   
-#### 4. Aggregate by Metadata
+User-defined inputs include:
 
-- Create grouped DataFrames by `gene` and `allele`, conditioned on "baseline", "tap", or "psa".
-- Group by metadata ['Plate_id','Date','Screen','dataset','Gene','Allele']
+- `number_of_taps`
+- `ISI`
+- `first_tap`
 
-#### 5. Mean Sample Distance (MSD) Calculation
+The notebook computes the PSA window after each tap. The current workflow uses the post-stimulus window approximately **7.0 to 9.5 seconds** after each tap.
 
-- Each phenotype is grouped by Gene or allele (`dataset` column).
-- Compute mean, SEM, and 95% CI for each metric by gene/allele.
-- Normalize against N2 control.
-- Merge across baseline, tap, and PSA.
+If the first tap occurs at 600 s, example PSA windows are:
 
-#### 6. T-Test Analysis
+- tap 1: `(607.0, 609.5)`
+- tap 2: `(617.0, 619.5)`
+- tap 3: `(627.0, 629.5)`
 
-- Two-sample t-tests between each strain and N2.
-- Run for all metrics in baseline, tap, and PSA datasets.
-- Store results separately for genes and alleles.
+#### 3. Process `.dat` files by strain
 
-#### 7. Merge & Final Export
+For each strain, the notebook:
 
-- Combine t-test results across baseline + tap + PSA.
-- Clean, rename, reorder and format final outputs
+- extracts metadata such as `Plate_id`, `Date`, and `Screen`
+- renames columns to the expected standard format
+- preserves the metadata needed for grouping and later upload
 
-#### 8. Database Export
+#### 4. Merge all strains
 
-- Write structured datasets to PostgreSQL.
-- Requires local `database.ini` for credentials.
+- concatenate cleaned strain-level data
+- extract `Gene` and `Allele` from `dataset`
+
+#### 5. Create the baseline dataset
+
+- filter the pre-stimulus interval, currently `490.0 <= Time <= 590.0`
+- remove irrelevant columns
+
+#### 6. Create the PSA dataset
+
+- filter rows in the PSA windows after each tap
+- group by experiment metadata and tap number
+- summarize metrics such as:
+  - `Speed`
+  - `Bias`
+  - `Angular Speed`
+  - `Aspect Ratio`
+  - `Kink`
+  - `Curve`
+  - `Crab`
+
+The PSA output is later summarized again in Step 4 into per-strain metrics such as initial, final, peak, average, sensitization, habituation, spontaneous recovery, and memory retention.
+
+#### 7. Save as CSV
+
+- export baseline and post-stimulus outputs
+
+## Step 4: Statistical Summaries and Database Export
+
+### Objective
+
+Step 4 merges baseline, tap, and PSA outputs into the final backend-ready data products used by the dashboard. This step performs feature engineering, statistical comparison, formatting, and upload preparation.
+
+### Data Sources / Inputs
+
+- baseline CSV from Step 3
+- tap CSV from Step 2
+- PSA CSV from Step 3
+- selected screen label
+
+### Outputs
+
+- merged tap-response data
+- baseline data
+- gene-level t-stat summary data
+- allele-level t-stat summary data
+- gene-level MSD summary data
+- allele-level MSD summary data
+- summarized PSA metrics
+
+### Processing Workflow
+
+#### 1. Read inputs
+
+- select the processed folder and screen label
+- read baseline, tap, and PSA files
+
+<img src="img/file_chooser_step4.png" alt="File Chooser Widget in Step 4" width="60%">
+
+#### 2. Feature engineering on tap data
+
+Tap-derived response metrics are summarized into features such as:
+
+- `Initial`
+- `Final`
+- `Recovery`
+- `Habituation`
+- `Spontaneous Recovery`
+- `Memory Retention`
+
+The exact formulas depend on the metric family and whether the experiment includes tap 31.
+
+#### 3. Summarize PSA data
+
+PSA outputs are aggregated to one row per experiment / strain grouping. The current repository includes PSA summaries for:
+
+- `PSA Speed`
+- `PSA Bias`
+- `PSA Angular Speed`
+- `PSA Aspect Ratio`
+- `PSA Kink`
+- `PSA Curve`
+- `PSA Crab`
+
+The Step 4 workflow now supports summary columns used throughout the dashboard and backend, including:
+
+- `Initial PSA ...`
+- `Final PSA ...`
+- `Peak PSA ...`
+- `Peak Tap Number of PSA ...`
+- `Average PSA ...`
+- `Sensitization of PSA ...`
+- `Habituation of PSA ...`
+- `Spontaneous Recovery of PSA ...`
+- `Memory Retention of PSA ...`
+
+#### 4. Aggregate by metadata
+
+Grouped dataframes are created for gene-level and allele-level views, preserving screen-specific grouping and metadata.
+
+#### 5. Mean sample distance (MSD) calculation
+
+For each phenotype:
+
+- group by `Gene` or allele (`dataset`)
+- compute mean, SEM, and 95% confidence intervals
+- normalize relative to N2 controls within screen
+- combine baseline, tap, and PSA-derived features
+
+#### 6. T-stat style analysis
+
+The dashboard backend currently uses gene-level and allele-level normalized summary tables derived from strain-vs-N2 comparisons across baseline, tap, and PSA phenotypes.
+
+Recent repository updates also introduced support for expanded heatmap table formatting, including updated handling of t-score and corrected p-value outputs in 2026 backend changes.
+
+#### 7. Final formatting and export
+
+- merge baseline, tap, and PSA summaries into final backend tables
+- clean column names
+- reorder metadata columns to the front
+- prepare outputs for PostgreSQL upload
+
+#### 8. Database export
+
+- upload the structured tables to PostgreSQL
+
+Historical testing notebooks in the repository reference `database.ini`, but the active dashboard now reads credentials through Streamlit secrets rather than a checked-in config file.
 
 # Part 2: Data Dashboard
 
-Link: [RankinLab - MWT dashboard](https://rankinlab-mwtdashboard.streamlit.app/)
+Public app link:
+[RankinLab - MWT dashboard](https://rankinlab-mwtdashboard.streamlit.app/)
 
 ## Objective
 
- The MWT Dashboard is an interactive Streamlit application designed to let users explore processed Multi-Worm Tracker data through visualizations of behavioral metrics across genes, alleles and experimental conditions. All visualizations can be filtered, explored interactively, and downloaded for offline use.
+The MWT Dashboard is a Streamlit application for exploring processed MWT data through downloadable visualizations and tables. It is intended to reduce the barrier to inspecting large multi-screen datasets and to support comparison across genes, alleles, and phenotypes.
+
+The active app entrypoint in this repository is:
+
+- `MWT_dashboard.py`
+
+## Authentication and Backend Access
+
+The current app is password-gated and expects Streamlit secrets for both login and database access.
+
+The active secrets are read from `.streamlit/secrets.toml` and include:
+
+- `password`
+- `psql_user`
+- `psql_passwword`
+
+The dashboard loads data from a PostgreSQL backend using `utils/data_loader.py`.
 
 ## Data Sources / Inputs
 
-- Preprocessed datasets from Part 1 Step 4 that were uploaded to the database are accessed here. The following specific datasets are used in the dashboard:
-    - `tap_output`: Merged tap + PSA data
-    - `tap_tstat_data`: T-stat by gene 
-    - `tap_tstat_allele`: T-stat by allele
-    - `gene_MSD`: MSD by gene
-    - `allele_MSD`: MSD by allele
-    - `gene_profile_data`: `tap_tstat_data` pivoted by `Gene` and `Screen` 
-    - `allele_profile_data`: `tap_tstat_allele` pivoted by `dataset` and `Screen`
-    - `psa_output`: Summarized PSA metrics
+The dashboard reads the following backend datasets:
+
+- `tap_output`: merged tap-response data used for response curves and selectors
+- `tap_tstat_data`: gene-level normalized summary table
+- `tap_tstat_allele`: allele-level normalized summary table
+- `gene_MSD`: gene-level mean sample distance table
+- `allele_MSD`: allele-level mean sample distance table
+- `gene_profile_data`: melted gene-level profile table generated in-app from backend data
+- `allele_profile_data`: melted allele-level profile table generated in-app from backend data
+- `psa_output`: summarized PSA dataset
+- `id_data`: WormBase / Alliance Genome identifiers used for external links
 
 ## Outputs
 
-- Interactive plots.
-- Downloadable graphs.
+- interactive plots
+- downloadable PNG exports
+- downloadable CSV exports
+
+## Current Dashboard Pages
+
+The current dashboard includes the following pages:
+
+- `Home - Getting Started`
+- `Data at a Glance`
+- `Gene-specific Data`
+- `Allele-specific Data`
+- `Custom Gene Selection`
+- `Custom Allele Selection`
+- `Post Stimulus Data`
+- `Gene Clustering`
+- `Citations`
 
 ## Functionality
 
-### Home Page – Data at a Glance
+### Home - Getting Started
 
-Provides a quick overview of the dataset.
+This page provides:
 
-- **Single Phenotype Plot**
-Shows the sample mean distance of each gene from N2 for a chosen phenotype. Vertical dashed line at 0 marks the N2 reference.
+- project background
+- a description of the habituation dataset
+- usage guidance for selecting datasets and navigating the dashboard
 
-- **Comprehensive Heatmap**
-Displays a matrix of MSD dataset values for all genes across all phenotypes.
+### Data at a Glance
 
+Provides a quick overview of the currently selected dataset subset.
+
+- **Single phenotype plot**
+  - shows gene-level sample mean distance relative to N2 for one selected phenotype
+  - includes 95% confidence intervals
+
+- **Comprehensive heatmap**
+  - displays a whole-dataset heatmap of normalized phenotype summaries across genes
+
+- **Baseline export**
+  - allows the user to trigger and download raw baseline data for the selected datasets
 
 ### Gene-specific Data
 
-Focuses on a single gene at a time, allowing users to examine its phenotype profile, ranking and habituation patterns compared to N2.
+Focuses on one gene at a time.
 
-- **Phenotypic Profile**  
-  Bar chart of normalized T-scores for all metrics for the selected gene. 
+- **Phenotypic profile**
+  - normalized profile across baseline, tap, and PSA-derived metrics
 
-- **Rank in Phenotype**:
-  Plot of sample mean distance for all genes for a chosen phenotype. N2 is shown in red, the selected gene in magenta, and others in gray. Vertical dashed line at 0 marks the N2 reference.
+- **Rank in phenotype**
+  - gene-level MSD comparison across all genes for one selected phenotype
+  - N2 is shown in red, the selected gene in magenta
 
-- **Habituation Curves of Response (tabs)**:
-  Point plots showing changes in response over 31 taps for multiple metrics (e.g., Probability, Duration, Speed, PSA metrics). Compares the selected gene to N2.
+- **Habituation curves of response**
+  - tap-by-tap comparisons for core response metrics and PSA-derived summaries
 
+- **External links**
+  - links to Alliance Genome when an identifier is available
 
 ### Allele-specific Data
 
-Focuses on a single gene–allele (“dataset”) and compares it to N2.
+Focuses on one allele (`dataset`) at a time.
 
-- **Phenotypic Profile**:
-  Bar chart of normalized T-scores for all metrics for the selected allele. 
+- **Phenotypic profile**
+  - normalized phenotype profile for the selected allele
 
-- **Rank in Phenotype**:
-  Plot of Sample Mean Distance (MSD) for all alleles for a chosen phenotype. N2 is shown in red, the selected allele in magenta, and others in gray. Vertical dashed line at 0 marks the N2 reference.
+- **Rank in phenotype**
+  - allele-level MSD comparison across all alleles for one selected phenotype
 
-- **Habituation Curves of Response (tabs)**:
-  Point plots showing changes in response over 31 taps for multiple metrics (e.g., Probability, Duration, Speed, PSA metrics). Compares the selected allele to N2.
+- **Habituation curves of response**
+  - tap-by-tap comparisons between the selected allele and N2
 
+- **External links**
+  - links to Alliance Genome and WormBase / allele resources when identifiers are available
 
-### Custom Gene Page
+### Custom Gene Selection
 
-Compare multiple genes at once. Pick any subset of genes (vs. N2) and view heatmaps, rankings, and habituation curves.
+Supports comparison of multiple genes against N2.
 
-- **Comprehensive Heatmap with selected genes**:
-  Heatmap of normalized t-scores across all phenotypes for the chosen genes.
+- **Comprehensive heatmap with selected genes**
+  - heatmap filtered to the selected genes
 
-- **Rank in Phenotype**:
-  Plot of Sample Mean Distance (MSD) for all genes, with 95% CI. N2 is shown in red, the selected allele in magenta, and others in gray. Vertical dashed line at 0 marks the N2 reference.
+- **Rank in phenotype**
+  - gene-level MSD plot with selected genes highlighted
 
-- **Habituation Curves of Response (tabs)**:
-  Point plots showing changes in response over 31 taps for multiple metrics (e.g., Probability, Duration, Speed, PSA metrics). Compares the selected genes to N2.
+- **Habituation curves of response**
+  - multi-gene tap-response comparison across selected metrics
 
-### Custom Allele Page
+- **Exports**
+  - PNG and CSV downloads for heatmaps and summary plots
 
-Compare multiple alleles at once. Pick any subset of alleles (vs. N2) and view heatmaps, rankings, and habituation curves.
+### Custom Allele Selection
 
-- **Comprehensive Heatmap with selected genes**:
-  Heatmap of normalized t-scores across all phenotypes for the chosen alleles.
+Supports comparison of multiple alleles against N2.
 
-- **Rank in Phenotype**:
-  Plot of Sample Mean Distance (MSD) for all alleles, with 95% CI. N2 is shown in red, the selected allele in magenta, and others in gray. Vertical dashed line at 0 marks the N2 reference.
+- **Comprehensive heatmap with selected alleles**
+  - heatmap filtered to selected alleles
 
-- **Habituation Curves of Response (tabs)**:
-  Point plots showing changes in response over 31 taps for multiple metrics (e.g., Probability, Duration, Speed, PSA metrics). Compares the selected alleles to N2.
+- **Rank in phenotype**
+  - allele-level MSD plot with selected alleles highlighted
 
+- **Habituation curves of response**
+  - multi-allele tap-response comparison across selected metrics
 
-### Post Stimulus Data Page
+- **Exports**
+  - PNG and CSV downloads for heatmaps and summary plots
 
-- **Full Post-Stimulus Arousal Response**:
-  Bar chart with all PSA summary metrics (e.g., Bias, Angular Speed, `Kink`, etc) by Genes.
+### Post Stimulus Data
 
+Provides direct access to the summarized PSA dataset.
 
-----
+- users can choose a PSA metric such as `Speed`, `Bias`, `Angular Speed`, `Kink`, `Crab`, `Aspect Ratio`, or `Curve`
+- users can choose a summary such as `Initial`, `Final`, `Recovery`, `Peak`, `Peak Tap Number`, `Average`, `Sensitization`, `Habituation`, `Spontaneous Recovery`, or `Memory Retention`
+- users can filter to selected genes
+- the page renders a bar chart summarizing the chosen PSA output
+
+### Gene Clustering
+
+This page was added after the initial whitepaper draft and is now part of the active dashboard.
+
+- uses the gene-level normalized summary table as input
+- preprocesses numeric and categorical fields
+- applies PCA, KMeans, and t-SNE
+- lets the user choose the number of clusters
+- renders an interactive scatterplot of clustered genes
+
+### Citations
+
+Lists the main MWT, screening, and online resource references used by the project.
+
+## Deployment Notes
+
+The repository now includes a `Dockerfile` that runs the dashboard on port `8502`.
+
+Example usage:
+
+```bash
+docker build -t mwt-dashboard .
+docker run --rm -p 8502:8502 mwt-dashboard
+```
+
+Any deployment method still requires valid Streamlit secrets for auth and database access.
+
+## Major Changes Since the Original 2025 Whitepaper Draft
+
+Since the first whitepaper draft in August 2025, the repository has evolved in several important ways:
+
+- the legacy dashboard script was replaced by the current `MWT_dashboard.py` app structure
+- password authentication was reimplemented through Streamlit session state
+- custom gene and custom allele comparison pages were added
+- PSA processing and dashboard support were significantly expanded
+- the dashboard gained a clustering page
+- download support was broadened across pages
+- backend loading moved further toward dynamic transformation in `utils/data_loader.py`
+- Docker support was added
+- 2026 backend changes updated heatmap and summary-table handling
+
+## Contact
+
+For bugs, issues, or feature requests, contact Joseph Liang at `joseph.liang@psych.ubc.ca`.
