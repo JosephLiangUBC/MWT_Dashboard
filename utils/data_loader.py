@@ -55,7 +55,8 @@ def fetch_data():
         dbname="mwtdata", 
         user=st.secrets["psql_user"], 
         password=st.secrets["psql_passwword"], 
-        host="rds-mwt-data.ctie02ksmcqc.ca-central-1.rds.amazonaws.com", 
+        # host="rds-mwt-data.ctie02ksmcqc.ca-central-1.rds.amazonaws.com", 
+        host="142.103.210.25",
         port=5432
         ) as connection:
         
