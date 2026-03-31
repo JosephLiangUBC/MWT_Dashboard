@@ -232,19 +232,20 @@ def render(data):
         key='dnldheatmapcsv'
     )
 
-    # Create a flag variable
-    read_data_flag = False
-    if st.button('Read and get Download button for Baseline Data',key='readbaseoutcsv'):
-        read_data_flag = True
-        st.warning("Please wait, another button will open up to download the data. This might take several minutes ")
+#  Button to download baseline data - this is commented out for now as the file is quite large and takes a long time to load, but can be uncommented if needed in the future.
+    # # Create a flag variable
+    # read_data_flag = False
+    # if st.button('Read and get Download button for Baseline Data',key='readbaseoutcsv'):
+    #     read_data_flag = True
+    #     st.warning("Please wait, another button will open up to download the data. This might take several minutes ")
 
-    # If the button is pressed, read the data and then show show button to download it
-    if read_data_flag:
-        baseline_output = read('tap_baseline_data')
-        baseline_output = baseline_output[baseline_output['Screen'].isin(data["datasets"])].replace(["N2_N2", "N2_XJ1"], "N2")
+    # # If the button is pressed, read the data and then show show button to download it
+    # if read_data_flag:
+    #     baseline_output = read('tap_baseline_data')
+    #     baseline_output = baseline_output[baseline_output['Screen'].isin(data["datasets"])].replace(["N2_N2", "N2_XJ1"], "N2")
 
-        st.download_button(label="Download raw baseline data",
-                        data=convert_df(baseline_output),
-                        file_name=f"raw_baseline_data.csv",
-                        mime="text/csv",
-                        key='dnldbaseoutcsv')
+    #     st.download_button(label="Download raw baseline data",
+    #                     data=convert_df(baseline_output),
+    #                     file_name=f"raw_baseline_data.csv",
+    #                     mime="text/csv",
+    #                     key='dnldbaseoutcsv')

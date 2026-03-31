@@ -7,7 +7,7 @@ def render(data=None):
     ### About the Data Dashboard:
                          
     #### Since the inception of the [Multi-Worm Tracker (MWT)](https://doi.org/10.1038/nmeth.1625), the Rankin Lab has collected vast amounts of data from a large number of strains across several experimental screens. Although the MWT is powerful in capturing rich multi-phenotype data from large populations of living animals simultaneously, the raw output is difficult to access for users unfamiliar with its inner workings. This tool addresses that barrier by processing and visualizing the appropriate datasets through an easy-to-use dashboard.
-    #### This dashboard, written by Joseph Liang (PhD Candidate), consolidates MWT data collected over the years following the standard 10-second ISI (30 stimuli at 10-second inter-stimulus intervals) habituation protocols. This dashboard provides access to a consolidated database containing genotype-phenotype relationships for 944 (and counting) genotypes, with easily accessible visualization tools to compare between strains, between experiments.
+    #### This dashboard consolidates MWT data collected over the years following the standard 10-second ISI (30 stimuli at 10-second inter-stimulus intervals) habituation protocols. This dashboard provides access to a consolidated database containing genotype-phenotype relationships for 944 (and counting) genotypes, with easily accessible visualization tools to compare between strains, between experiments.
 
     ### The Data
     #### Data in this dashboard comes from a variety of experiments conducted by students of the Rankin Lab. These studies examine *C. elegans* strains with (mainly loss-of-function) mutations in genes of interest.
