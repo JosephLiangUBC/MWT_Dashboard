@@ -4,6 +4,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 from utils.helpers import read, aggregate_unique_values, aggregate_unique_values_MSD, transform_tap_tstat_heatmap
+from ast import literal_eval
 
 
 def subtract_by_control(df, id_col, control_id="N2", screen_col="Screen", numeric_cols=None):
@@ -154,6 +155,8 @@ def fetch_data():
 
         # (2) Tstat: Baseline + Tap + PSA tstat data by Allele 
         tap_tstat_allele = read('tstat_allele_data', connection).drop(columns=["index"], errors="ignore") ##drop index column if it exists
+        for columns in tap_tstat_allele.columns not in ["index", "dataset", "Gene", "Allele", "Screen"]:
+            tap_tstat_allele[columns] = tap_tstat_allele[columns].apply(lambda x: literal_eval(x) if isinstance(x, str) else x)
         tap_tstat_allele = aggregate_unique_values(transform_tap_tstat_heatmap(tap_tstat_allele), ["dataset"]).explode('Screen').reset_index(drop=True)
         numeric_cols = tap_tstat_allele.select_dtypes(include=np.number).columns
         tap_tstat_allele[numeric_cols] = (tap_tstat_allele[numeric_cols] - tap_tstat_allele[numeric_cols].mean()) / tap_tstat_allele[numeric_cols].std()
@@ -165,7 +168,9 @@ def fetch_data():
 
 
         # (3) Tstat: Baseline + Tap + PSA tstat data by Gene
-        tap_tstat_data = read('tstat_gene_data', connection).drop
+        tap_tstat_data = read('tstat_gene_data', connection).drop(columns=["index"], errors="ignore") ##drop index column if it exists
+        for columns in tap_tstat_data.columns not in ["index", "Gene", "Screen"]:
+            tap_tstat_data[columns] = tap_tstat_data[columns].apply(lambda x: literal_eval(x) if isinstance(x, str) else x)
         tap_tstat_data = aggregate_unique_values(transform_tap_tstat_heatmap(tap_tstat_data), ["Gene"]).explode('Screen').reset_index(drop=True)
         numeric_cols = tap_tstat_data.select_dtypes(include=np.number).columns
         tap_tstat_data[numeric_cols] = (tap_tstat_data[numeric_cols] - tap_tstat_data[numeric_cols].mean()) / tap_tstat_data[numeric_cols].std()

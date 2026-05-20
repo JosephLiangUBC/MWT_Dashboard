@@ -13,6 +13,12 @@ def convert_df(df):
     """
     return df.to_csv(index=False).encode('utf-8')
 
+def literal_return(val):
+    try:
+        return literal_eval(val)
+    except (ValueError, SyntaxError) as e:
+        return val
+    
 
 def transform_tap_tstat_heatmap(df, pvalue_threshold=0.05, id_column=['dataset', 'Gene', 'Allele', 'Screen']):
     """
@@ -27,19 +33,20 @@ def transform_tap_tstat_heatmap(df, pvalue_threshold=0.05, id_column=['dataset',
 
     def _extract_value(cell):
         # raise ValueError(cell, type(cell))
-        try:
-            tuplecell = literal_eval(cell) if isinstance(cell, str) else cell
-        except:
-            ValueError(f"Could not parse cell value: {cell}")
-        if isinstance(tuplecell, (tuple, list, np.ndarray)):
-            if len(tuplecell) >= 2:
-                value, p_value = tuplecell[0], tuplecell[1]
+        # try:
+        #     tuplecell = literal_eval(cell) if isinstance(cell, str) else cell
+        # except:
+        #     ValueError(f"Could not parse cell value: {cell}")
+        # tuplecell = literal_eval(cell) if isinstance(cell, str) else cell
+        if isinstance(cell, (tuple, list, np.ndarray)):
+            if len(cell) >= 2:
+                value, p_value = cell[0], cell[1]
                 if pd.notna(p_value) and p_value >= pvalue_threshold:
                     return 0.0
                 return value
-            if len(tuplecell) == 1:
-                return tuplecell[0]
-        return tuplecell
+            if len(cell) == 1:
+                return cell[0]
+        return cell
 
     for column in value_columns:
         transformed_df[column] = transformed_df[column].apply(_extract_value)
