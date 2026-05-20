@@ -13,12 +13,12 @@ from utils.helpers import convert_df, read, transform_tap_tstat_heatmap
 def render(data):
     # multiple selection option for genes
     st.header('Custom Gene Selection')
-    st.session_state.setdefault('gene_select', [gene for gene in data["tap_output"]['Gene'].unique() if gene != 'N2'][0])
+    # st.session_state.setdefault('gene_select', [gene for gene in data["tap_output"]['Gene'].unique() if gene != 'N2'][0])
 
     gene_multiple = st.multiselect(
         label="Select Genes",
         options=sorted([gene for gene in data["tap_output"]['Gene'].unique() if gene != 'N2']),
-        default=st.session_state.gene_select,
+        # default=st.session_state.gene_select,
         placeholder="make a selection",
         help="select and de-select genes you want to analyze",
         key="geneselection")

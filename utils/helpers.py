@@ -13,7 +13,7 @@ def convert_df(df):
     return df.to_csv(index=False).encode('utf-8')
 
 
-def transform_tap_tstat_heatmap(df, pvalue_threshold=0.05, id_column='Gene'):
+def transform_tap_tstat_heatmap(df, pvalue_threshold=0.05, id_column=['dataset', 'Gene', 'Allele', 'Screen']):
     """
     Convert tuple-valued tap_tstat cells into plottable numeric values.
 
@@ -22,7 +22,7 @@ def transform_tap_tstat_heatmap(df, pvalue_threshold=0.05, id_column='Gene'):
     with zero for plotting.
     """
     transformed_df = df.copy()
-    value_columns = [col for col in transformed_df.columns if col != id_column]
+    value_columns = [col for col in transformed_df.columns if col not in id_column]
 
     def _extract_value(cell):
         if isinstance(cell, (tuple, list, np.ndarray)):

@@ -25,7 +25,8 @@ def render(data):
         'Select a gene',
         gene_list,
         key="geneselect",
-        index=default_index
+        index=None,
+        placeholder="Select a gene to view its phenotypic profile and habituation curves"
     )
     st.session_state.gene_select = gene_option
 

@@ -155,7 +155,8 @@ def render(data):
 
 
     # Create a heatmap
-    heatmap_data = transform_tap_tstat_heatmap(data["tap_tstat_data"]).set_index("Gene")
+    heatmap_data = data["tap_tstat_data"].set_index("Gene")
+    # heatmap_data = transform_tap_tstat_heatmap(data["tap_tstat_data"]).set_index("Gene")
 
     fig = go.Figure(data=go.Heatmap(
         z=heatmap_data.values,

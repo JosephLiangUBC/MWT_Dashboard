@@ -13,12 +13,12 @@ from utils.data_loader import fetch_baseline_data
 
 def render(data):
     st.header('Custom Allele Selection')
-    st.session_state.setdefault('allele_select', [allele for allele in data["tap_output"]['dataset'].unique() if allele != 'N2'][0])
+    # st.session_state.setdefault('allele_select', [allele for allele in data["tap_output"]['dataset'].unique() if allele != 'N2'][0])
 
     allele_multiple = st.multiselect(
         label="Select Allele",
         options=sorted([allele for allele in data["tap_output"]['dataset'].unique() if allele != 'N2']),
-        default=st.session_state.allele_select,
+        # default=st.session_state.allele_select,
         placeholder="make a selection",
         help="select and de-select alleles you want to analyze",
         key="alleleselection")

@@ -25,7 +25,8 @@ def render(data):
         'Select an allele',
         allele_list, 
         key="alleleselect",
-        index=default_index
+        index=None,
+        placeholder = "Select an allele to view its phenotypic profile and habituation curves",
     )
     st.session_state.allele_select = allele_option
 
