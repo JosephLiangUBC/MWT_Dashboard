@@ -155,7 +155,6 @@ def fetch_data():
 
         # (2) Tstat: Baseline + Tap + PSA tstat data by Allele 
         tap_tstat_allele = read('tstat_allele_data', connection).drop(columns=["index"], errors="ignore") ##drop index column if it exists
-        df[df.columns.difference(["T1_V6"])]
         tap_tstat_allele[tap_tstat_allele.columns.difference(["index", "dataset", "Gene", "Allele", "Screen"], sort=False)] = tap_tstat_allele[tap_tstat_allele.columns.difference(["index", "dataset", "Screen"], sort=False)].apply(lambda x: literal_eval(x) if isinstance(x, str) else x)
         tap_tstat_allele = aggregate_unique_values(transform_tap_tstat_heatmap(tap_tstat_allele), ["dataset"]).explode('Screen').reset_index(drop=True)
         numeric_cols = tap_tstat_allele.select_dtypes(include=np.number).columns
