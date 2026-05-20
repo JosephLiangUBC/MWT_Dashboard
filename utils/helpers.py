@@ -26,8 +26,11 @@ def transform_tap_tstat_heatmap(df, pvalue_threshold=0.05, id_column=['dataset',
     value_columns = [col for col in transformed_df.columns if col not in id_column]
 
     def _extract_value(cell):
-        raise ValueError(cell, type(cell))
-        tuplecell = literal_eval(cell) if isinstance(cell, str) else cell
+        # raise ValueError(cell, type(cell))
+        try:
+            tuplecell = literal_eval(cell) if isinstance(cell, str) else cell
+        except:
+            ValueError(f"Could not parse cell value: {cell}")
         if isinstance(tuplecell, (tuple, list, np.ndarray)):
             if len(tuplecell) >= 2:
                 value, p_value = tuplecell[0], tuplecell[1]
