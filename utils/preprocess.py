@@ -47,7 +47,7 @@ def select_datasets(data):
     data["tap_tstat_data"] = (
         data["tap_tstat_data"][data["tap_tstat_data"]["Screen"].isin(datasets)]
         # .dropna(subset=[col for col in dropna_features if col in data["tap_tstat_data"].columns])
-        .drop(columns=["Screen", "Peak Tap Number of PSA Angular Speed"])
+        .drop(columns=["Screen"])
         .replace(["N2_N2", "N2_XJ1"], "N2").infer_objects(copy=False)
     )
 
