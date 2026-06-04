@@ -221,7 +221,7 @@ def render(data):
     col7.subheader('Habituation Curves of Response')
     with col7:
 
-        metrics = [ "Probability", "Duration", "Speed",
+        metrics = [ "Probability", "Duration", "Speed", "1s Speed",
                    "PSA Speed", 
                 #    "PSA Interval Speed",
                     "PSA Bias", "PSA Kink", "PSA Crab",

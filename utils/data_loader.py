@@ -172,6 +172,7 @@ def fetch_data():
         # (1) Tap Response
         tap_output =  read('tap_response_data', connection).drop(columns=["index"], errors="ignore") ##drop index column if it exists
         tap_output["Strain"] = tap_output["Gene"] + " (" + tap_output["Allele"] + ")"
+        tap_output = tap_output.rename(columns={"prob": "Probability", "dist": "Distance", "dura": "Duration", "speed": "Speed", "1s_Speed": "1s Speed"})
         
 
         # (2) Tstat: Baseline + Tap + PSA tstat data by Allele 
