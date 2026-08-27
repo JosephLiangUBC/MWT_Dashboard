@@ -11,6 +11,7 @@ dependencies:
   - sqlalchemy
   - psycopg
   - pydantic
+  - statsmodels
   - pip:
       - kaleido
       - psycopg-binary
