@@ -171,8 +171,9 @@ def fetch_data():
 
         # (1) Tap Response
         tap_output =  read('tap_response_data', connection).drop(columns=["index"], errors="ignore") ##drop index column if it exists
-        tap_output["Strain"] = tap_output["Gene"] + " (" + tap_output["Allele"] + ")"
-        tap_output = tap_output.rename(columns={"prob": "Probability", "dist": "Distance", "dura": "Duration", "speed": "Speed", "1s_Speed": "1s Speed"})
+        tap_output = tap_output.rename(columns={"prob": "Probability", "dist": "Distance", "dura": "Duration", "speed": "Speed", "1s_Speed": "1s Speed", "Strain": "Strain_Name"})
+        tap_output["Genotype"] = tap_output["Gene"] + " (" + tap_output["Allele"] + ")"
+        
         
 
         # (2) Tstat: Baseline + Tap + PSA tstat data by Allele 
@@ -223,13 +224,13 @@ def fetch_data():
                                     value_name='T_score')
         
         
-        # (8) PSA summarised data
+        # # (8) PSA summarised data - deprecated
         psa_output =  read('psa_summarised_data', connection)
         
         # (9) ID data
         id_data = read('Gene_Allele_WormBaseID', connection) ##table in database with wormbase id's for all genes and alleles
 
-        # Melted/Profile data to be read after normalisation
+        # Melted/Profile data to be read after normalisation - deprecated
         # "gene_profile_data": aggregate_unique_values(read('gene_profile_data', connection),['Gene','Metric']).explode('Screen').reset_index(drop=True),
         # "allele_profile_data": aggregate_unique_values(read('allele_profile_data', connection),['dataset','Metric']).explode('Screen').reset_index(drop=True),
         
@@ -241,8 +242,8 @@ def fetch_data():
             "psa_output": psa_output,
             "tap_tstat_allele": tap_tstat_allele,
             "tap_tstat_data": tap_tstat_data,
-            "gene_profile_data": gene_profile_data,
-            "allele_profile_data": allele_profile_data,
+            # "gene_profile_data": gene_profile_data,
+            # "allele_profile_data": allele_profile_data,
             "gene_MSD": gene_MSD,
             "allele_MSD": allele_MSD,
             "id_data": id_data
